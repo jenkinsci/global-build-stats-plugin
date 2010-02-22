@@ -21,6 +21,6 @@ public class DateRange implements Comparable<DateRange> {
 	
 	@Override
 	public String toString() {
-		return new StringBuilder().append(SDF.format(d1.getTime())).append(" -- ").append(SDF.format(d2.getTime())).toString();
+		return new StringBuilder().append(SDF.format(d1.getTime())).append(" --> ").append(SDF.format(d2.getTime())).toString();
 	}
 }
