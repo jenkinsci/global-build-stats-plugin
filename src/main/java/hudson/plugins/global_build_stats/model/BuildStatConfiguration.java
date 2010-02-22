@@ -1,7 +1,5 @@
 package hudson.plugins.global_build_stats.model;
 
-import hudson.plugins.global_build_stats.JobFilter;
-
 import java.io.Serializable;
 
 public class BuildStatConfiguration implements Serializable {
@@ -10,11 +8,11 @@ public class BuildStatConfiguration implements Serializable {
 	private int buildStatWidth, buildStatHeight;
 	private int historicLength;
 	private HistoricScale historicScale;
-	private JobFilter targetJobs;
+	private String jobFilter;
 	private short shownBuildResults;
 	
 	public BuildStatConfiguration(String _buildStatTitle, int _buildStatWidth, int _buildStatHeight, 
-			int _historicLength, HistoricScale _historicScale, JobFilter _targetJobs, 
+			int _historicLength, HistoricScale _historicScale, String _jobFilter, 
 			boolean successShown, boolean failuresShown, boolean unstablesShown, 
 			boolean abortedShown, boolean notBuildsShown){
 		
@@ -23,7 +21,7 @@ public class BuildStatConfiguration implements Serializable {
 		this.buildStatWidth = _buildStatWidth;
 		this.historicLength = _historicLength;
 		this.historicScale = _historicScale;
-		this.targetJobs = _targetJobs;
+		this.jobFilter = _jobFilter;
 		
 		this.shownBuildResults = 0;
 		this.shownBuildResults |= successShown?BuildResult.SUCCESS.code:0;
@@ -69,15 +67,15 @@ public class BuildStatConfiguration implements Serializable {
 		return shownBuildResults;
 	}
 
-	public JobFilter getTargetJobs() {
-		return targetJobs;
-	}
-
 	public int getBuildStatWidth() {
 		return buildStatWidth;
 	}
 
 	public int getBuildStatHeight() {
 		return buildStatHeight;
+	}
+
+	public String getJobFilter() {
+		return jobFilter;
 	}
 }

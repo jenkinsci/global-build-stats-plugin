@@ -133,7 +133,7 @@ public class GlobalBuildStatsPlugin extends Plugin{
     			Integer.parseInt(req.getParameter("buildStatHeight")),
     			Integer.parseInt(req.getParameter("historicLength")), 
     			HistoricScale.valueOf(req.getParameter("historicScale")),
-    			JobFilter.ALL,
+    			req.getParameter("jobFilter"),
     			Boolean.parseBoolean(req.getParameter("successShown")),
     			Boolean.parseBoolean(req.getParameter("failuresShown")),
     			Boolean.parseBoolean(req.getParameter("unstablesShown")),
@@ -252,7 +252,7 @@ public class GlobalBuildStatsPlugin extends Plugin{
     private List<JobBuildResult> createFilteredAndSortedBuildResults(BuildStatConfiguration config){
     	List<JobBuildResult> filteredJobBuildResults = new ArrayList<JobBuildResult>();
         for(JobBuildResult r : jobBuildResults){
-        	if(config.getTargetJobs().isJobApplicable(r.getJobName())){
+        	if(JobFilterFactory.createJobFilter(config.getJobFilter()).isJobApplicable(r.getJobName())){
         		filteredJobBuildResults.add(r);
         	}
         }
