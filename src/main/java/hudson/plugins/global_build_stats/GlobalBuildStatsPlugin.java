@@ -122,12 +122,15 @@ public class GlobalBuildStatsPlugin extends Plugin{
     	List<JobBuildResult> filteredJobBuildResults = createFilteredAndSortedBuildResults(config);
         DataSetBuilder<String, DateRange> dsb = createDataSetBuilder(filteredJobBuildResults, config);
     	
-        ChartUtil.generateGraph(req, res, createChart(req, dsb.build(), config.getBuildStatTitle()), 500, 250);
+        ChartUtil.generateGraph(req, res, createChart(req, dsb.build(), config.getBuildStatTitle()), 
+        		config.getBuildStatWidth(), config.getBuildStatHeight());
     }
     
     private BuildStatConfiguration createBuildStatConfig(StaplerRequest req){
     	return new BuildStatConfiguration(
     			req.getParameter("title"), 
+    			Integer.parseInt(req.getParameter("buildStatWidth")),
+    			Integer.parseInt(req.getParameter("buildStatHeight")),
     			Integer.parseInt(req.getParameter("historicLength")), 
     			HistoricScale.valueOf(req.getParameter("historicScale")),
     			JobFilter.ALL,
@@ -169,6 +172,8 @@ public class GlobalBuildStatsPlugin extends Plugin{
         domainAxis.setLowerMargin(0.0);
         domainAxis.setUpperMargin(0.0);
         domainAxis.setCategoryMargin(0.0);
+        domainAxis.setMaximumCategoryLabelLines(2);
+        domainAxis.setMaximumCategoryLabelWidthRatio(2.0F);
 
         final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
@@ -176,9 +181,6 @@ public class GlobalBuildStatsPlugin extends Plugin{
         rangeAxis.setUpperBound(rangeAxis.getUpperBound()+1.0);
 
         final StackedAreaRenderer2 renderer = new StackedAreaRenderer2();
-        //final LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
-        //renderer.setStroke(new BasicStroke(4.0f));
-        //ColorPalette.apply(renderer);
         renderer.setSeriesPaint(0, Color.yellow);
         renderer.setSeriesPaint(1, Color.red);
         renderer.setSeriesPaint(2, Color.gray);

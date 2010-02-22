@@ -7,16 +7,20 @@ import java.io.Serializable;
 public class BuildStatConfiguration implements Serializable {
 
 	private String buildStatTitle;
+	private int buildStatWidth, buildStatHeight;
 	private int historicLength;
 	private HistoricScale historicScale;
 	private JobFilter targetJobs;
 	private short shownBuildResults;
 	
-	public BuildStatConfiguration(String _buildStatTitle, int _historicLength, HistoricScale _historicScale,
-			JobFilter _targetJobs, boolean successShown, boolean failuresShown, 
-			boolean unstablesShown, boolean abortedShown, boolean notBuildsShown){
+	public BuildStatConfiguration(String _buildStatTitle, int _buildStatWidth, int _buildStatHeight, 
+			int _historicLength, HistoricScale _historicScale, JobFilter _targetJobs, 
+			boolean successShown, boolean failuresShown, boolean unstablesShown, 
+			boolean abortedShown, boolean notBuildsShown){
 		
 		this.buildStatTitle = _buildStatTitle;
+		this.buildStatHeight = _buildStatHeight;
+		this.buildStatWidth = _buildStatWidth;
 		this.historicLength = _historicLength;
 		this.historicScale = _historicScale;
 		this.targetJobs = _targetJobs;
@@ -67,5 +71,13 @@ public class BuildStatConfiguration implements Serializable {
 
 	public JobFilter getTargetJobs() {
 		return targetJobs;
+	}
+
+	public int getBuildStatWidth() {
+		return buildStatWidth;
+	}
+
+	public int getBuildStatHeight() {
+		return buildStatHeight;
 	}
 }
