@@ -279,4 +279,8 @@ public class GlobalBuildStatsPlugin extends Plugin{
 	private void addBuild(AbstractBuild build){
     	jobBuildResults.add(JobBuildResultFactory.INSTANCE.createJobBuildResult(build));
 	}
+
+	public BuildStatConfiguration[] getBuildStatConfigs() {
+		return buildStatConfigs.toArray(new BuildStatConfiguration[]{});
+	}
 }
