@@ -126,6 +126,12 @@ public class GlobalBuildStatsPlugin extends Plugin{
         		config.getBuildStatWidth(), config.getBuildStatHeight());
     }
     
+    public void doAddBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    	this.buildStatConfigs.add(createBuildStatConfig(req));
+    	save();
+        res.forwardToPreviousPage(req);
+    }
+    
     private BuildStatConfiguration createBuildStatConfig(StaplerRequest req){
     	return new BuildStatConfiguration(
     			req.getParameter("title"), 
