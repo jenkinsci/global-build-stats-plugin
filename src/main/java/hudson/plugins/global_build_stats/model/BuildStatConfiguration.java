@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 public class BuildStatConfiguration implements Serializable {
 
+	private static final long serialVersionUID = -2962124739645932894L;
+	
 	private String buildStatTitle;
 	private int buildStatWidth, buildStatHeight;
 	private int historicLength;

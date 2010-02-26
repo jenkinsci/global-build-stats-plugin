@@ -6,6 +6,8 @@ import java.util.Calendar;
 
 public class JobBuildResult implements Serializable {
 
+	private static final long serialVersionUID = -4697202185011561179L;
+	
 	private BuildResult result;
 	private String jobName;
 	private int buildNumber;
