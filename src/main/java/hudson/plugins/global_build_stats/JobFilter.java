@@ -1,6 +1,5 @@
 package hudson.plugins.global_build_stats;
 
-import hudson.model.AbstractProject;
 
 public interface JobFilter {
 
@@ -8,7 +7,6 @@ public interface JobFilter {
 	
 	
 	public static final JobFilter ALL = new JobFilter() {
-		@Override
 		public boolean isJobApplicable(String projectName) {
 			return true;
 		}

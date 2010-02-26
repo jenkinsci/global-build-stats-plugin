@@ -12,7 +12,6 @@ public class RegexOnNameJobFilter implements JobFilter {
 		namePattern = Pattern.compile(projectNamePattern);
 	}
 	
-	@Override
 	public boolean isJobApplicable(String projectName) {
 		return namePattern.matcher(projectName).matches();
 	}

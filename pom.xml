@@ -3,7 +3,7 @@
   <parent>
     <groupId>org.jvnet.hudson.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>1.339</version><!-- which version of Hudson is this plugin built against? -->
+    <version>1.308</version><!-- which version of Hudson is this plugin built against? -->
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -16,7 +16,7 @@
   <developers>
     <developer>
       <id>fcamblor</id>
-      <name>Frédéric Camblor</name>
+      <name>Frederic Camblor</name>
       <email>fcamblor@gmail.com</email>
     </developer>
   </developers>
