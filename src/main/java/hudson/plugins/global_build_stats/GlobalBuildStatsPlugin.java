@@ -126,8 +126,40 @@ public class GlobalBuildStatsPlugin extends Plugin{
         		config.getBuildStatWidth(), config.getBuildStatHeight());
     }
     
+    public void doUpdateBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    	this.buildStatConfigs.set(Integer.parseInt(req.getParameter("buildStatId")), createBuildStatConfig(req));
+    	save();
+        res.forwardToPreviousPage(req);
+    }
+    
     public void doAddBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	this.buildStatConfigs.add(createBuildStatConfig(req));
+    	save();
+        res.forwardToPreviousPage(req);
+    }
+    
+    public void doDeleteConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    	this.buildStatConfigs.remove(Integer.parseInt(req.getParameter("buildStatId")));
+    	save();
+        res.forwardToPreviousPage(req);
+    }
+    
+    public void doMoveUpConf(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    	// Swapping build confs
+    	int index = Integer.parseInt(req.getParameter("buildStatId"));
+    	BuildStatConfiguration b = this.buildStatConfigs.get(index);
+    	this.buildStatConfigs.set(index, this.buildStatConfigs.get(index-1));
+    	this.buildStatConfigs.set(index-1, b);
+    	save();
+        res.forwardToPreviousPage(req);
+    }
+    
+    public void doMoveDownConf(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    	// Swapping build confs
+    	int index = Integer.parseInt(req.getParameter("buildStatId"));
+    	BuildStatConfiguration b = this.buildStatConfigs.get(index);
+    	this.buildStatConfigs.set(index, this.buildStatConfigs.get(index+1));
+    	this.buildStatConfigs.set(index+1, b);
     	save();
         res.forwardToPreviousPage(req);
     }

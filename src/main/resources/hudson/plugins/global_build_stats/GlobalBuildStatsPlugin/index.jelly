@@ -9,52 +9,58 @@
 
   <l:main-panel>
 
-    <h1><img src="${rootURL}/plugin/global-build-stats/icons/global-build-stats.png" /> Global Build Stats </h1>
-
-    <j:forEach var="buildStatConfig" items="${it.buildStatConfigs}">
-		<img src="${rootURL}/plugin/global-build-stats/createChart?title=${buildStatConfig.buildStatTitle}&amp;buildStatWidth=${buildStatConfig.buildStatWidth}&amp;buildStatHeight=${buildStatConfig.buildStatHeight}&amp;historicLength=${buildStatConfig.historicLength}&amp;historicScale=${buildStatConfig.historicScale}&amp;successShown=${buildStatConfig.successShown}&amp;failuresShown=${buildStatConfig.failuresShown}&amp;unstablesShown=${buildStatConfig.unstablesShown}&amp;abortedShown=${buildStatConfig.abortedShown}&amp;notBuildsShown=${buildStatConfig.notBuildShown}&amp;jobFilter=${buildStatConfig.jobFilter}" /><br/>
-	</j:forEach>
-	
-	<hr />
-	<strong>Adding new chart</strong>
 	<script type="text/javascript"><![CDATA[
 	chartLengthUnits = new Array("HOURLY", "DAILY", "WEEKLY", "MONTHLY", "YEARLY");
-	function changeChartLengthUnit(scale){
+	function changeChartLengthUnit(formId, scale){
 		for(var i=0; i<chartLengthUnits.length; i++){
 		    if(scale == chartLengthUnits[i]){
-		    	document.getElementById(chartLengthUnits[i]).style.display = "inline";
+		    	document.getElementById(formId+'_'+chartLengthUnits[i]).style.display = "inline";
 		    } else {
-		    	document.getElementById(chartLengthUnits[i]).style.display = "none";
+		    	document.getElementById(formId+'_'+chartLengthUnits[i]).style.display = "none";
 		    }
 		}
 	}
+	
+	function selectionOption(selectElement, optionValue){
+		for (var i=0; i<selectElement.options.length; i++) {
+			selectElement.options[i].selected = selectElement.options[i].value == optionValue;
+		}
+		selectElement.onchange();
+	}
 	]]></script>
-    <form action="addBuildStatConfiguration" method="post">
-      Title : <input type="text" name="title" /><br/>
-      Chart Width * Height : <input type="text" name="buildStatWidth" size="3" /> * <input type="text" name="buildStatHeight" size="3" /><br/>
-      Chart scale : <select name="historicScale" onchange="changeChartLengthUnit(this.value);">
-        <option value="HOURLY" selected="selected">HOURLY</option>
-        <option value="DAILY">DAILY</option>
-        <option value="WEEKLY">WEEKLY</option>
-        <option value="MONTHLY">MONTHLY</option>
-        <option value="YEARLY">YEARLY</option>
-      </select><br/>
-      Chart length : <input type="text" name="historicLength" size="3" />
-      <span id="HOURLY">hours</span>
-      <span id="DAILY" style="display:none">days</span>
-      <span id="WEEKLY" style="display:none">weeks</span>
-      <span id="MONTHLY" style="display:none">months</span>
-      <span id="YEARLY" style="display:none">years</span><br/>
-      Job filter : <em>ALL Jobs</em><input type="hidden" name="jobFilter" value="ALL" /><br/>
-      Statuses shown :
-      <input type="checkbox" value="true" name="successShown" checked="checked" />Success
-      <input type="checkbox" value="true" name="failuresShown" checked="checked" />Failures
-      <input type="checkbox" value="true" name="unstablesShown" checked="checked" />Unstables
-      <input type="checkbox" value="true" name="abortedShown" checked="checked" />Aborted
-      <input type="checkbox" value="true" name="notBuildsShown" checked="checked" />Not Build<br/>
-      <f:submit value="Create new chart" />
-    </form>
+	
+    <h1><img src="${rootURL}/plugin/global-build-stats/icons/global-build-stats.png" /> Global Build Stats </h1>
 
+    <j:forEach var="buildStatConfig" items="${it.buildStatConfigs}" varStatus="status">
+    	<div style="clear:left;">
+			<img style="display:inline; float:left; margin-bottom: 10px;"
+				src="${rootURL}/plugin/global-build-stats/createChart?title=${buildStatConfig.buildStatTitle}&amp;buildStatWidth=${buildStatConfig.buildStatWidth}&amp;buildStatHeight=${buildStatConfig.buildStatHeight}&amp;historicLength=${buildStatConfig.historicLength}&amp;historicScale=${buildStatConfig.historicScale}&amp;successShown=${buildStatConfig.successShown}&amp;failuresShown=${buildStatConfig.failuresShown}&amp;unstablesShown=${buildStatConfig.unstablesShown}&amp;abortedShown=${buildStatConfig.abortedShown}&amp;notBuildsShown=${buildStatConfig.notBuildShown}&amp;jobFilter=${buildStatConfig.jobFilter}" /><br/>
+			
+			<input type="submit" id="edit_${status.index}" class="submit-button" onclick="document.getElementById('edit_${status.index}').style.display='none'; document.getElementById('global_${status.index}').style.display='block';" value="Edit" />
+			<div id="global_${status.index}" style="display:none">
+				<j:set var="formAction" value="updateBuildStatConfiguration" />
+				<j:set var="formSubmitLabel" value="Update build stat configuration" />
+				<j:set var="currentBuildStatConfig" value="${buildStatConfig}" />
+				<j:set var="buildStatId" value="${status.index}" />
+			    <st:include page="/hudson/plugins/global_build_stats/GlobalBuildStatsPlugin/form.jelly" />
+		    </div>
+		    <j:if test="${! status.first}">
+			    <input type="submit" class="submit-button" onclick="window.location='${rootURL}/plugin/global-build-stats/moveUpConf?buildStatId=${status.index}';" value="Move up" />
+			</j:if>
+		    <j:if test="${! status.last}">
+			    <input type="submit" class="submit-button" onclick="window.location='${rootURL}/plugin/global-build-stats/moveDownConf?buildStatId=${status.index}';" value="Move down" />
+			</j:if>
+		    <input type="submit" class="submit-button" onclick="if(confirm('Are you sure to delete this build stat configuration ?')){ window.location='${rootURL}/plugin/global-build-stats/deleteConfiguration?buildStatId=${status.index}'; }" value="Delete build stat" />
+		</div>
+	</j:forEach>
+	
+	<hr style="clear:both;" />
+	<strong>Adding new chart</strong>
+	<j:set var="formAction" value="addBuildStatConfiguration" />
+	<j:set var="formSubmitLabel" value="Create new chart" />
+	<j:set var="currentBuildStatConfig" value="" />
+	<j:set var="buildStatId" value="new" />
+    <st:include page="/hudson/plugins/global_build_stats/GlobalBuildStatsPlugin/form.jelly" />
 
 	<hr />
 	<strong>Data Initialization</strong>
