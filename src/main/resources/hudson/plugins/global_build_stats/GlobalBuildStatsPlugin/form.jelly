@@ -22,9 +22,22 @@
 		  selectionOption(document.getElementById('${buildStatId}_historicScale'), '${currentBuildStatConfig.historicScale}');
 	  }
 	  ]]></script>
-      Job filter : <em>ALL Jobs</em><input type="hidden" name="jobFilter" value="ALL" /><br/>
+      Job filtering : <input type="radio" id="${buildStatId}_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="ALL" onchange="jobFilterTypeSelected('${buildStatId}', this.value);" />ALL Jobs
+      <input type="radio" id="${buildStatId}_jobFilteringType_REGEX" name="jobFilteringType" value="regex" onchange="jobFilterTypeSelected('${buildStatId}', this.value);" />
+      Job name regex : <input type="text" id="${buildStatId}_jobNameRegex" disabled="true" name="jobNameRegex" size="10" onblur="document.getElementById('${buildStatId}_jobFilter').value='regex('+this.value+')';" />
+      <input id="${buildStatId}_jobFilter" type="hidden" name="jobFilter" value="${currentBuildStatConfig.jobFilter}" /><br/>
+	  <script type="text/javascript"><![CDATA[
+	  if(document.getElementById('${buildStatId}_jobFilter').value.indexOf('regex') != -1){
+	  	  document.getElementById('${buildStatId}_jobFilteringType_REGEX').checked = 'checked';
+	  	  initializeRegexField('${buildStatId}', '${currentBuildStatConfig.jobFilter}');
+	  	  document.getElementById('${buildStatId}_jobFilteringType_REGEX').onchange();
+	  	  document.getElementById('${buildStatId}_jobNameRegex').disabled = false;
+	  } else if(document.getElementById('${buildStatId}_jobFilter').value.indexOf('ALL') != -1){
+	  	  document.getElementById('${buildStatId}_jobFilteringType_ALL').checked = 'checked';
+	  	  document.getElementById('${buildStatId}_jobFilteringType_ALL').change();
+	  }
+	  ]]></script>
       Statuses shown :
-      
       <j:choose>
       	<j:when test="${currentBuildStatConfig != '' and ! currentBuildStatConfig.successShown}">
 	      <input type="checkbox" value="true" name="successShown" />Success
