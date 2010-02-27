@@ -24,11 +24,47 @@
 	  ]]></script>
       Job filter : <em>ALL Jobs</em><input type="hidden" name="jobFilter" value="ALL" /><br/>
       Statuses shown :
-      <input type="checkbox" value="true" name="successShown" checked="checked" />Success
-      <input type="checkbox" value="true" name="failuresShown" checked="checked" />Failures
-      <input type="checkbox" value="true" name="unstablesShown" checked="checked" />Unstables
-      <input type="checkbox" value="true" name="abortedShown" checked="checked" />Aborted
-      <input type="checkbox" value="true" name="notBuildsShown" checked="checked" />Not Build<br/>
+      
+      <j:choose>
+      	<j:when test="${currentBuildStatConfig != '' and ! currentBuildStatConfig.successShown}">
+	      <input type="checkbox" value="true" name="successShown" />Success
+      	</j:when>
+      	<j:otherwise>
+	      <input type="checkbox" value="true" name="successShown" checked="checked" />Success
+      	</j:otherwise>
+      </j:choose>
+      <j:choose>
+      	<j:when test="${currentBuildStatConfig != '' and ! currentBuildStatConfig.failuresShown}">
+	      <input type="checkbox" value="true" name="failuresShown" />Failures
+      	</j:when>
+      	<j:otherwise>
+    	  <input type="checkbox" value="true" name="failuresShown" checked="checked" />Failures
+      	</j:otherwise>
+      </j:choose>
+      <j:choose>
+      	<j:when test="${currentBuildStatConfig != '' and ! currentBuildStatConfig.unstablesShown}">
+	      <input type="checkbox" value="true" name="unstablesShown" />Unstables
+      	</j:when>
+      	<j:otherwise>
+    	  <input type="checkbox" value="true" name="unstablesShown" checked="checked" />Unstables
+      	</j:otherwise>
+      </j:choose>
+      <j:choose>
+      	<j:when test="${currentBuildStatConfig != '' and ! currentBuildStatConfig.abortedShown}">
+    	  <input type="checkbox" value="true" name="abortedShown" />Aborted
+      	</j:when>
+      	<j:otherwise>
+	      <input type="checkbox" value="true" name="abortedShown" checked="checked" />Aborted
+      	</j:otherwise>
+      </j:choose>
+      <j:choose>
+      	<j:when test="${currentBuildStatConfig != '' and ! currentBuildStatConfig.notBuildShown}">
+	      <input type="checkbox" value="true" name="notBuildsShown" />Not Build<br/>
+      	</j:when>
+      	<j:otherwise>
+    	  <input type="checkbox" value="true" name="notBuildsShown" checked="checked" />Not Build<br/>
+      	</j:otherwise>
+      </j:choose>
       <input type="hidden" name="buildStatId" value="${buildStatId}" />
       <f:submit value="${formSubmitLabel}" />
     </form>
