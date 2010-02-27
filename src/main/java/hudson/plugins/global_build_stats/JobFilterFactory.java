@@ -9,7 +9,7 @@ public class JobFilterFactory {
 
 	private static final String ALL_JOBS_FILTER_PATTERN = "ALL";
 	
-	private static final Pattern REGEX_ON_NAME_JOB_FILTER_PATTERN = Pattern.compile("regex\\((.*)\\)");
+	private static final Pattern REGEX_ON_NAME_JOB_FILTER_PATTERN = Pattern.compile("jobNameRegex\\((.*)\\)");
 	
 	public static JobFilter createJobFilter(String jobFilter){
 		if(ALL_JOBS_FILTER_PATTERN.equals(jobFilter)){
