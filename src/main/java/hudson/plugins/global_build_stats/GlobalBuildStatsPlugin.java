@@ -162,15 +162,10 @@ public class GlobalBuildStatsPlugin extends Plugin{
 		mustBeInt(errors, req.getParameter("historicLength"), "Build stats length should be an integer");
 		isMandatory(errors, req.getParameter("buildStatWidth"), "Build stats width is mandatory");
 		mustBeInt(errors, req.getParameter("buildStatWidth"), "Build stats width should be an integer");
-		isMandatory(errors, req.getParameter("successShown"), "SuccessShown is mandatory");
 		mustBeBool(errors, req.getParameter("successShown"), "SuccessShown must be a boolean");
-		isMandatory(errors, req.getParameter("failuresShown"), "FailuresShown is mandatory");
 		mustBeBool(errors, req.getParameter("failuresShown"), "FailuresShown must be a boolean");
-		isMandatory(errors, req.getParameter("unstablesShown"), "UnstablesShown is mandatory");
 		mustBeBool(errors, req.getParameter("unstablesShown"), "UnstablesShown must be a boolean");
-		isMandatory(errors, req.getParameter("abortedShown"), "AbortedShown is mandatory");
 		mustBeBool(errors, req.getParameter("abortedShown"), "AbortedShown must be a boolean");
-		isMandatory(errors, req.getParameter("notBuildsShown"), "NotBuildsShown is mandatory");
 		mustBeBool(errors, req.getParameter("notBuildsShown"), "NotBuildsShown must be a boolean");
 		try{ HistoricScale.valueOf(req.getParameter("historicScale")); }
 		catch(Throwable t){ errors.add(FormValidation.error("HistoricScale is invalid")); }
