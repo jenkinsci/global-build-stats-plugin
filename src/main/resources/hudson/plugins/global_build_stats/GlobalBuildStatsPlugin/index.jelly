@@ -53,6 +53,12 @@
     
     <a href="#CreateNew">Create new chart</a><br/>
     <a href="#Initialize">Data Initialization</a><br/>
+    
+    <div id="errors">
+	    <j:forEach var="error" items="${requestScope['errors']}">
+	    ${error.renderHtml()}
+	    </j:forEach>
+    </div>
 
 	<hr />
 	<strong>Statistics</strong><br/>
