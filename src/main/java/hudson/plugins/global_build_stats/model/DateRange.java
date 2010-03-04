@@ -6,7 +6,7 @@ import java.util.Calendar;
 public class DateRange implements Comparable<DateRange> {
 
 	// TODO: internationalize this !
-	private static final SimpleDateFormat SDF = new SimpleDateFormat("dd MMM yy hh:mm");
+	private static final SimpleDateFormat SDF = new SimpleDateFormat("dd MMM yy HH:mm");
 	
 	private Calendar d1, d2;
 	
