@@ -1,22 +1,49 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
-    <form action="${formAction}" method="post">
-      Title : <input type="text" name="title" value="${currentBuildStatConfig.buildStatTitle}" /><br/>
-      Chart Width * Height : <input type="text" name="buildStatWidth" size="3" value="${currentBuildStatConfig.buildStatWidth}" /> 
+    <form name="createBuildStat_${buildStatId}" action="${formAction}" method="post" class="globalBuildStatsForm"
+    	  id="createBuildStat_${buildStatId}" onsubmit="return !isDivErrorPresentInForm(this);">
+      Title : <input type="text" name="title" 
+      				 value="${currentBuildStatConfig.buildStatTitle}" 
+      				 checkUrl="'/plugin/global-build-stats/checkTitle?value='+escape(field.value)"
+      				 onblur="validateField(this);" onchange="validateField(this);"
+      		  /><span class="validation-error-area" style="display:inline-block;"></span><br/>
+      Chart Width * Height :
+      <input type="text" name="buildStatWidth" 
+      		 size="3" value="${currentBuildStatConfig.buildStatWidth}" 
+      		 checkUrl="'/plugin/global-build-stats/checkBuildStatWidth?value='+escape(field.value)"
+      		 onblur="validateField(this);" onchange="validateField(this);"
+      		 validationErrorAreaClassName="width-validation-error-area"
+      /> 
+      <span class="width-validation-error-area" style="display:inline-block;"></span>
       * 
-      <input type="text" name="buildStatHeight" size="3" value="${currentBuildStatConfig.buildStatHeight}" /><br/>
-      Chart scale : <select id="${buildStatId}_historicScale" name="historicScale" onchange="changeChartLengthUnit('${buildStatId}', this.value);">
+      <input type="text" name="buildStatHeight" 
+      		 size="3" value="${currentBuildStatConfig.buildStatHeight}" 
+      		 checkUrl="'/plugin/global-build-stats/checkBuildStatHeight?value='+escape(field.value)"
+      		 onblur="validateField(this);" onchange="validateField(this);"
+      		 validationErrorAreaClassName="height-validation-error-area"
+      />
+      <span class="height-validation-error-area" style="display:inline-block;"></span><br/>
+      Chart scale : 
+      <select id="${buildStatId}_historicScale" 
+      		  name="historicScale" checkUrl="'/plugin/global-build-stats/checkHistoricScale?value='+escape(field.value)"
+      		  onchange="validateField(this); changeChartLengthUnit('${buildStatId}', this.value);">
         <option value="HOURLY" selected="selected">HOURLY</option>
         <option value="DAILY">DAILY</option>
         <option value="WEEKLY">WEEKLY</option>
         <option value="MONTHLY">MONTHLY</option>
         <option value="YEARLY">YEARLY</option>
-      </select><br/>
-      Chart length : <input type="text" name="historicLength" size="3" value="${currentBuildStatConfig.historicLength}" />
+      </select><span class="validation-error-area" style="display:inline-block;"></span><br/>
+      Chart length :
+	  <input type="text" name="historicLength" 
+	  		 size="3" value="${currentBuildStatConfig.historicLength}" 
+      		 checkUrl="'/plugin/global-build-stats/checkHistoricLength?value='+escape(field.value)"
+      		 onblur="validateField(this);" onchange="validateField(this);"
+	  />
       <span id="${buildStatId}_HOURLY">hours</span>
       <span id="${buildStatId}_DAILY" style="display:none">days</span>
       <span id="${buildStatId}_WEEKLY" style="display:none">weeks</span>
       <span id="${buildStatId}_MONTHLY" style="display:none">months</span>
-      <span id="${buildStatId}_YEARLY" style="display:none">years</span><br/>
+      <span id="${buildStatId}_YEARLY" style="display:none">years</span>
+      <span class="validation-error-area" style="display:inline-block;"></span><br/>
 	  <script type="text/javascript"><![CDATA[
 	  if('${currentBuildStatConfig.historicScale}' != ''){
 		  selectionOption(document.getElementById('${buildStatId}_historicScale'), '${currentBuildStatConfig.historicScale}');
@@ -24,7 +51,11 @@
 	  ]]></script>
       Job filtering : <input type="radio" id="${buildStatId}_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="ALL" onchange="jobFilterTypeSelected('${buildStatId}', this.value);" />ALL Jobs
       <input type="radio" id="${buildStatId}_jobFilteringType_REGEX" name="jobFilteringType" value="jobNameRegex" onchange="jobFilterTypeSelected('${buildStatId}', this.value);" />
-      Job name regex : <input type="text" id="${buildStatId}_jobNameRegex" disabled="true" name="jobNameRegex" size="10" onblur="document.getElementById('${buildStatId}_jobFilter').value='jobNameRegex('+this.value+')';" />
+      Job name regex :
+      <input type="text" id="${buildStatId}_jobNameRegex" 
+      		 disabled="true" name="jobNameRegex" size="10" 
+      		 onblur="document.getElementById('${buildStatId}_jobFilter').value='jobNameRegex('+this.value+')';" 
+      />
       <input id="${buildStatId}_jobFilter" type="hidden" name="jobFilter" value="${currentBuildStatConfig.jobFilter}" /><br/>
 	  <script type="text/javascript"><![CDATA[
 	  if(document.getElementById('${buildStatId}_jobFilter').value.indexOf('jobNameRegex') != -1){
@@ -79,6 +110,6 @@
       	</j:otherwise>
       </j:choose>
       <input type="hidden" name="buildStatId" value="${buildStatId}" />
-      <f:submit value="${formSubmitLabel}" />
+      <input type="submit" class="submit-button" value="${formSubmitLabel}" name="Submit" />
     </form>
 </j:jelly>
