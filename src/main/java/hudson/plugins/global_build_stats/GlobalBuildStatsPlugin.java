@@ -42,6 +42,7 @@ import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
@@ -51,7 +52,7 @@ import org.kohsuke.stapler.StaplerResponse;
  * @author fcamblor
  * @plugin
  */
-public class GlobalBuildStatsPlugin extends Plugin{
+public class GlobalBuildStatsPlugin extends Plugin {
 
 	private List<JobBuildResult> jobBuildResults = new ArrayList<JobBuildResult>();
 	private List<BuildStatConfiguration> buildStatConfigs = new ArrayList<BuildStatConfiguration>();
@@ -103,6 +104,67 @@ public class GlobalBuildStatsPlugin extends Plugin{
     	}
     }
     
+    public FormValidation doCheckJobFilter(@QueryParameter String value){
+    	try{ JobFilterFactory.createJobFilter(value); return FormValidation.ok(); }
+    	catch(Throwable t){ return FormValidation.error("JobFilter is invalid"); }
+    }
+    
+    public FormValidation doCheckFailuresShown(@QueryParameter String value){
+    	if(!isBool(value)){ return FormValidation.error("FailuresShown must be a boolean"); }
+    	else { return FormValidation.ok(); }
+    }
+    
+    public FormValidation doCheckUnstablesShown(@QueryParameter String value){
+    	if(!isBool(value)){ return FormValidation.error("UnstablesShown must be a boolean"); }
+    	else { return FormValidation.ok(); }
+    }
+    
+    public FormValidation doCheckAbortedShown(@QueryParameter String value){
+    	if(!isBool(value)){ return FormValidation.error("AbortedShown must be a boolean"); }
+    	else { return FormValidation.ok(); }
+    }
+    
+    public FormValidation doCheckNotBuildsShown(@QueryParameter String value){
+    	if(!isBool(value)){ return FormValidation.error("NotBuildsShown must be a boolean"); }
+    	else { return FormValidation.ok(); }
+    }
+    
+    public FormValidation doCheckSuccessShown(@QueryParameter String value){
+    	if(!isBool(value)){ return FormValidation.error("SuccessShown must be a boolean"); }
+    	else { return FormValidation.ok(); }
+    }
+    
+	public FormValidation doCheckHistoricScale(@QueryParameter String value){
+    	if(!isMandatory(value)){ return FormValidation.error("Historic scale is mandatory"); }
+    	else {
+    		try{ HistoricScale.valueOf(value); return FormValidation.ok(); }
+    		catch(Throwable t){ return FormValidation.error("HistoricScale is invalid"); }
+    	}
+    }
+
+	public FormValidation doCheckHistoricLength(@QueryParameter String value){
+    	if(!isMandatory(value)){ return FormValidation.error("Historic length is mandatory"); }
+    	else if(!isInt(value)){ return FormValidation.error("Historic length should be an integer"); }
+    	else { return FormValidation.ok(); }
+    }
+
+    public FormValidation doCheckBuildStatHeight(@QueryParameter String value){
+    	if(!isMandatory(value)){ return FormValidation.error("Build stats height is mandatory"); }
+    	else if(!isInt(value)){ return FormValidation.error("Build stats height should be an integer"); }
+    	else { return FormValidation.ok(); }
+    }
+
+    public FormValidation doCheckBuildStatWidth(@QueryParameter String value){
+    	if(!isMandatory(value)){ return FormValidation.error("Build stats width is mandatory"); }
+    	else if(!isInt(value)){ return FormValidation.error("Build stats width should be an integer"); }
+    	else { return FormValidation.ok(); }
+    }
+
+    public FormValidation doCheckTitle(@QueryParameter String value){
+    	if(!isMandatory(value)){ return FormValidation.error("Title is mandatory"); }
+    	else { return FormValidation.ok(); }
+    }
+    
     public void doRecordBuildInfos(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
         jobBuildResults.clear();
         
@@ -127,78 +189,39 @@ public class GlobalBuildStatsPlugin extends Plugin{
         		config.getBuildStatWidth(), config.getBuildStatHeight());
     }
     
-	protected static void mustBeInt(List<FormValidation> errors, String param, String errorMessage){
+	protected static boolean isInt(String value){
 		try{
-			Integer.parseInt(param);
-		}catch(NumberFormatException e){
-			errors.add(FormValidation.error(errorMessage));
-		}
-	}
-	
-	protected static void isMandatory(List<FormValidation> errors, String param, String errorMessage){
-		if(param == null || "".equals(param)){
-			errors.add(FormValidation.error(errorMessage));
-		}
-	}
-	
-	protected static void mustBeBool(List<FormValidation> errors, String param, String errorMessage){
-		try{
-			Boolean.valueOf(param);
-		}catch(Throwable t){
-			errors.add(FormValidation.error(errorMessage));
-		}
-	}
-	
-    
-	protected boolean validateBuildStats(StaplerRequest req, StaplerResponse res) throws IOException, ServletException {
-		List<FormValidation> errors = new ArrayList<FormValidation>();
-		
-		isMandatory(errors, req.getParameter("title"), "Title is mandatory");
-		isMandatory(errors, req.getParameter("buildStatWidth"), "Build stats width is mandatory");
-		mustBeInt(errors, req.getParameter("buildStatWidth"), "Build stats width should be an integer");
-		isMandatory(errors, req.getParameter("buildStatHeight"), "Build stats height is mandatory");
-		mustBeInt(errors, req.getParameter("buildStatHeight"), "Build stats height should be an integer");
-		isMandatory(errors, req.getParameter("historicLength"), "Build stats length is mandatory");
-		mustBeInt(errors, req.getParameter("historicLength"), "Build stats length should be an integer");
-		isMandatory(errors, req.getParameter("buildStatWidth"), "Build stats width is mandatory");
-		mustBeInt(errors, req.getParameter("buildStatWidth"), "Build stats width should be an integer");
-		mustBeBool(errors, req.getParameter("successShown"), "SuccessShown must be a boolean");
-		mustBeBool(errors, req.getParameter("failuresShown"), "FailuresShown must be a boolean");
-		mustBeBool(errors, req.getParameter("unstablesShown"), "UnstablesShown must be a boolean");
-		mustBeBool(errors, req.getParameter("abortedShown"), "AbortedShown must be a boolean");
-		mustBeBool(errors, req.getParameter("notBuildsShown"), "NotBuildsShown must be a boolean");
-		try{ HistoricScale.valueOf(req.getParameter("historicScale")); }
-		catch(Throwable t){ errors.add(FormValidation.error("HistoricScale is invalid")); }
-		try{ JobFilterFactory.createJobFilter(req.getParameter("jobFilter")); }
-		catch(Throwable t){ errors.add(FormValidation.error("JobFilter is invalid")); }
-		
-		if(errors.size() == 0){
+			Integer.parseInt(value);
 			return true;
-		} else {
-			req.setAttribute("errors", errors);
-			// FIXME Won't work because errors won't be transfered to previous page ..
-			// but some other url bugs resides if a forward to "/" is made (forward is done
-			// on plugin/global-build-stats/addBuildStatConfig/ (instead of plugin/global-build-stats/)
-			res.forwardToPreviousPage(req);
-			//res.forward(this, "/", req);
+		}catch(NumberFormatException e){
 			return false;
 		}
 	}
+	
+	protected static boolean isMandatory(String value){
+		return value != null && !"".equals(value);
+	}
+	
+	protected static boolean isBool(String value){
+		try{
+			Boolean.valueOf(value);
+			return true;
+		}catch(Throwable t){
+			return false;
+		}
+	}
+	
     
     public void doUpdateBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
-    	if(validateBuildStats(req, res)){
-	    	this.buildStatConfigs.set(Integer.parseInt(req.getParameter("buildStatId")), createBuildStatConfig(req));
-	    	save();
-	        res.forwardToPreviousPage(req);
-    	}
+    	this.buildStatConfigs.set(Integer.parseInt(req.getParameter("buildStatId")), createBuildStatConfig(req));
+    	save();
+    	res.forwardToPreviousPage(req);
     }
     
     public void doAddBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
-    	if(validateBuildStats(req, res)){
-        	this.buildStatConfigs.add(createBuildStatConfig(req));
-        	save();
-            res.forwardToPreviousPage(req);
-    	}
+    	this.buildStatConfigs.add(createBuildStatConfig(req));
+    	save();
+    	res.forwardToPreviousPage(req);
     }
     
     public void doDeleteConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
@@ -279,6 +302,8 @@ public class GlobalBuildStatsPlugin extends Plugin{
         final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
         rangeAxis.setLowerBound(0.0);
+        // FIXME : it doesn't work on "great scales"
+        // Should use a percentage instead
         rangeAxis.setUpperBound(rangeAxis.getUpperBound()+1.0);
 
         final StackedAreaRenderer2 renderer = new StackedAreaRenderer2();
