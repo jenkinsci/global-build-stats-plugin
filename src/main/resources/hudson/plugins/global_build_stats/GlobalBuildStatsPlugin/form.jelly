@@ -3,13 +3,13 @@
     	  id="createBuildStat_${buildStatId}" onsubmit="return !isDivErrorPresentInForm(this);">
       Title : <input type="text" name="title" 
       				 value="${currentBuildStatConfig.buildStatTitle}" 
-      				 checkUrl="'/plugin/global-build-stats/checkTitle?value='+escape(field.value)"
+      				 checkUrl="'${rootURL}/plugin/global-build-stats/checkTitle?value='+escape(field.value)"
       				 onblur="validateField(this);" onchange="validateField(this);"
       		  /><span class="validation-error-area" style="display:inline-block;"></span><br/>
       Chart Width * Height :
       <input type="text" name="buildStatWidth" 
       		 size="3" value="${currentBuildStatConfig.buildStatWidth}" 
-      		 checkUrl="'/plugin/global-build-stats/checkBuildStatWidth?value='+escape(field.value)"
+      		 checkUrl="'${rootURL}/plugin/global-build-stats/checkBuildStatWidth?value='+escape(field.value)"
       		 onblur="validateField(this);" onchange="validateField(this);"
       		 validationErrorAreaClassName="width-validation-error-area"
       /> 
@@ -17,14 +17,14 @@
       * 
       <input type="text" name="buildStatHeight" 
       		 size="3" value="${currentBuildStatConfig.buildStatHeight}" 
-      		 checkUrl="'/plugin/global-build-stats/checkBuildStatHeight?value='+escape(field.value)"
+      		 checkUrl="'${rootURL}/plugin/global-build-stats/checkBuildStatHeight?value='+escape(field.value)"
       		 onblur="validateField(this);" onchange="validateField(this);"
       		 validationErrorAreaClassName="height-validation-error-area"
       />
       <span class="height-validation-error-area" style="display:inline-block;"></span><br/>
       Chart scale : 
       <select id="${buildStatId}_historicScale" 
-      		  name="historicScale" checkUrl="'/plugin/global-build-stats/checkHistoricScale?value='+escape(field.value)"
+      		  name="historicScale" checkUrl="'${rootURL}/plugin/global-build-stats/checkHistoricScale?value='+escape(field.value)"
       		  onchange="validateField(this); changeChartLengthUnit('${buildStatId}', this.value);">
         <option value="HOURLY" selected="selected">HOURLY</option>
         <option value="DAILY">DAILY</option>
@@ -35,7 +35,7 @@
       Chart length :
 	  <input type="text" name="historicLength" 
 	  		 size="3" value="${currentBuildStatConfig.historicLength}" 
-      		 checkUrl="'/plugin/global-build-stats/checkHistoricLength?value='+escape(field.value)"
+      		 checkUrl="'${rootURL}/plugin/global-build-stats/checkHistoricLength?value='+escape(field.value)"
       		 onblur="validateField(this);" onchange="validateField(this);"
 	  />
       <span id="${buildStatId}_HOURLY">hours</span>
