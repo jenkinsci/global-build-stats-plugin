@@ -1,5 +1,5 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
-<l:layout title="${%Global Build Stats}" secured="true">
+<l:layout title="${%Global Build Stats}" permission="${it.requiredPermission}">
        
   <l:side-panel>
     <l:tasks>

@@ -4,15 +4,18 @@ import hudson.Extension;
 import hudson.Plugin;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
+import hudson.model.CheckPoint;
 import hudson.model.Hudson;
 import hudson.model.ManagementLink;
 import hudson.model.TaskListener;
 import hudson.model.TopLevelItem;
+import hudson.model.Descriptor.FormException;
 import hudson.model.listeners.RunListener;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.DateRange;
 import hudson.plugins.global_build_stats.model.HistoricScale;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
+import hudson.security.Permission;
 import hudson.util.ChartUtil;
 import hudson.util.DataSetBuilder;
 import hudson.util.FormValidation;
@@ -30,6 +33,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.ServletException;
+
+import net.sf.json.JSONObject;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -79,7 +84,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
         public String getUrlName() {
             return "plugin/global-build-stats/";
         }
-
+        
         @Override public String getDescription() {
             return "Displays stats about daily build failures";
         }
@@ -164,8 +169,10 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	if(!isMandatory(value)){ return FormValidation.error("Title is mandatory"); }
     	else { return FormValidation.ok(); }
     }
-    
+
     public void doRecordBuildInfos(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    	Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+    	
         jobBuildResults.clear();
         
         //TODO fix MatrixProject and use getAllJobs()
@@ -181,6 +188,8 @@ public class GlobalBuildStatsPlugin extends Plugin {
     }
     
     public void doCreateChart(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    	Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+    	
     	BuildStatConfiguration config = createBuildStatConfig(req);
     	List<JobBuildResult> filteredJobBuildResults = createFilteredAndSortedBuildResults(config);
         DataSetBuilder<String, DateRange> dsb = createDataSetBuilder(filteredJobBuildResults, config);
@@ -212,24 +221,32 @@ public class GlobalBuildStatsPlugin extends Plugin {
 	}
     
     public void doUpdateBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    	Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+    	
     	this.buildStatConfigs.set(Integer.parseInt(req.getParameter("buildStatId")), createBuildStatConfig(req));
     	save();
     	res.forwardToPreviousPage(req);
     }
     
     public void doAddBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    	Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+    	
     	this.buildStatConfigs.add(createBuildStatConfig(req));
     	save();
     	res.forwardToPreviousPage(req);
     }
     
     public void doDeleteConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    	Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+    	
     	this.buildStatConfigs.remove(Integer.parseInt(req.getParameter("buildStatId")));
     	save();
         res.forwardToPreviousPage(req);
     }
     
     public void doMoveUpConf(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    	Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+    	
     	// Swapping build confs
     	int index = Integer.parseInt(req.getParameter("buildStatId"));
     	BuildStatConfiguration b = this.buildStatConfigs.get(index);
@@ -240,6 +257,8 @@ public class GlobalBuildStatsPlugin extends Plugin {
     }
     
     public void doMoveDownConf(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    	Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+    	
     	// Swapping build confs
     	int index = Integer.parseInt(req.getParameter("buildStatId"));
     	BuildStatConfiguration b = this.buildStatConfigs.get(index);
@@ -388,5 +407,9 @@ public class GlobalBuildStatsPlugin extends Plugin {
 
 	public BuildStatConfiguration[] getBuildStatConfigs() {
 		return buildStatConfigs.toArray(new BuildStatConfiguration[]{});
+	}
+	
+	public Permission getRequiredPermission(){
+		return Hudson.ADMINISTER;
 	}
 }
