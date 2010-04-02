@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 public class JobFilterFactory {
 
-	private static final String ALL_JOBS_FILTER_PATTERN = "ALL";
+	public static final String ALL_JOBS_FILTER_PATTERN = "ALL";
 	
 	private static final Pattern REGEX_ON_NAME_JOB_FILTER_PATTERN = Pattern.compile("jobNameRegex\\((.*)\\)");
 	

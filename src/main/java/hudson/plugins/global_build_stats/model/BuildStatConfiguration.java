@@ -1,5 +1,7 @@
 package hudson.plugins.global_build_stats.model;
 
+import hudson.plugins.global_build_stats.JobFilterFactory;
+
 import java.io.Serializable;
 
 public class BuildStatConfiguration implements Serializable {
@@ -7,10 +9,10 @@ public class BuildStatConfiguration implements Serializable {
 	private static final long serialVersionUID = -2962124739645932894L;
 	
 	private String buildStatTitle;
-	private int buildStatWidth, buildStatHeight;
+	private int buildStatWidth=400, buildStatHeight=300;
 	private int historicLength;
 	private HistoricScale historicScale;
-	private String jobFilter;
+	private String jobFilter = JobFilterFactory.ALL_JOBS_FILTER_PATTERN;
 	private short shownBuildResults;
 	
 	public BuildStatConfiguration(String _buildStatTitle, int _buildStatWidth, int _buildStatHeight, 
