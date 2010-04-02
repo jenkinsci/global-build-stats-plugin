@@ -210,7 +210,6 @@ public class GlobalBuildStatsPlugin extends Plugin {
 			return false;
 		}
 	}
-	
     
     public void doUpdateBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	this.buildStatConfigs.set(Integer.parseInt(req.getParameter("buildStatId")), createBuildStatConfig(req));
@@ -267,53 +266,36 @@ public class GlobalBuildStatsPlugin extends Plugin {
     
     private JFreeChart createChart(StaplerRequest req, CategoryDataset dataset, String title) {
 
-        final JFreeChart chart = ChartFactory.createLineChart(
-                title, // chart title
-                null, // unused
-                "Count", // range axis label
-                dataset, // data
-                PlotOrientation.VERTICAL, // orientation
-                true, // include legend
-                true, // tooltips
-                false // urls
-                );
-
+    	final JFreeChart chart = ChartFactory.createStackedAreaChart(title, null, "Count", dataset, PlotOrientation.VERTICAL, true, true, false);
+        chart.setBackgroundPaint(Color.white);
+        
         final LegendTitle legend = chart.getLegend();
         legend.setPosition(RectangleEdge.RIGHT);
 
-        chart.setBackgroundPaint(Color.white);
-
         final CategoryPlot plot = chart.getCategoryPlot();
-
-        plot.setBackgroundPaint(Color.WHITE);
-        plot.setOutlinePaint(null);
+        
+        plot.setForegroundAlpha(0.85F);
         plot.setRangeGridlinesVisible(true);
-        plot.setRangeGridlinePaint(Color.black);
 
         CategoryAxis domainAxis = new ShiftedCategoryAxis(null);
-        plot.setDomainAxis(domainAxis);
         domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
         domainAxis.setLowerMargin(0.0);
         domainAxis.setUpperMargin(0.0);
         domainAxis.setCategoryMargin(0.0);
-        domainAxis.setMaximumCategoryLabelLines(2);
-        domainAxis.setMaximumCategoryLabelWidthRatio(2.0F);
+        plot.setDomainAxis(domainAxis);
 
         final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-        rangeAxis.setLowerBound(0.0);
-        // FIXME : it doesn't work on "great scales"
-        // Should use a percentage instead
-        rangeAxis.setUpperBound(rangeAxis.getUpperBound()+1.0);
 
+        // This renderer allows to map area for clicks
+        // + it fixes some rendering bug (0 is displayed on "demi" tick instead of "plain" tick)
         final StackedAreaRenderer2 renderer = new StackedAreaRenderer2();
-        renderer.setSeriesPaint(0, Color.yellow);
-        renderer.setSeriesPaint(1, Color.red);
-        renderer.setSeriesPaint(2, Color.gray);
-        renderer.setSeriesPaint(3, Color.blue);
-        renderer.setSeriesPaint(4, Color.pink);
+        renderer.setSeriesPaint(0, new Color(255, 255, 85));
+        renderer.setSeriesPaint(1, new Color(255, 85, 85));
+        renderer.setSeriesPaint(2, new Color(85, 85, 85));
+        renderer.setSeriesPaint(3, new Color(85, 85, 255));
+        renderer.setSeriesPaint(4, new Color(255, 85, 255));
 
-        
         plot.setRenderer(renderer);
         plot.setInsets(new RectangleInsets(5.0, 0, 0, 5.0));
 
@@ -340,9 +322,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
         	// Finding range where the build resides
         	while(nbSteps < config.getHistoricLength() && d1.after(buildDate)){
         		DateRange range = new DateRange(d1, d2);
-        		//if((config.getShownBuildResults() & BuildResult.SUCCESS.code) != 0){
         		dsb.add(nbSuccess, "success", range);
-        		//}
     			dsb.add(nbFailures, "failures", range);
     			dsb.add(nbUnstables, "unstables", range);
     			dsb.add(nbAborted, "aborted", range);
