@@ -43,6 +43,7 @@ import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
+import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -166,7 +167,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	else { return FormValidation.ok(); }
     }
 
-    public void doRecordBuildInfos(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    public HttpResponse doRecordBuildInfos() throws IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
         jobBuildResults.clear();
@@ -180,7 +181,11 @@ public class GlobalBuildStatsPlugin extends Plugin {
 
     	save();
     	
-        res.forwardToPreviousPage(req);
+        return new HttpResponse() {
+			public void generateResponse(StaplerRequest req, StaplerResponse rsp,
+					Object node) throws IOException, ServletException {
+			}
+		};
     }
     
     public void doCreateChart(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
