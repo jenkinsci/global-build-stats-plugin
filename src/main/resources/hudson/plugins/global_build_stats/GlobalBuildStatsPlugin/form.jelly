@@ -102,11 +102,11 @@
       	</j:otherwise>
       </j:choose>
       <j:choose>
-      	<j:when test="${currentBuildStatConfig != '' and ! currentBuildStatConfig.notBuildShown}">
-	      <input type="checkbox" value="true" name="notBuildsShown" />Not Build<br/>
+      	<j:when test="${currentBuildStatConfig != '' and currentBuildStatConfig.notBuildShown}">
+	      <input type="checkbox" value="true" name="notBuildsShown" checked="checked" />Not Build<br/>
       	</j:when>
       	<j:otherwise>
-    	  <input type="checkbox" value="true" name="notBuildsShown" checked="checked" />Not Build<br/>
+    	  <input type="checkbox" value="true" name="notBuildsShown" />Not Build<br/>
       	</j:otherwise>
       </j:choose>
       <input type="hidden" name="buildStatId" value="${buildStatId}" />
