@@ -98,7 +98,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     		super.onCompleted(r, listener);
     		
     		GlobalBuildStatsPlugin plugin = Hudson.getInstance().getPlugin(GlobalBuildStatsPlugin.class);
-    		plugin.addBuild(r);
+    		GlobalBuildStatsPlugin.addBuild(plugin.jobBuildResults, r);
     		try {
 				plugin.save();
 			} catch (IOException e) {
@@ -170,14 +170,16 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public HttpResponse doRecordBuildInfos() throws IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
-        jobBuildResults.clear();
+        List<JobBuildResult> jobBuildResultsRead = new ArrayList<JobBuildResult>();
         
         //TODO fix MatrixProject and use getAllJobs()
         for (TopLevelItem item : Hudson.getInstance().getItems()) {
             if (item instanceof AbstractProject) {
-            	addBuildsFrom((AbstractProject) item);
+            	addBuildsFrom(jobBuildResultsRead, (AbstractProject) item);
             }
         }
+        
+        this.jobBuildResults = mergeJobBuildResults(jobBuildResults, jobBuildResultsRead);
 
     	save();
     	
@@ -393,17 +395,29 @@ public class GlobalBuildStatsPlugin extends Plugin {
         return filteredJobBuildResults;
     }
     	
-	private void addBuildsFrom(AbstractProject project){
+	private static void addBuildsFrom(List<JobBuildResult> jobBuildResultsRead, AbstractProject project){
         List<AbstractBuild> builds = project.getBuilds();
         Iterator<AbstractBuild> buildIterator = builds.iterator();
 
         while (buildIterator.hasNext()) {
-        	addBuild(buildIterator.next());
+        	addBuild(jobBuildResultsRead, buildIterator.next());
         }
 	}
 	
-	private void addBuild(AbstractBuild build){
-    	jobBuildResults.add(JobBuildResultFactory.INSTANCE.createJobBuildResult(build));
+	private static void addBuild(List<JobBuildResult> jobBuildResultsRead, AbstractBuild build){
+		jobBuildResultsRead.add(JobBuildResultFactory.INSTANCE.createJobBuildResult(build));
+	}
+	
+	protected static List<JobBuildResult> mergeJobBuildResults(List<JobBuildResult> existingJobResults, List<JobBuildResult> jobResultsToMerge){
+		List<JobBuildResult> mergedJobResultsList = new ArrayList<JobBuildResult>(existingJobResults);
+		
+		for(JobBuildResult jbrToMerge : jobResultsToMerge){
+			if(!mergedJobResultsList.contains(jbrToMerge)){
+				mergedJobResultsList.add(jbrToMerge);
+			}
+		}
+		
+		return mergedJobResultsList;
 	}
 
 	public BuildStatConfiguration[] getBuildStatConfigs() {

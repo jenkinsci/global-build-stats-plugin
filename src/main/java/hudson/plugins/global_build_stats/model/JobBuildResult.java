@@ -41,4 +41,16 @@ public class JobBuildResult implements Serializable {
 	public int getBuildNumber(){
 		return buildNumber;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof JobBuildResult){
+			JobBuildResult r = (JobBuildResult)obj;
+			return r.buildNumber == this.buildNumber && r.jobName.equals(this.jobName)
+				// In general, "not build" results implies a job result with same jobName & buildNumber but error | failure status
+				&& r.result.equals(this.result);
+		}
+		
+		return false;
+	}
 }

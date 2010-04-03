@@ -182,8 +182,7 @@
 	<strong>Data Initialization</strong><br/>
     <em>
       Clic button below to initialize build statistics<br/>
-      <strong>BEWARE</strong> : By doing this, you will delete statistics already registered.
-      Especially cleaned (and thus, unrecoverable) job results.<br/>
+      Job results read will be merged with already recorded job results.<br/>
     </em>
     <span id="initializeStatsMessage" style="color: rgb(52, 101, 0); display: none;">
     	<strong>Data successfully initialized !</strong>&#160;
