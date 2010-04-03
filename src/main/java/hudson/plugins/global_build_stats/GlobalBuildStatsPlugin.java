@@ -4,12 +4,10 @@ import hudson.Extension;
 import hudson.Plugin;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
-import hudson.model.CheckPoint;
 import hudson.model.Hudson;
 import hudson.model.ManagementLink;
 import hudson.model.TaskListener;
 import hudson.model.TopLevelItem;
-import hudson.model.Descriptor.FormException;
 import hudson.model.listeners.RunListener;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.DateRange;
@@ -33,8 +31,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.servlet.ServletException;
-
-import net.sf.json.JSONObject;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -171,7 +167,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     }
 
     public void doRecordBuildInfos(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
-    	Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+    	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
         jobBuildResults.clear();
         
@@ -188,7 +184,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     }
     
     public void doCreateChart(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
-    	Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+    	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
     	BuildStatConfiguration config = createBuildStatConfig(req);
     	List<JobBuildResult> filteredJobBuildResults = createFilteredAndSortedBuildResults(config);
@@ -221,7 +217,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
 	}
     
     public void doUpdateBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
-    	Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+    	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
     	this.buildStatConfigs.set(Integer.parseInt(req.getParameter("buildStatId")), createBuildStatConfig(req));
     	save();
@@ -229,7 +225,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     }
     
     public void doAddBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
-    	Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+    	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
     	this.buildStatConfigs.add(createBuildStatConfig(req));
     	save();
@@ -237,7 +233,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     }
     
     public void doDeleteConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
-    	Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+    	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
     	this.buildStatConfigs.remove(Integer.parseInt(req.getParameter("buildStatId")));
     	save();
@@ -245,7 +241,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     }
     
     public void doMoveUpConf(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
-    	Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+    	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
     	// Swapping build confs
     	int index = Integer.parseInt(req.getParameter("buildStatId"));
@@ -257,7 +253,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     }
     
     public void doMoveDownConf(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
-    	Hudson.getInstance().checkPermission(Hudson.ADMINISTER);
+    	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
     	// Swapping build confs
     	int index = Integer.parseInt(req.getParameter("buildStatId"));
