@@ -98,10 +98,14 @@ public class GlobalBuildStatsPlugin extends Plugin {
     		super.onCompleted(r, listener);
     		
     		GlobalBuildStatsPlugin plugin = Hudson.getInstance().getPlugin(GlobalBuildStatsPlugin.class);
-    		GlobalBuildStatsPlugin.addBuild(plugin.jobBuildResults, r);
-    		try {
-				plugin.save();
-			} catch (IOException e) {
+    		synchronized (plugin) {
+        		GlobalBuildStatsPlugin.addBuild(plugin.jobBuildResults, r);
+        		
+        		try {
+    				plugin.save();
+    			} catch (IOException e) {
+    				
+    			}
 			}
     	}
     }
@@ -172,16 +176,18 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	
         List<JobBuildResult> jobBuildResultsRead = new ArrayList<JobBuildResult>();
         
-        //TODO fix MatrixProject and use getAllJobs()
-        for (TopLevelItem item : Hudson.getInstance().getItems()) {
-            if (item instanceof AbstractProject) {
-            	addBuildsFrom(jobBuildResultsRead, (AbstractProject) item);
+        synchronized (this) {
+            //TODO fix MatrixProject and use getAllJobs()
+            for (TopLevelItem item : Hudson.getInstance().getItems()) {
+                if (item instanceof AbstractProject) {
+                	addBuildsFrom(jobBuildResultsRead, (AbstractProject) item);
+                }
             }
-        }
-        
-        this.jobBuildResults = mergeJobBuildResults(jobBuildResults, jobBuildResultsRead);
+            
+            this.jobBuildResults = mergeJobBuildResults(jobBuildResults, jobBuildResultsRead);
 
-    	save();
+        	save();
+		}
     	
         return new HttpResponse() {
 			public void generateResponse(StaplerRequest req, StaplerResponse rsp,
@@ -226,24 +232,33 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void doUpdateBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
-    	this.buildStatConfigs.set(Integer.parseInt(req.getParameter("buildStatId")), createBuildStatConfig(req));
-    	save();
+    	synchronized(this){
+	    	this.buildStatConfigs.set(Integer.parseInt(req.getParameter("buildStatId")), createBuildStatConfig(req));
+	    	save();
+    	}
+    	
     	res.forwardToPreviousPage(req);
     }
     
     public void doAddBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
-    	this.buildStatConfigs.add(createBuildStatConfig(req));
-    	save();
+    	synchronized(this){
+	    	this.buildStatConfigs.add(createBuildStatConfig(req));
+	    	save();
+    	}
+    	
     	res.forwardToPreviousPage(req);
     }
     
     public void doDeleteConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
-    	this.buildStatConfigs.remove(Integer.parseInt(req.getParameter("buildStatId")));
-    	save();
+    	synchronized(this){
+    		this.buildStatConfigs.remove(Integer.parseInt(req.getParameter("buildStatId")));
+    		save();
+    	}
+    	
         res.forwardToPreviousPage(req);
     }
     
@@ -252,10 +267,14 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	
     	// Swapping build confs
     	int index = Integer.parseInt(req.getParameter("buildStatId"));
-    	BuildStatConfiguration b = this.buildStatConfigs.get(index);
-    	this.buildStatConfigs.set(index, this.buildStatConfigs.get(index-1));
-    	this.buildStatConfigs.set(index-1, b);
-    	save();
+
+    	synchronized(this){
+	    	BuildStatConfiguration b = this.buildStatConfigs.get(index);
+	    	this.buildStatConfigs.set(index, this.buildStatConfigs.get(index-1));
+	    	this.buildStatConfigs.set(index-1, b);
+	    	save();
+    	}
+    	
         res.forwardToPreviousPage(req);
     }
     
@@ -264,10 +283,14 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	
     	// Swapping build confs
     	int index = Integer.parseInt(req.getParameter("buildStatId"));
-    	BuildStatConfiguration b = this.buildStatConfigs.get(index);
-    	this.buildStatConfigs.set(index, this.buildStatConfigs.get(index+1));
-    	this.buildStatConfigs.set(index+1, b);
-    	save();
+
+    	synchronized(this){
+	    	BuildStatConfiguration b = this.buildStatConfigs.get(index);
+	    	this.buildStatConfigs.set(index, this.buildStatConfigs.get(index+1));
+	    	this.buildStatConfigs.set(index+1, b);
+	    	save();
+    	}
+    	
         res.forwardToPreviousPage(req);
     }
     
