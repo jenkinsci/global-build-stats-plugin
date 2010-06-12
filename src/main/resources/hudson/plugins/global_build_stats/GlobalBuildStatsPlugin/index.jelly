@@ -144,10 +144,26 @@
 	</j:if>
     <j:forEach var="buildStatConfig" items="${it.buildStatConfigs}" varStatus="status">
     	<div style="clear:left;">
+    		<a name="buildStat_${status.index}" />
 			<img style="display:inline; float:left; margin-bottom: 10px; margin-right: 10px;"
 				src="${rootURL}/plugin/global-build-stats/createChart?title=${buildStatConfig.buildStatTitle}&amp;buildStatWidth=${buildStatConfig.buildStatWidth}&amp;buildStatHeight=${buildStatConfig.buildStatHeight}&amp;historicLength=${buildStatConfig.historicLength}&amp;historicScale=${buildStatConfig.historicScale}&amp;successShown=${buildStatConfig.successShown}&amp;failuresShown=${buildStatConfig.failuresShown}&amp;unstablesShown=${buildStatConfig.unstablesShown}&amp;abortedShown=${buildStatConfig.abortedShown}&amp;notBuildsShown=${buildStatConfig.notBuildShown}&amp;jobFilter=${buildStatConfig.jobFilter}" /><br/>
 			
-			<input type="submit" id="edit_${status.index}" class="submit-button" onclick="document.getElementById('edit_${status.index}').style.display='none'; document.getElementById('global_${status.index}').style.display='block';" value="Edit" />
+			<a href="#buildStat_${status.index}" id="edit_${status.index}" onclick="document.getElementById('edit_${status.index}').style.display='none'; document.getElementById('global_${status.index}').style.display='block';">
+				<img src="${rootURL}/plugin/global-build-stats/icons/save-new.png" height="36" />
+			</a>
+		    <j:if test="${! status.first}">
+				<a href="#buildStat_${status.index}" onclick="window.location='${rootURL}/plugin/global-build-stats/moveUpConf?buildStatId=${status.index}';">
+					<img src="${rootURL}/plugin/global-build-stats/icons/up.png" height="36" />
+				</a>
+			</j:if>
+		    <j:if test="${! status.last}">
+				<a href="#buildStat_${status.index}" onclick="window.location='${rootURL}/plugin/global-build-stats/moveDownConf?buildStatId=${status.index}';">
+					<img src="${rootURL}/plugin/global-build-stats/icons/down.png" height="36" />
+				</a>
+			</j:if>
+			<a href="#buildStat_${status.index}" onclick="if(confirm('Are you sure to delete this build stat configuration ?')){ window.location='${rootURL}/plugin/global-build-stats/deleteConfiguration?buildStatId=${status.index}'; }">
+				<img src="${rootURL}/plugin/global-build-stats/icons/stop.png" height="36" />
+			</a>
 			<div id="global_${status.index}" style="display:none">
 				<j:set var="formAction" value="updateBuildStatConfiguration" />
 				<j:set var="formSubmitLabel" value="Update build stat configuration" />
@@ -155,13 +171,6 @@
 				<j:set var="buildStatId" value="${status.index}" />
 			    <st:include page="/hudson/plugins/global_build_stats/GlobalBuildStatsPlugin/form.jelly" />
 		    </div>
-		    <j:if test="${! status.first}">
-			    <input type="submit" class="submit-button" onclick="window.location='${rootURL}/plugin/global-build-stats/moveUpConf?buildStatId=${status.index}';" value="Move up" />
-			</j:if>
-		    <j:if test="${! status.last}">
-			    <input type="submit" class="submit-button" onclick="window.location='${rootURL}/plugin/global-build-stats/moveDownConf?buildStatId=${status.index}';" value="Move down" />
-			</j:if>
-		    <input type="submit" class="submit-button" onclick="if(confirm('Are you sure to delete this build stat configuration ?')){ window.location='${rootURL}/plugin/global-build-stats/deleteConfiguration?buildStatId=${status.index}'; }" value="Delete build stat" />
 		</div>
 	</j:forEach>
 	
