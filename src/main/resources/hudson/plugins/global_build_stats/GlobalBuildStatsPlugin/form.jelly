@@ -26,11 +26,9 @@
       <select id="${buildStatId}_historicScale" 
       		  name="historicScale" checkUrl="'${rootURL}/plugin/global-build-stats/checkHistoricScale?value='+escape(field.value)"
       		  onchange="validateField(this); changeChartLengthUnit('${buildStatId}', this.value);">
-        <option value="HOURLY" selected="selected">HOURLY</option>
-        <option value="DAILY">DAILY</option>
-        <option value="WEEKLY">WEEKLY</option>
-        <option value="MONTHLY">MONTHLY</option>
-        <option value="YEARLY">YEARLY</option>
+      	<j:forEach var="historicScale" items="${it.historicScales}" varStatus="status">
+	        <option value="${historicScale}">${historicScale}</option>
+      	</j:forEach>
       </select><span class="validation-error-area" style="display:inline-block;"></span><br/>
       Chart length :
 	  <input type="text" name="historicLength" 
@@ -38,14 +36,14 @@
       		 checkUrl="'${rootURL}/plugin/global-build-stats/checkHistoricLength?value='+escape(field.value)"
       		 onblur="validateField(this);" onchange="validateField(this);"
 	  />
-      <span id="${buildStatId}_HOURLY">hours</span>
-      <span id="${buildStatId}_DAILY" style="display:none">days</span>
-      <span id="${buildStatId}_WEEKLY" style="display:none">weeks</span>
-      <span id="${buildStatId}_MONTHLY" style="display:none">months</span>
-      <span id="${buildStatId}_YEARLY" style="display:none">years</span>
+      <j:forEach var="historicScale" items="${it.historicScales}" varStatus="status">
+        <span id="${buildStatId}_${historicScale}" style="display:none">${historicScale.label}</span>
+      </j:forEach>
       <span class="validation-error-area" style="display:inline-block;"></span><br/>
 	  <script type="text/javascript"><![CDATA[
-	  if('${currentBuildStatConfig.historicScale}' != ''){
+	  if('${currentBuildStatConfig.historicScale}' == ''){
+	  	  selectionOption(document.getElementById('${buildStatId}_historicScale'), '${it.historicScales[0]}');
+	  } else {
 		  selectionOption(document.getElementById('${buildStatId}_historicScale'), '${currentBuildStatConfig.historicScale}');
 	  }
 	  ]]></script>

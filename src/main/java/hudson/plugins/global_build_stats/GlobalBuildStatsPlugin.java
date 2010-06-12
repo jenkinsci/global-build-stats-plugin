@@ -451,4 +451,8 @@ public class GlobalBuildStatsPlugin extends Plugin {
 	public Permission getRequiredPermission(){
 		return Hudson.ADMINISTER;
 	}
+	
+	public HistoricScale[] getHistoricScales(){
+		return HistoricScale.values();
+	}
 }

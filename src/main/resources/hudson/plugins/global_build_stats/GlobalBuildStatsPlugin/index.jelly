@@ -53,7 +53,7 @@
 		return divErrorPresent;
 	}
 	
-	chartLengthUnits = new Array("HOURLY", "DAILY", "WEEKLY", "MONTHLY", "YEARLY");
+	chartLengthUnits = new Array();
 	function changeChartLengthUnit(formId, scale){
 		for(var i=0; i<chartLengthUnits.length; i++){
 		    if(scale == chartLengthUnits[i]){
@@ -124,6 +124,10 @@
 	Behaviour.register(Object.extend(hudsonRules, myHudsonRules));
 	Behaviour.apply();
 	]]></script>
+	<script type="text/javascript">
+	<j:forEach var="historicScale" items="${it.historicScales}" varStatus="status">
+	chartLengthUnits[${status.index}] = "${historicScale}";</j:forEach>
+	</script>
 	
     <h1><img src="${rootURL}/plugin/global-build-stats/icons/global-build-stats.png" /> Global Build Stats </h1>
     <hr />
