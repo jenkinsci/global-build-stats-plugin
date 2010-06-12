@@ -295,6 +295,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     }
     
     private BuildStatConfiguration createBuildStatConfig(StaplerRequest req){
+    	// TODO: refactor this using StaplerRequest.bindParameters() with introspection !
     	return new BuildStatConfiguration(
     			req.getParameter("title"), 
     			Integer.parseInt(req.getParameter("buildStatWidth")),

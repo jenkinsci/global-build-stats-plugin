@@ -15,6 +15,9 @@ public class BuildStatConfiguration implements Serializable {
 	private String jobFilter = JobFilterFactory.ALL_JOBS_FILTER_PATTERN;
 	private short shownBuildResults;
 	
+	public BuildStatConfiguration(){
+	}
+	
 	public BuildStatConfiguration(String _buildStatTitle, int _buildStatWidth, int _buildStatHeight, 
 			int _historicLength, HistoricScale _historicScale, String _jobFilter, 
 			boolean successShown, boolean failuresShown, boolean unstablesShown, 
@@ -81,5 +84,29 @@ public class BuildStatConfiguration implements Serializable {
 
 	public String getJobFilter() {
 		return jobFilter;
+	}
+
+	public void setBuildStatTitle(String buildStatTitle) {
+		this.buildStatTitle = buildStatTitle;
+	}
+
+	public void setBuildStatWidth(int buildStatWidth) {
+		this.buildStatWidth = buildStatWidth;
+	}
+
+	public void setBuildStatHeight(int buildStatHeight) {
+		this.buildStatHeight = buildStatHeight;
+	}
+
+	public void setHistoricLength(int historicLength) {
+		this.historicLength = historicLength;
+	}
+
+	public void setHistoricScale(String historicScale) {
+		this.historicScale = HistoricScale.valueOf(historicScale);
+	}
+
+	public void setJobFilter(String jobFilter) {
+		this.jobFilter = jobFilter;
 	}
 }
