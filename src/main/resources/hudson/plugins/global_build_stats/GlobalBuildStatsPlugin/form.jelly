@@ -40,13 +40,18 @@
         <span id="${buildStatId}_${historicScale}" style="display:none">${historicScale.label}</span>
       </j:forEach>
       <span class="validation-error-area" style="display:inline-block;"></span><br/>
-	  <script type="text/javascript"><![CDATA[
-	  if('${currentBuildStatConfig.historicScale}' == ''){
-	  	  selectionOption(document.getElementById('${buildStatId}_historicScale'), '${it.historicScales[0]}');
-	  } else {
+      <j:choose>
+      	<j:when test="${currentBuildStatConfig.historicScale != null}">
+		  <script type="text/javascript"><![CDATA[
 		  selectionOption(document.getElementById('${buildStatId}_historicScale'), '${currentBuildStatConfig.historicScale}');
-	  }
-	  ]]></script>
+		  ]]></script>
+      	</j:when>
+      	<j:otherwise>
+		  <script type="text/javascript"><![CDATA[
+	  	  selectionOption(document.getElementById('${buildStatId}_historicScale'), '${it.historicScales[0]}');
+		  ]]></script>
+      	</j:otherwise>
+      </j:choose>
       Job filtering : <input type="radio" id="${buildStatId}_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="ALL" onchange="jobFilterTypeSelected('${buildStatId}', this.value);" />ALL Jobs
       <input type="radio" id="${buildStatId}_jobFilteringType_REGEX" name="jobFilteringType" value="jobNameRegex" onchange="jobFilterTypeSelected('${buildStatId}', this.value);" />
       Job name regex :
@@ -54,11 +59,14 @@
       		 disabled="true" name="jobNameRegex" size="10" 
       		 onblur="document.getElementById('${buildStatId}_jobFilter').value='jobNameRegex('+this.value+')';" 
       />
-      <input id="${buildStatId}_jobFilter" type="hidden" name="jobFilter" value="${currentBuildStatConfig.jobFilter}" /><br/>
+      <j:invokeStatic var="escapedJobFilter" className="hudson.plugins.global_build_stats.utils.UIUtils" method="escapeAntiSlashes">
+      	<j:arg type="java.lang.String" value="${currentBuildStatConfig.jobFilter}" />
+      </j:invokeStatic>
+      <input id="${buildStatId}_jobFilter" type="hidden" name="jobFilter" value="${escapedJobFilter}" /><br/>
 	  <script type="text/javascript"><![CDATA[
 	  if(document.getElementById('${buildStatId}_jobFilter').value.indexOf('jobNameRegex') != -1){
 	  	  document.getElementById('${buildStatId}_jobFilteringType_REGEX').checked = 'checked';
-	  	  initializeRegexField('${buildStatId}', '${currentBuildStatConfig.jobFilter}');
+	  	  initializeRegexField('${buildStatId}', '${escapedJobFilter}');
 	  	  document.getElementById('${buildStatId}_jobFilteringType_REGEX').onchange();
 	  	  document.getElementById('${buildStatId}_jobNameRegex').disabled = false;
 	  } else if(document.getElementById('${buildStatId}_jobFilter').value.indexOf('ALL') != -1){
