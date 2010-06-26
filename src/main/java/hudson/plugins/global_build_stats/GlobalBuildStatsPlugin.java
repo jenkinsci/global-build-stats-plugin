@@ -2,12 +2,12 @@ package hudson.plugins.global_build_stats;
 
 import hudson.Extension;
 import hudson.Plugin;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.Hudson;
 import hudson.model.ManagementLink;
 import hudson.model.TaskListener;
 import hudson.model.TopLevelItem;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
+import hudson.model.Hudson;
 import hudson.model.listeners.RunListener;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.DateRange;
@@ -367,7 +367,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	while(nbSteps != config.getHistoricLength()){
         	// Finding range where the build resides
         	while(nbSteps < config.getHistoricLength() && d1.after(buildDate)){
-        		DateRange range = new DateRange(d1, d2);
+        		DateRange range = new DateRange(d1, d2, config.getHistoricScale().getDateRangeFormatter());
         		dsb.add(nbSuccess, "success", range);
     			dsb.add(nbFailures, "failures", range);
     			dsb.add(nbUnstables, "unstables", range);

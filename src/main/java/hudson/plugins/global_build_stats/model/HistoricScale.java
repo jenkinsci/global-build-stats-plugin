@@ -1,32 +1,37 @@
 package hudson.plugins.global_build_stats.model;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public enum HistoricScale {
-	HOURLY(Calendar.HOUR, new Integer[]{ Calendar.MINUTE }, "hours"),
-	HOURLY_FROM_NOW(Calendar.HOUR, "hours"),
-	DAILY(Calendar.DAY_OF_YEAR, new Integer[]{ Calendar.HOUR, Calendar.MINUTE }, "days"),
-	DAILY_FROM_NOW(Calendar.DAY_OF_YEAR, "days"),
-	WEEKLY(Calendar.WEEK_OF_YEAR, new Integer[]{ Calendar.DAY_OF_WEEK, Calendar.HOUR, Calendar.MINUTE}, "weeks"),
-	WEEKLY_FROM_NOW(Calendar.WEEK_OF_YEAR, "weeks"),
-	MONTHLY(Calendar.MONTH, new Integer[]{ Calendar.DAY_OF_MONTH, Calendar.HOUR, Calendar.MINUTE}, "monthes"),
-	MONTHLY_FROM_NOW(Calendar.MONTH, "monthes"),
-	YEARLY(Calendar.YEAR, new Integer[]{ Calendar.MONTH, Calendar.DAY_OF_YEAR, Calendar.HOUR, Calendar.MINUTE}, "years"),
-	YEARLY_FROM_NOW(Calendar.YEAR, "years");
+	HOURLY(Calendar.HOUR, new Integer[]{ Calendar.MINUTE }, "hours", "EEE HH:mm"),
+	HOURLY_FROM_NOW(Calendar.HOUR, "hours", "EEE HH:mm"),
+	DAILY(Calendar.DAY_OF_YEAR, new Integer[]{ Calendar.HOUR, Calendar.MINUTE }, "days", "EEE dd HH'h'"),
+	DAILY_FROM_NOW(Calendar.DAY_OF_YEAR, "days", "EEE dd HH'h'"),
+	WEEKLY(Calendar.WEEK_OF_YEAR, new Integer[]{ Calendar.DAY_OF_WEEK, Calendar.HOUR, Calendar.MINUTE}, "weeks", "'W'w, EEE"),
+	WEEKLY_FROM_NOW(Calendar.WEEK_OF_YEAR, "weeks", "'W'w, EEE"),
+	MONTHLY(Calendar.MONTH, new Integer[]{ Calendar.DAY_OF_MONTH, Calendar.HOUR, Calendar.MINUTE}, "monthes", "dd MMM ''yy"),
+	MONTHLY_FROM_NOW(Calendar.MONTH, "monthes", "dd MMM ''yy"),
+	YEARLY(Calendar.YEAR, new Integer[]{ Calendar.MONTH, Calendar.DAY_OF_YEAR, Calendar.HOUR, Calendar.MINUTE}, "years", "''yy 'd'D"),
+	YEARLY_FROM_NOW(Calendar.YEAR, "years", "''yy 'd'D");
 	
 	private int calendarField;
 	private Integer[] fieldsToReset;
 	private String tickLabel;
+	private DateFormat dateRangeFormatter;
 	
 	
-	private HistoricScale(int _calendarField, String tickLabel){
-		this(_calendarField, new Integer[0], tickLabel);
+	private HistoricScale(int _calendarField, String tickLabel, String dateRangeFormatterPattern){
+		this(_calendarField, new Integer[0], tickLabel, dateRangeFormatterPattern);
 	}
 	
-	private HistoricScale(int _calendarField, Integer[] _fieldsToReset, String tickLabel){
+	private HistoricScale(int _calendarField, Integer[] _fieldsToReset, String tickLabel, String dateRangeFormatterPattern){
 		this.calendarField = _calendarField;
 		this.fieldsToReset = _fieldsToReset;
 		this.tickLabel = tickLabel;
+		// TODO: internationalize this !
+		this.dateRangeFormatter = new SimpleDateFormat(dateRangeFormatterPattern);
 	}
 	
 	public String getLabel(){
@@ -69,5 +74,9 @@ public enum HistoricScale {
 			resetValue = 0;
 		}
 		return resetValue;
+	}
+
+	public DateFormat getDateRangeFormatter() {
+		return dateRangeFormatter;
 	}
 }
