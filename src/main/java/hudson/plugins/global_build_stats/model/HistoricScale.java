@@ -5,15 +5,15 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public enum HistoricScale {
-	HOURLY(Calendar.HOUR, new Integer[]{ Calendar.MINUTE }, "hours", "EEE HH:mm"),
-	HOURLY_FROM_NOW(Calendar.HOUR, "hours", "EEE HH:mm"),
-	DAILY(Calendar.DAY_OF_YEAR, new Integer[]{ Calendar.HOUR, Calendar.MINUTE }, "days", "EEE dd HH'h'"),
+	HOURLY(Calendar.HOUR_OF_DAY, new Integer[]{ Calendar.MINUTE }, "hours", "EEE HH:mm"),
+	HOURLY_FROM_NOW(Calendar.HOUR_OF_DAY, "hours", "EEE HH:mm"),
+	DAILY(Calendar.DAY_OF_YEAR, new Integer[]{ Calendar.HOUR_OF_DAY, Calendar.MINUTE }, "days", "EEE dd HH'h'"),
 	DAILY_FROM_NOW(Calendar.DAY_OF_YEAR, "days", "EEE dd HH'h'"),
-	WEEKLY(Calendar.WEEK_OF_YEAR, new Integer[]{ Calendar.DAY_OF_WEEK, Calendar.HOUR, Calendar.MINUTE}, "weeks", "'W'w, EEE"),
+	WEEKLY(Calendar.WEEK_OF_YEAR, new Integer[]{ Calendar.DAY_OF_WEEK, Calendar.HOUR_OF_DAY, Calendar.MINUTE}, "weeks", "'W'w, EEE"),
 	WEEKLY_FROM_NOW(Calendar.WEEK_OF_YEAR, "weeks", "'W'w, EEE"),
-	MONTHLY(Calendar.MONTH, new Integer[]{ Calendar.DAY_OF_MONTH, Calendar.HOUR, Calendar.MINUTE}, "monthes", "dd MMM ''yy"),
+	MONTHLY(Calendar.MONTH, new Integer[]{ Calendar.DAY_OF_MONTH, Calendar.HOUR_OF_DAY, Calendar.MINUTE}, "monthes", "dd MMM ''yy"),
 	MONTHLY_FROM_NOW(Calendar.MONTH, "monthes", "dd MMM ''yy"),
-	YEARLY(Calendar.YEAR, new Integer[]{ Calendar.MONTH, Calendar.DAY_OF_YEAR, Calendar.HOUR, Calendar.MINUTE}, "years", "''yy 'd'D"),
+	YEARLY(Calendar.YEAR, new Integer[]{ Calendar.MONTH, Calendar.DAY_OF_YEAR, Calendar.HOUR_OF_DAY, Calendar.MINUTE}, "years", "''yy 'd'D"),
 	YEARLY_FROM_NOW(Calendar.YEAR, "years", "''yy 'd'D");
 	
 	private int calendarField;
