@@ -5,21 +5,29 @@ import java.util.Calendar;
 
 public class DateRange implements Comparable<DateRange> {
 
-	private Calendar d1, d2;
+	private Calendar start, end;
 	private DateFormat dateFormatter;
 	
-	public DateRange(Calendar _d1, Calendar _d2, DateFormat _dateFormatter){
-		this.d1 = (Calendar)_d1.clone();
-		this.d2 = (Calendar)_d2.clone();
+	public DateRange(Calendar _start, Calendar _end, DateFormat _dateFormatter){
+		this.start = (Calendar)_start.clone();
+		this.end = (Calendar)_end.clone();
 		this.dateFormatter = _dateFormatter;
 	}
 	
 	public int compareTo(DateRange o) {
-		return this.d1.compareTo(o.d1);
+		return this.start.compareTo(o.start);
 	}
 	
 	@Override
 	public String toString() {
-		return new StringBuilder().append(dateFormatter.format(d1.getTime())).append(" --> ").append(dateFormatter.format(d2.getTime())).toString();
+		return new StringBuilder().append(dateFormatter.format(start.getTime())).append(" --> ").append(dateFormatter.format(end.getTime())).toString();
+	}
+
+	public Calendar getStart() {
+		return start;
+	}
+
+	public Calendar getEnd() {
+		return end;
 	}
 }

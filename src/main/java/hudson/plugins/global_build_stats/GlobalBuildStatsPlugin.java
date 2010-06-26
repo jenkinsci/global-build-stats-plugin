@@ -9,6 +9,8 @@ import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Hudson;
 import hudson.model.listeners.RunListener;
+import hudson.plugins.global_build_stats.model.BuildHistorySearchCriteria;
+import hudson.plugins.global_build_stats.model.BuildResult;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.DateRange;
 import hudson.plugins.global_build_stats.model.HistoricScale;
@@ -83,7 +85,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
         }
         
         @Override public String getDescription() {
-            return "Displays stats about daily build failures";
+            return "Displays stats about daily build results";
         }
     }
     
@@ -207,6 +209,48 @@ public class GlobalBuildStatsPlugin extends Plugin {
         		config.getBuildStatWidth(), config.getBuildStatHeight());
     }
     
+    public void doCreateChartMap(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    	Hudson.getInstance().checkPermission(getRequiredPermission());
+    	BuildStatConfiguration config = createBuildStatConfig(req);
+    	List<JobBuildResult> filteredJobBuildResults = createFilteredAndSortedBuildResults(config);
+        DataSetBuilder<String, DateRange> dsb = createDataSetBuilder(filteredJobBuildResults, config);
+    	
+        ChartUtil.generateClickableMap(req, res, createChart(req, dsb.build(), config.getBuildStatTitle()), 
+        		config.getBuildStatWidth(), config.getBuildStatHeight());
+    }
+    
+    public void doBuildHistory(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    	Hudson.getInstance().checkPermission(getRequiredPermission());
+    	
+    	BuildHistorySearchCriteria searchCriteria = new BuildHistorySearchCriteria();
+    	req.bindParameters(searchCriteria);
+    	
+    	JobFilter jobFilter = JobFilterFactory.createJobFilter(searchCriteria.jobFilter);
+    	List<JobBuildResult> filteredJobBuildResults = new ArrayList<JobBuildResult>();
+        for(JobBuildResult r : jobBuildResults){
+        	if(r.getBuildDate().getTimeInMillis() >= searchCriteria.start
+        			&& r.getBuildDate().getTimeInMillis() < searchCriteria.end
+        			&& jobResultStatusMatchesWith(r.getResult(), searchCriteria)
+        			&& jobFilter.isJobApplicable(r.getJobName())){
+        		filteredJobBuildResults.add(r);
+        	}
+        }
+        
+        // Sorting on job results dates
+        sortJobBuildResultsByBuildDate(filteredJobBuildResults);
+    	
+        req.setAttribute("jobResults", filteredJobBuildResults);
+    	req.getView(this, "buildHistory/index.jelly").forward(req, res);
+    }
+    
+    protected static boolean jobResultStatusMatchesWith(BuildResult r, BuildHistorySearchCriteria c){
+    	return (BuildResult.ABORTED.equals(r) && c.abortedShown)
+					|| (BuildResult.FAILURE.equals(r) && c.failuresShown)
+					|| (BuildResult.NOT_BUILD.equals(r) && c.notBuildShown)
+					|| (BuildResult.SUCCESS.equals(r) && c.successShown)
+					|| (BuildResult.UNSTABLE.equals(r) && c.unstablesShown);
+    }
+    
 	protected static boolean isInt(String value){
 		try{
 			Integer.parseInt(value);
@@ -310,7 +354,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     			Boolean.parseBoolean(req.getParameter("notBuildsShown")));
     }
     
-    private JFreeChart createChart(StaplerRequest req, CategoryDataset dataset, String title) {
+    private JFreeChart createChart(final StaplerRequest req, CategoryDataset dataset, String title) {
 
     	final JFreeChart chart = ChartFactory.createStackedAreaChart(title, null, "Count", dataset, PlotOrientation.VERTICAL, true, true, false);
         chart.setBackgroundPaint(Color.white);
@@ -335,7 +379,45 @@ public class GlobalBuildStatsPlugin extends Plugin {
 
         // This renderer allows to map area for clicks
         // + it fixes some rendering bug (0 is displayed on "demi" tick instead of "plain" tick)
-        final StackedAreaRenderer2 renderer = new StackedAreaRenderer2();
+        final StackedAreaRenderer2 renderer = new StackedAreaRenderer2(){
+            @Override
+            public String generateURL(CategoryDataset dataset, int row, int column) {
+                DateRange range = (DateRange) dataset.getColumnKey(column);
+                String status = (String) dataset.getRowKey(row);
+                
+                boolean successShown=BuildResultConstants.SUCCESS.equals(status);
+                boolean failuresShown=BuildResultConstants.FAILURES.equals(status);
+                boolean unstablesShown=BuildResultConstants.UNSTABLES.equals(status);
+                boolean abortedShown=BuildResultConstants.ABORTED.equals(status);
+                boolean notBuildShown=BuildResultConstants.NOT_BUILD.equals(status);
+                
+                return new StringBuilder()
+                	.append("buildHistory?jobFilter=").append(req.getParameter("jobFilter"))
+                	.append("&start=").append(range.getStart().getTimeInMillis())
+                	.append("&end=").append(range.getEnd().getTimeInMillis())
+                	.append("&successShown=").append(successShown)
+                	.append("&failuresShown=").append(failuresShown)
+                	.append("&unstablesShown=").append(unstablesShown)
+                	.append("&abortedShown=").append(abortedShown)
+                	.append("&notBuildShown=").append(notBuildShown).toString();
+            }
+
+/*          TODO: add tooltip  
+			@Override
+            public String generateToolTip(CategoryDataset dataset, int row, int column) {
+                NumberOnlyBuildLabel label = (NumberOnlyBuildLabel) dataset.getColumnKey(column);
+                AbstractTestResultAction a = label.build.getAction(AbstractTestResultAction.class);
+                switch (row) {
+                    case 0:
+                        return String.valueOf(Messages.AbstractTestResultAction_fail(a.getFailCount()));
+                    case 1:
+                        return String.valueOf(Messages.AbstractTestResultAction_skip(a.getSkipCount()));
+                    default:
+                        return String.valueOf(Messages.AbstractTestResultAction_test(a.getTotalCount()));
+                }
+            }*/
+        };
+        plot.setRenderer(renderer);
         renderer.setSeriesPaint(0, new Color(255, 255, 85));
         renderer.setSeriesPaint(1, new Color(255, 85, 85));
         renderer.setSeriesPaint(2, new Color(85, 85, 85));
@@ -368,11 +450,11 @@ public class GlobalBuildStatsPlugin extends Plugin {
         	// Finding range where the build resides
         	while(nbSteps < config.getHistoricLength() && d1.after(buildDate)){
         		DateRange range = new DateRange(d1, d2, config.getHistoricScale().getDateRangeFormatter());
-        		dsb.add(nbSuccess, "success", range);
-    			dsb.add(nbFailures, "failures", range);
-    			dsb.add(nbUnstables, "unstables", range);
-    			dsb.add(nbAborted, "aborted", range);
-    			dsb.add(nbNotBuild, "not build", range);
+        		dsb.add(nbSuccess, BuildResultConstants.SUCCESS, range);
+    			dsb.add(nbFailures, BuildResultConstants.FAILURES, range);
+    			dsb.add(nbUnstables, BuildResultConstants.UNSTABLES, range);
+    			dsb.add(nbAborted, BuildResultConstants.ABORTED, range);
+    			dsb.add(nbNotBuild, BuildResultConstants.NOT_BUILD, range);
         		
 				d2 = (Calendar)d1.clone();
 				d1 = config.getHistoricScale().getPreviousStep(d2);
@@ -410,15 +492,19 @@ public class GlobalBuildStatsPlugin extends Plugin {
         }
         
         // Sorting on job results dates
-        Collections.sort(filteredJobBuildResults, Collections.reverseOrder(new Comparator<JobBuildResult>() {
-        	public int compare(JobBuildResult o1, JobBuildResult o2) {
-        		return o1.getBuildDate().compareTo(o2.getBuildDate());
-        	}
-		}));
+        sortJobBuildResultsByBuildDate(filteredJobBuildResults);
         
         return filteredJobBuildResults;
     }
     	
+    private static void sortJobBuildResultsByBuildDate(List<JobBuildResult> c){
+        Collections.sort(c, Collections.reverseOrder(new Comparator<JobBuildResult>() {
+        	public int compare(JobBuildResult o1, JobBuildResult o2) {
+        		return o1.getBuildDate().compareTo(o2.getBuildDate());
+        	}
+		}));
+    }
+    
 	private static void addBuildsFrom(List<JobBuildResult> jobBuildResultsRead, AbstractProject project){
         List<AbstractBuild> builds = project.getBuilds();
         Iterator<AbstractBuild> buildIterator = builds.iterator();
