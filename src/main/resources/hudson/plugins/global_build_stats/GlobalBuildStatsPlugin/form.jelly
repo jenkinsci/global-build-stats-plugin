@@ -59,7 +59,7 @@
       		 disabled="true" name="jobNameRegex" size="10" 
       		 onblur="document.getElementById('${buildStatId}_jobFilter').value='jobNameRegex('+this.value+')';" 
       />
-      <j:invokeStatic var="escapedJobFilter" className="hudson.plugins.global_build_stats.utils.UIUtils" method="escapeAntiSlashes">
+      <j:invokeStatic var="escapedJobFilter" className="hudson.plugins.global_build_stats.GlobalBuildStatsPlugin" method="escapeAntiSlashes">
       	<j:arg type="java.lang.String" value="${currentBuildStatConfig.jobFilter}" />
       </j:invokeStatic>
       <input id="${buildStatId}_jobFilter" type="hidden" name="jobFilter" value="${escapedJobFilter}" /><br/>

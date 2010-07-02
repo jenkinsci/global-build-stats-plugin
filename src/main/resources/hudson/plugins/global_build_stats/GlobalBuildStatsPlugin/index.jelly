@@ -9,6 +9,7 @@
 
   <l:main-panel>
 
+    <st:include page="/hudson/plugins/global_build_stats/GlobalBuildStatsPlugin/formFunctions.jelly" />
 	<script type="text/javascript"><![CDATA[
 	// Reinventing the wheel since in hudson-behavior.js we MUST
 	// use a <tr> and <td> field for the validation-error-area container :(
@@ -69,25 +70,6 @@
 			selectElement.options[i].selected = selectElement.options[i].value == optionValue;
 		}
 		selectElement.onchange();
-	}
-	
-	function jobFilterTypeSelected(buildStatId, selectedType){
-		if('ALL' == selectedType){
-			document.getElementById(buildStatId+'_jobNameRegex').disabled = true;
-			document.getElementById(buildStatId+'_jobFilter').value = 'ALL';
-		} else if('jobNameRegex' == selectedType){
-			document.getElementById(buildStatId+'_jobNameRegex').disabled = false;
-			document.getElementById(buildStatId+'_jobFilter').value = 'jobNameRegex('+document.getElementById(buildStatId+'_jobNameRegex').value+')';
-		}
-	}
-	
-	function initializeRegexField(buildStatId, jobFilterRegex){
-		var extractingRegex = new RegExp("^jobNameRegex\\((.*)\\)$", "g");
-		if(extractingRegex.test(jobFilterRegex)){
-			extractingRegex.exec(jobFilterRegex);
-			var regexToPut = RegExp.$1;
-			document.getElementById(buildStatId+'_jobNameRegex').value = regexToPut;
-		}
 	}
 	
 	function initializeForms(){

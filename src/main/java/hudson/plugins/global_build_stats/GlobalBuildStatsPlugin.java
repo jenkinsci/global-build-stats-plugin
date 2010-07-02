@@ -240,8 +240,17 @@ public class GlobalBuildStatsPlugin extends Plugin {
         sortJobBuildResultsByBuildDate(filteredJobBuildResults);
     	
         req.setAttribute("jobResults", filteredJobBuildResults);
-    	req.getView(this, "buildHistory/index.jelly").forward(req, res);
+        req.setAttribute("searchCriteria", searchCriteria);
+    	req.getView(this, "/hudson/plugins/global_build_stats/GlobalBuildStatsPlugin/buildHistory.jelly").forward(req, res);
     }
+    
+	public static String escapeAntiSlashes(String value){
+		if(value != null){
+			return value.replaceAll("\\\\", "\\\\\\\\");
+		} else {
+			return null;
+		}
+	}
     
     protected static boolean jobResultStatusMatchesWith(BuildResult r, BuildHistorySearchCriteria c){
     	return (BuildResult.ABORTED.equals(r) && c.abortedShown)

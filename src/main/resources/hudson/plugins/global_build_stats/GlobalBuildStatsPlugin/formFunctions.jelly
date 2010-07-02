@@ -1,0 +1,23 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
+<script type="text/javascript"><![CDATA[
+function jobFilterTypeSelected(buildStatId, selectedType){
+	if('ALL' == selectedType){
+		document.getElementById(buildStatId+'_jobNameRegex').disabled = true;
+		document.getElementById(buildStatId+'_jobFilter').value = 'ALL';
+	} else if('jobNameRegex' == selectedType){
+		document.getElementById(buildStatId+'_jobNameRegex').disabled = false;
+		document.getElementById(buildStatId+'_jobFilter').value = 'jobNameRegex('+document.getElementById(buildStatId+'_jobNameRegex').value+')';
+	}
+}
+	
+function initializeRegexField(buildStatId, jobFilterRegex){
+	var extractingRegex = new RegExp("^jobNameRegex\\((.*)\\)$", "g");
+	if(extractingRegex.test(jobFilterRegex)){
+		extractingRegex.exec(jobFilterRegex);
+		var regexToPut = RegExp.$1;
+		document.getElementById(buildStatId+'_jobNameRegex').value = regexToPut;
+	}
+}
+
+]]></script>
+</j:jelly>

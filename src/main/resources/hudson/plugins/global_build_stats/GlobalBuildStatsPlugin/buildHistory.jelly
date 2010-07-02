@@ -1,0 +1,108 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
+<l:layout title="${%Global Build Stats}" permission="${it.requiredPermission}">
+
+  <l:side-panel>
+    <l:tasks>
+      <l:task icon="images/24x24/up.gif" href="${rootURL}/" title="${%Back to Dashboard}" />
+      <l:task icon="images/24x24/up.gif" href="${rootURL}/plugin/global-build-stats/" title="${%Back to Global Build Stats}" />
+    </l:tasks>
+  </l:side-panel>
+
+  <l:main-panel>
+    <st:include page="/hudson/plugins/global_build_stats/GlobalBuildStatsPlugin/formFunctions.jelly" />
+    
+    <h1><img src="${rootURL}/plugin/global-build-stats/icons/global-build-stats.png" /> Global Build Search </h1>
+    <hr />
+  
+  	<strong>Search criteria</strong><br/>
+    <form name="searchBuildStat" action="buildHistory" method="get" class="globalBuildStatsForm"
+    	  id="searchBuildStat">
+      Job filtering : <input type="radio" id="searchBuild_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="ALL" onchange="jobFilterTypeSelected('searchBuild', this.value);" />ALL Jobs
+      <input type="radio" id="searchBuild_jobFilteringType_REGEX" name="jobFilteringType" value="jobNameRegex" onchange="jobFilterTypeSelected('searchBuild', this.value);" />
+      Job name regex :
+      <input type="text" id="searchBuild_jobNameRegex" 
+      		 disabled="true" name="jobNameRegex" size="10" 
+      		 onblur="document.getElementById('searchBuild_jobFilter').value='jobNameRegex('+this.value+')';" 
+      />
+      <!-- For an unknown reason, j:invokeStatic doesn't work here ! :( -->
+      <j:invoke var="escapedJobFilter" on="${it}" method="escapeAntiSlashes">
+      	<j:arg type="java.lang.String" value="${searchCriteria.jobFilter}" />
+      </j:invoke>
+      <input id="searchBuild_jobFilter" type="hidden" name="jobFilter" value="${escapedJobFilter}" /><br/>
+	  <script type="text/javascript"><![CDATA[
+	  if(document.getElementById('searchBuild_jobFilter').value.indexOf('jobNameRegex') != -1){
+	  	  document.getElementById('searchBuild_jobFilteringType_REGEX').checked = 'checked';
+	  	  initializeRegexField('searchBuild', '${escapedJobFilter}');
+	  	  document.getElementById('searchBuild_jobFilteringType_REGEX').onchange();
+	  	  document.getElementById('searchBuild_jobNameRegex').disabled = false;
+	  } else if(document.getElementById('searchBuild_jobFilter').value.indexOf('ALL') != -1){
+	  	  document.getElementById('searchBuild_jobFilteringType_ALL').checked = 'checked';
+	  	  document.getElementById('searchBuild_jobFilteringType_ALL').change();
+	  }
+	  ]]></script>
+      Statuses shown :
+      <j:choose>
+      	<j:when test="${! searchCriteria.successShown}">
+	      <input type="checkbox" value="true" name="successShown" />Success
+      	</j:when>
+      	<j:otherwise>
+	      <input type="checkbox" value="true" name="successShown" checked="checked" />Success
+      	</j:otherwise>
+      </j:choose>
+      <j:choose>
+      	<j:when test="${! searchCriteria.failuresShown}">
+	      <input type="checkbox" value="true" name="failuresShown" />Failures
+      	</j:when>
+      	<j:otherwise>
+    	  <input type="checkbox" value="true" name="failuresShown" checked="checked" />Failures
+      	</j:otherwise>
+      </j:choose>
+      <j:choose>
+      	<j:when test="${! searchCriteria.unstablesShown}">
+	      <input type="checkbox" value="true" name="unstablesShown" />Unstables
+      	</j:when>
+      	<j:otherwise>
+    	  <input type="checkbox" value="true" name="unstablesShown" checked="checked" />Unstables
+      	</j:otherwise>
+      </j:choose>
+      <j:choose>
+      	<j:when test="${! searchCriteria.abortedShown}">
+    	  <input type="checkbox" value="true" name="abortedShown" />Aborted
+      	</j:when>
+      	<j:otherwise>
+	      <input type="checkbox" value="true" name="abortedShown" checked="checked" />Aborted
+      	</j:otherwise>
+      </j:choose>
+      <j:choose>
+      	<j:when test="${searchCriteria.notBuildsShown}">
+	      <input type="checkbox" value="true" name="notBuildsShown" checked="checked" />Not Build<br/>
+      	</j:when>
+      	<j:otherwise>
+    	  <input type="checkbox" value="true" name="notBuildsShown" />Not Build<br/>
+      	</j:otherwise>
+      </j:choose>
+      <input type="hidden" name="start" value="${searchCriteria.start}" />
+      <input type="hidden" name="end" value="${searchCriteria.end}" />
+      <input type="submit" class="submit-button" value="Search" name="Submit" />
+    </form>
+  	
+  	<hr />
+	<l:pane width="4" title="Search results" id="buildSearchResults">
+  		<tr class="build-row">
+  			<th class="pane">Status</th>
+  			<th class="pane">Job name</th>
+  			<th class="pane">#</th>
+  			<th class="pane">Date</th>
+  		</tr>
+	    <j:forEach var="jobResult" items="${jobResults}">
+	    	<tr class="build-row">
+	    		<td class="pane">${jobResult.result}</td>
+	    		<td class="pane"><a href="${rootURL}/job/${jobResult.jobName}/">${jobResult.jobName}</a></td>
+	    		<td class="pane"><a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/">#${jobResult.buildNumber}</a></td>
+	    		<td class="pane"><a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/"><i:formatDate value="${jobResult.buildDate.time}" type="both" dateStyle="medium" timeStyle="medium"/></a></td>
+	    	</tr>
+  		</j:forEach>
+  	</l:pane>
+  </l:main-panel>
+</l:layout>
+</j:jelly>
