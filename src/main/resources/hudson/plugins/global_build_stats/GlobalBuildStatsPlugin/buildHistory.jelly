@@ -87,13 +87,13 @@
     </form>
   	
   	<hr />
-	<l:pane width="4" title="Search results" id="buildSearchResults">
-  		<tr class="build-row">
-  			<th class="pane">Status</th>
-  			<th class="pane">Job name</th>
-  			<th class="pane">#</th>
-  			<th class="pane">Date</th>
-  		</tr>
+	<table id="projectstatus" class="sortable pane bigtable">
+        <tr style="border-top: 0px;">
+  			<th>Status</th>
+  			<th>Job name</th>
+  			<th>#</th>
+  			<th>Date</th>
+        </tr>
 	    <j:forEach var="jobResult" items="${jobResults}">
 	    	<tr class="build-row">
 	    		<td class="pane">${jobResult.result}</td>
@@ -102,7 +102,7 @@
 	    		<td class="pane"><a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/"><i:formatDate value="${jobResult.buildDate.time}" type="both" dateStyle="medium" timeStyle="medium"/></a></td>
 	    	</tr>
   		</j:forEach>
-  	</l:pane>
+  	</table>
   </l:main-panel>
 </l:layout>
 </j:jelly>
