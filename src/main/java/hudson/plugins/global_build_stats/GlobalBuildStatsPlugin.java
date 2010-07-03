@@ -69,6 +69,9 @@ public class GlobalBuildStatsPlugin extends Plugin {
 		this.load();
 	}
 	
+	/**
+	 * Let's add a link in the administration panel linking to the global build stats page
+	 */
     @Extension
     public static class GlobalBuildStatsManagementLink extends ManagementLink {
 
@@ -89,6 +92,10 @@ public class GlobalBuildStatsPlugin extends Plugin {
         }
     }
     
+    /**
+     * At the end of every jobs, let's gather job result informations into global build stats
+     * persisted data
+     */
     @Extension
     public static class GlobalBuildStatsRunListener extends RunListener<AbstractBuild>{
     	public GlobalBuildStatsRunListener() {
