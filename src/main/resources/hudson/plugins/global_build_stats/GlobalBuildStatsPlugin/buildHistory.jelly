@@ -1,108 +1,227 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
 <l:layout title="${%Global Build Stats}" permission="${it.requiredPermission}">
 
-  <l:side-panel>
-    <l:tasks>
-      <l:task icon="images/24x24/up.gif" href="${rootURL}/" title="${%Back to Dashboard}" />
-      <l:task icon="images/24x24/up.gif" href="${rootURL}/plugin/global-build-stats/" title="${%Back to Global Build Stats}" />
-    </l:tasks>
-  </l:side-panel>
+	<l:header>
+		<!-- Including calendar yui 2.5.1 module ... -->
+		<!--CSS file (default YUI Sam Skin) -->
+		<link rel="stylesheet" type="text/css" href="${rootURL}/plugin/global-build-stats/scripts/yui/calendar/assets/skins/sam/calendar.css" />
+		<!-- Dependencies -->
+		<script src="${rootURL}/plugin/global-build-stats/scripts/yui/yahoo-dom-event/yahoo-dom-event.js"></script>
+		<!-- Source file -->
+		<script src="${rootURL}/plugin/global-build-stats/scripts/yui/calendar/calendar-${yuiSuffix}.js"></script>
+		<script src="${rootURL}/plugin/global-build-stats/scripts/yui/datasource/datasource-beta-${yuiSuffix}.js"></script>
+		<style>
+/* Clear calendar's float */
+.bd:after {content:".";display:block;clear:left;height:0;visibility:hidden;}
 
-  <l:main-panel>
-    <st:include page="/hudson/plugins/global_build_stats/GlobalBuildStatsPlugin/formFunctions.jelly" />
-    
-    <h1><img src="${rootURL}/plugin/global-build-stats/icons/global-build-stats.png" /> Global Build Search </h1>
-    <hr />
-  
-  	<strong>Search criteria</strong><br/>
-    <form name="searchBuildStat" action="buildHistory" method="get" class="globalBuildStatsForm"
-    	  id="searchBuildStat">
-      Job filtering : <input type="radio" id="searchBuild_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="ALL" onchange="jobFilterTypeSelected('searchBuild', this.value);" />ALL Jobs
-      <input type="radio" id="searchBuild_jobFilteringType_REGEX" name="jobFilteringType" value="jobNameRegex" onchange="jobFilterTypeSelected('searchBuild', this.value);" />
-      Job name regex :
-      <input type="text" id="searchBuild_jobNameRegex" 
-      		 disabled="true" name="jobNameRegex" size="10" 
-      		 onblur="document.getElementById('searchBuild_jobFilter').value='jobNameRegex('+this.value+')';" 
-      />
-      <!-- For an unknown reason, j:invokeStatic doesn't work here ! :( -->
-      <j:invoke var="escapedJobFilter" on="${it}" method="escapeAntiSlashes">
-      	<j:arg type="java.lang.String" value="${searchCriteria.jobFilter}" />
-      </j:invoke>
-      <input id="searchBuild_jobFilter" type="hidden" name="jobFilter" value="${escapedJobFilter}" /><br/>
-	  <script type="text/javascript"><![CDATA[
-	  if(document.getElementById('searchBuild_jobFilter').value.indexOf('jobNameRegex') != -1){
-	  	  document.getElementById('searchBuild_jobFilteringType_REGEX').checked = 'checked';
-	  	  initializeRegexField('searchBuild', '${escapedJobFilter}');
-	  	  document.getElementById('searchBuild_jobFilteringType_REGEX').onchange();
-	  	  document.getElementById('searchBuild_jobNameRegex').disabled = false;
-	  } else if(document.getElementById('searchBuild_jobFilter').value.indexOf('ALL') != -1){
-	  	  document.getElementById('searchBuild_jobFilteringType_ALL').checked = 'checked';
-	  	  document.getElementById('searchBuild_jobFilteringType_ALL').change();
-	  }
-	  ]]></script>
-      Statuses shown :
-      <j:choose>
-      	<j:when test="${! searchCriteria.successShown}">
-	      <input type="checkbox" value="true" name="successShown" />Success
-      	</j:when>
-      	<j:otherwise>
-	      <input type="checkbox" value="true" name="successShown" checked="checked" />Success
-      	</j:otherwise>
-      </j:choose>
-      <j:choose>
-      	<j:when test="${! searchCriteria.failuresShown}">
-	      <input type="checkbox" value="true" name="failuresShown" />Failures
-      	</j:when>
-      	<j:otherwise>
-    	  <input type="checkbox" value="true" name="failuresShown" checked="checked" />Failures
-      	</j:otherwise>
-      </j:choose>
-      <j:choose>
-      	<j:when test="${! searchCriteria.unstablesShown}">
-	      <input type="checkbox" value="true" name="unstablesShown" />Unstables
-      	</j:when>
-      	<j:otherwise>
-    	  <input type="checkbox" value="true" name="unstablesShown" checked="checked" />Unstables
-      	</j:otherwise>
-      </j:choose>
-      <j:choose>
-      	<j:when test="${! searchCriteria.abortedShown}">
-    	  <input type="checkbox" value="true" name="abortedShown" />Aborted
-      	</j:when>
-      	<j:otherwise>
-	      <input type="checkbox" value="true" name="abortedShown" checked="checked" />Aborted
-      	</j:otherwise>
-      </j:choose>
-      <j:choose>
-      	<j:when test="${searchCriteria.notBuildsShown}">
-	      <input type="checkbox" value="true" name="notBuildsShown" checked="checked" />Not Build<br/>
-      	</j:when>
-      	<j:otherwise>
-    	  <input type="checkbox" value="true" name="notBuildsShown" />Not Build<br/>
-      	</j:otherwise>
-      </j:choose>
-      <input type="hidden" name="start" value="${searchCriteria.start}" />
-      <input type="hidden" name="end" value="${searchCriteria.end}" />
-      <input type="submit" class="submit-button" value="Search" name="Submit" />
-    </form>
-  	
-  	<hr />
-	<table id="projectstatus" class="sortable pane bigtable">
-        <tr style="border-top: 0px;">
-  			<th>Status</th>
-  			<th>Job name</th>
-  			<th>#</th>
-  			<th>Date</th>
-        </tr>
-	    <j:forEach var="jobResult" items="${jobResults}">
-	    	<tr class="build-row">
-	    		<td class="pane">${jobResult.result}</td>
-	    		<td class="pane"><a href="${rootURL}/job/${jobResult.jobName}/">${jobResult.jobName}</a></td>
-	    		<td class="pane"><a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/">#${jobResult.buildNumber}</a></td>
-	    		<td class="pane"><a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/"><i:formatDate value="${jobResult.buildDate.time}" type="both" dateStyle="medium" timeStyle="medium"/></a></td>
-	    	</tr>
-  		</j:forEach>
-  	</table>
-  </l:main-panel>
+/* Have calendar squeeze upto bd bounding box */
+.bd {padding:0;}
+		</style>
+		<script>var startDate = ${searchCriteria.start}; var endDate = ${searchCriteria.end};</script>
+		<script><![CDATA[
+		  YAHOO.namespace("global.build.search.calendar");
+		  
+	  	  YAHOO.global.build.search.calendar.selectEvent = function(type, selectedDates, target) {
+	  	    updateDateWithTime(target.getSelectedDates()[0].getTime(), target.targetInputId, target.targetDisplayId); 
+	  	  	target.enclosingDialog.hide();
+	  	  }
+	  	  
+	  	  YAHOO.global.build.search.calendar.renderEvent = function(type, nullValue, target) {
+	  	  	target.enclosingDialog.fireEvent("changeContent");
+	  	  }
+	  	  
+	  	  function verifyDates(){
+	  	    $("datesError").innerHTML = (($("timeStart").value > $("timeEnd").value)?generateErrorMessage("Start date is greater than End date"):"");
+	  	  }
+	  	  
+	  	  function updateDateWithTime(time, targetInputId, targetDisplayId){
+	  	    $(targetInputId).value = time;
+	  	    $(targetDisplayId).innerHTML = displayTime(time);
+	  	    verifyDates();
+	  	  }
+	  	  
+	  	  function displayTime(time){
+	  	  	var d = new Date();
+	  	  	d.setTime(time);
+	  	  	return YAHOO.util.Date.format(d, { format: "%Y-%m-%d"} );
+	  	  }
+	  	  
+		  function initCalendar(yuiCalendar, yuiDialog, title, defaultTimeValue, targetInputId, targetDisplayId){
+		  	  var d = new Date();
+		  	  d.setTime(defaultTimeValue);
+		  	  
+		  	  yuiCalendar.cfg.setProperty("iframe", false, false);
+		  	  
+		  	  yuiCalendar.cfg.setProperty("pagedate", (d.getMonth()+1) + "/" + d.getFullYear(), false);
+		  	  yuiCalendar.cfg.setProperty("selected", (d.getMonth()+1) + "/" + d.getDate() + "/" + d.getFullYear(), false);
+		  	  yuiCalendar.cfg.setProperty("title", title, false);
+		  	  yuiCalendar.cfg.setProperty("close", false, false);
+		  	  yuiCalendar.cfg.setProperty("navigator", true, false);
+		  	  // Declaring new attributes on yuiCalendar
+		  	  yuiCalendar.targetInputId = targetInputId;
+		  	  yuiCalendar.targetDisplayId = targetDisplayId;
+		  	  yuiCalendar.enclosingDialog = yuiDialog;
+		  	  
+		  	  yuiCalendar.selectEvent.subscribe(YAHOO.global.build.search.calendar.selectEvent, yuiCalendar, true);
+		  	  yuiCalendar.renderEvent.subscribe(YAHOO.global.build.search.calendar.renderEvent, yuiCalendar, true);
+		  }
+		  
+		  function initDialog(yuiDialog, showButtonId){
+			yuiDialog.cfg.setProperty("context", [showButtonId, "tl", "bl"], false);
+			yuiDialog.cfg.setProperty("width", "16em", false);
+			yuiDialog.cfg.setProperty("draggable", false, false);
+			yuiDialog.cfg.setProperty("close", false, false);
+          }
+		  
+		  YAHOO.global.build.search.calendar.init = function() {
+		  	  YAHOO.global.build.search.calendar.startDialog = new YAHOO.widget.Dialog("startCalendarContainer");
+		  	  YAHOO.global.build.search.calendar.startCalendar = new YAHOO.widget.Calendar("startCalendar");
+		  	  YAHOO.global.build.search.calendar.endDialog = new YAHOO.widget.Dialog("endCalendarContainer");
+			  YAHOO.global.build.search.calendar.endCalendar = new YAHOO.widget.Calendar("endCalendar"); 
+		      
+		      initCalendar(YAHOO.global.build.search.calendar.startCalendar, YAHOO.global.build.search.calendar.startDialog, "Start date", startDate, "timeStart", "startTimeDisplay");
+		      initCalendar(YAHOO.global.build.search.calendar.endCalendar, YAHOO.global.build.search.calendar.endDialog, "End date", endDate, "timeEnd", "endTimeDisplay");
+		      initDialog(YAHOO.global.build.search.calendar.startDialog, "showStartCalendar");
+		      initDialog(YAHOO.global.build.search.calendar.endDialog, "showEndCalendar");
+		  	  
+		  	  YAHOO.global.build.search.calendar.startCalendar.render();
+		  	  YAHOO.global.build.search.calendar.endCalendar.render();
+		  	  YAHOO.global.build.search.calendar.startDialog.render();
+		  	  YAHOO.global.build.search.calendar.endDialog.render();
+		  	  
+		  	  YAHOO.global.build.search.calendar.startDialog.hide();
+		  	  YAHOO.global.build.search.calendar.endDialog.hide();
+		  	  
+			  updateDateWithTime(startDate, "timeStart", "startTimeDisplay");
+			  updateDateWithTime(endDate, "timeEnd", "endTimeDisplay");
+			  
+			  YAHOO.util.Event.on("showStartCalendar", "click", YAHOO.global.build.search.calendar.startDialog.show, YAHOO.global.build.search.calendar.startDialog, true);
+			  YAHOO.util.Event.on("showEndCalendar", "click", YAHOO.global.build.search.calendar.endDialog.show, YAHOO.global.build.search.calendar.endDialog, true);
+		  }
+		  
+		  YAHOO.util.Event.onDOMReady(YAHOO.global.build.search.calendar.init);
+		]]></script>
+	</l:header>
+	
+	<l:side-panel>
+	  <l:tasks>
+	    <l:task icon="images/24x24/up.gif" href="${rootURL}/" title="${%Back to Dashboard}" />
+	    <l:task icon="images/24x24/up.gif" href="${rootURL}/plugin/global-build-stats/" title="${%Back to Global Build Stats}" />
+	  </l:tasks>
+	</l:side-panel>
+
+	<l:main-panel>
+	    <st:include page="/hudson/plugins/global_build_stats/GlobalBuildStatsPlugin/formFunctions.jelly" />
+	    
+	    <h1><img src="${rootURL}/plugin/global-build-stats/icons/global-build-stats.png" /> Global Build Search </h1>
+	    <hr />
+	  
+	  	<strong>Search criteria</strong><br/>
+	    <form name="searchBuildStat" action="buildHistory" method="get" class="globalBuildStatsForm" id="searchBuildStat">
+	      <label for="start">From : </label><span id="startTimeDisplay"></span><input type="hidden" id="timeStart" name="start" />
+	      <button type="button" id="showStartCalendar" title="Show Calendar"><img src="${rootURL}/plugin/global-build-stats/icons/yui/calendar/assets/calbtn.gif" width="18" height="18" alt="Calendar" /></button>
+		  <div id="startCalendarContainer"><div class="hd">Calendar</div> 
+		   <div class="bd"><div id="startCalendar" style="border:none;padding:1em"></div></div> 
+		  </div>
+	      <label for="end">To : </label><span id="endTimeDisplay"></span><input type="hidden" id="timeEnd" name="end" />
+	      <button type="button" id="showEndCalendar" title="Show Calendar"><img src="${rootURL}/plugin/global-build-stats/icons/yui/calendar/assets/calbtn.gif" width="18" height="18" alt="Calendar" /></button>
+		  <div id="endCalendarContainer"><div class="hd">Calendar</div> 
+		   <div class="bd"><div id="endCalendar" style="border:none;padding:1em"></div></div> 
+		  </div>
+	      <span id="datesError" class="width-validation-error-area" style="display:inline-block;"></span><br/>
+	      Job filtering : <input type="radio" id="searchBuild_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="ALL" onchange="jobFilterTypeSelected('searchBuild', this.value);" />ALL Jobs
+	      <input type="radio" id="searchBuild_jobFilteringType_REGEX" name="jobFilteringType" value="jobNameRegex" onchange="jobFilterTypeSelected('searchBuild', this.value);" />
+	      Job name regex :
+	      <input type="text" id="searchBuild_jobNameRegex" 
+	      		 disabled="true" name="jobNameRegex" size="10" 
+	      		 onblur="document.getElementById('searchBuild_jobFilter').value='jobNameRegex('+this.value+')';" 
+	      />
+	      <!-- For an unknown reason, j:invokeStatic doesn't work here ! :( -->
+	      <j:invoke var="escapedJobFilter" on="${it}" method="escapeAntiSlashes">
+	      	<j:arg type="java.lang.String" value="${searchCriteria.jobFilter}" />
+	      </j:invoke>
+	      <input id="searchBuild_jobFilter" type="hidden" name="jobFilter" value="${escapedJobFilter}" /><br/>
+		  <script type="text/javascript"><![CDATA[
+		  if(document.getElementById('searchBuild_jobFilter').value.indexOf('jobNameRegex') != -1){
+		  	  document.getElementById('searchBuild_jobFilteringType_REGEX').checked = 'checked';
+		  	  initializeRegexField('searchBuild', '${escapedJobFilter}');
+		  	  document.getElementById('searchBuild_jobFilteringType_REGEX').onchange();
+		  	  document.getElementById('searchBuild_jobNameRegex').disabled = false;
+		  } else if(document.getElementById('searchBuild_jobFilter').value.indexOf('ALL') != -1){
+		  	  document.getElementById('searchBuild_jobFilteringType_ALL').checked = 'checked';
+		  	  document.getElementById('searchBuild_jobFilteringType_ALL').change();
+		  }
+		  ]]></script>
+	      Statuses shown :
+	      <j:choose>
+	      	<j:when test="${! searchCriteria.successShown}">
+		      <input type="checkbox" value="true" name="successShown" />Success
+	      	</j:when>
+	      	<j:otherwise>
+		      <input type="checkbox" value="true" name="successShown" checked="checked" />Success
+	      	</j:otherwise>
+	      </j:choose>
+	      <j:choose>
+	      	<j:when test="${! searchCriteria.failuresShown}">
+		      <input type="checkbox" value="true" name="failuresShown" />Failures
+	      	</j:when>
+	      	<j:otherwise>
+	    	  <input type="checkbox" value="true" name="failuresShown" checked="checked" />Failures
+	      	</j:otherwise>
+	      </j:choose>
+	      <j:choose>
+	      	<j:when test="${! searchCriteria.unstablesShown}">
+		      <input type="checkbox" value="true" name="unstablesShown" />Unstables
+	      	</j:when>
+	      	<j:otherwise>
+	    	  <input type="checkbox" value="true" name="unstablesShown" checked="checked" />Unstables
+	      	</j:otherwise>
+	      </j:choose>
+	      <j:choose>
+	      	<j:when test="${! searchCriteria.abortedShown}">
+	    	  <input type="checkbox" value="true" name="abortedShown" />Aborted
+	      	</j:when>
+	      	<j:otherwise>
+		      <input type="checkbox" value="true" name="abortedShown" checked="checked" />Aborted
+	      	</j:otherwise>
+	      </j:choose>
+	      <j:choose>
+	      	<j:when test="${searchCriteria.notBuildsShown}">
+		      <input type="checkbox" value="true" name="notBuildsShown" checked="checked" />Not Build
+	      	</j:when>
+	      	<j:otherwise>
+	    	  <input type="checkbox" value="true" name="notBuildsShown" />Not Build
+	      	</j:otherwise>
+	      </j:choose>
+	      <br/>
+	      <input type="submit" class="submit-button" value="Search" name="Submit" />
+	    </form>
+	  	
+	  	<hr />
+	  	<strong>Search results</strong><br/>
+	  	<j:choose>
+	  		<j:when test="${empty(jobResults)}">
+	  			<em>No job found.</em>
+	  		</j:when>
+	  		<j:otherwise>
+				<table id="projectstatus" class="sortable pane bigtable">
+			        <tr style="border-top: 0px;">
+			  			<th>Status</th>
+			  			<th>Job name</th>
+			  			<th>#</th>
+			  			<th>Date</th>
+			        </tr>
+				    <j:forEach var="jobResult" items="${jobResults}">
+				    	<tr class="build-row">
+				    		<td class="pane">${jobResult.result}</td>
+				    		<td class="pane"><a href="${rootURL}/job/${jobResult.jobName}/">${jobResult.jobName}</a></td>
+				    		<td class="pane"><a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/">#${jobResult.buildNumber}</a></td>
+				    		<td class="pane"><a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/"><i:formatDate value="${jobResult.buildDate.time}" type="both" dateStyle="medium" timeStyle="medium"/></a></td>
+				    	</tr>
+			  		</j:forEach>
+			  	</table>
+	  		</j:otherwise>
+	  	</j:choose>
+	</l:main-panel>
 </l:layout>
 </j:jelly>
