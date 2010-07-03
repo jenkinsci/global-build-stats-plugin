@@ -186,11 +186,11 @@
 	      	</j:otherwise>
 	      </j:choose>
 	      <j:choose>
-	      	<j:when test="${searchCriteria.notBuildsShown}">
-		      <input type="checkbox" value="true" name="notBuildsShown" checked="checked" />Not Build
+	      	<j:when test="${searchCriteria.notBuildShown}">
+		      <input type="checkbox" value="true" name="notBuildShown" checked="checked" />Not Build
 	      	</j:when>
 	      	<j:otherwise>
-	    	  <input type="checkbox" value="true" name="notBuildsShown" />Not Build
+	    	  <input type="checkbox" value="true" name="notBuildShown" />Not Build
 	      	</j:otherwise>
 	      </j:choose>
 	      <br/>
