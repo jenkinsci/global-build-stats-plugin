@@ -401,11 +401,11 @@ public class GlobalBuildStatsPlugin extends Plugin {
                 DateRange range = (DateRange) dataset.getColumnKey(column);
                 String status = (String) dataset.getRowKey(row);
                 
-                boolean successShown=BuildResultConstants.SUCCESS.equals(status);
-                boolean failuresShown=BuildResultConstants.FAILURES.equals(status);
-                boolean unstablesShown=BuildResultConstants.UNSTABLES.equals(status);
-                boolean abortedShown=BuildResultConstants.ABORTED.equals(status);
-                boolean notBuildShown=BuildResultConstants.NOT_BUILD.equals(status);
+                boolean successShown=BuildResultStatusesConstants.SUCCESS.equals(status);
+                boolean failuresShown=BuildResultStatusesConstants.FAILURES.equals(status);
+                boolean unstablesShown=BuildResultStatusesConstants.UNSTABLES.equals(status);
+                boolean abortedShown=BuildResultStatusesConstants.ABORTED.equals(status);
+                boolean notBuildShown=BuildResultStatusesConstants.NOT_BUILD.equals(status);
                 
                 return new StringBuilder()
                 	.append("buildHistory?jobFilter=").append(req.getParameter("jobFilter"))
@@ -466,11 +466,11 @@ public class GlobalBuildStatsPlugin extends Plugin {
         	// Finding range where the build resides
         	while(nbSteps < config.getHistoricLength() && d1.after(buildDate)){
         		DateRange range = new DateRange(d1, d2, config.getHistoricScale().getDateRangeFormatter());
-        		dsb.add(nbSuccess, BuildResultConstants.SUCCESS, range);
-    			dsb.add(nbFailures, BuildResultConstants.FAILURES, range);
-    			dsb.add(nbUnstables, BuildResultConstants.UNSTABLES, range);
-    			dsb.add(nbAborted, BuildResultConstants.ABORTED, range);
-    			dsb.add(nbNotBuild, BuildResultConstants.NOT_BUILD, range);
+        		dsb.add(nbSuccess, BuildResultStatusesConstants.SUCCESS, range);
+    			dsb.add(nbFailures, BuildResultStatusesConstants.FAILURES, range);
+    			dsb.add(nbUnstables, BuildResultStatusesConstants.UNSTABLES, range);
+    			dsb.add(nbAborted, BuildResultStatusesConstants.ABORTED, range);
+    			dsb.add(nbNotBuild, BuildResultStatusesConstants.NOT_BUILD, range);
         		
 				d2 = (Calendar)d1.clone();
 				d1 = config.getHistoricScale().getPreviousStep(d2);

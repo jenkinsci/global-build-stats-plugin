@@ -1,6 +1,9 @@
 package hudson.plugins.global_build_stats;
 
-public interface BuildResultConstants {
+/**
+ * Constants for differents build result statuses
+ */
+public interface BuildResultStatusesConstants {
 	String ABORTED = "aborted";
 	String SUCCESS = "success";
 	String FAILURES = "failures";
