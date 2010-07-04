@@ -46,7 +46,7 @@
 	  	  	return YAHOO.util.Date.format(d, { format: "%Y-%m-%d"} );
 	  	  }
 	  	  
-		  function initCalendar(yuiCalendar, yuiDialog, title, defaultTimeValue, targetInputId, targetDisplayId){
+		  function initCalendar(yuiCalendar, yuiDialog, defaultTimeValue, targetInputId, targetDisplayId){
 		  	  var d = new Date();
 		  	  d.setTime(defaultTimeValue);
 		  	  
@@ -54,7 +54,6 @@
 		  	  
 		  	  yuiCalendar.cfg.setProperty("pagedate", (d.getMonth()+1) + "/" + d.getFullYear(), false);
 		  	  yuiCalendar.cfg.setProperty("selected", (d.getMonth()+1) + "/" + d.getDate() + "/" + d.getFullYear(), false);
-		  	  yuiCalendar.cfg.setProperty("title", title, false);
 		  	  yuiCalendar.cfg.setProperty("close", false, false);
 		  	  yuiCalendar.cfg.setProperty("navigator", true, false);
 		  	  // Declaring new attributes on yuiCalendar
@@ -79,8 +78,8 @@
 		  	  YAHOO.global.build.search.calendar.endDialog = new YAHOO.widget.Dialog("endCalendarContainer");
 			  YAHOO.global.build.search.calendar.endCalendar = new YAHOO.widget.Calendar("endCalendar"); 
 		      
-		      initCalendar(YAHOO.global.build.search.calendar.startCalendar, YAHOO.global.build.search.calendar.startDialog, "Start date", startDate, "timeStart", "startTimeDisplay");
-		      initCalendar(YAHOO.global.build.search.calendar.endCalendar, YAHOO.global.build.search.calendar.endDialog, "End date", endDate, "timeEnd", "endTimeDisplay");
+		      initCalendar(YAHOO.global.build.search.calendar.startCalendar, YAHOO.global.build.search.calendar.startDialog, startDate, "timeStart", "startTimeDisplay");
+		      initCalendar(YAHOO.global.build.search.calendar.endCalendar, YAHOO.global.build.search.calendar.endDialog, endDate, "timeEnd", "endTimeDisplay");
 		      initDialog(YAHOO.global.build.search.calendar.startDialog, "showStartCalendar");
 		      initDialog(YAHOO.global.build.search.calendar.endDialog, "showEndCalendar");
 		  	  
@@ -120,12 +119,12 @@
 	    <form name="searchBuildStat" action="buildHistory" method="get" class="globalBuildStatsForm" id="searchBuildStat">
 	      <label for="start">From : </label><span id="startTimeDisplay"></span><input type="hidden" id="timeStart" name="start" />
 	      <button type="button" id="showStartCalendar" title="Show Calendar"><img src="${rootURL}/plugin/global-build-stats/icons/yui/calendar/assets/calbtn.gif" width="18" height="18" alt="Calendar" /></button>
-		  <div id="startCalendarContainer"><div class="hd">Calendar</div> 
+		  <div id="startCalendarContainer"><div class="hd">Start date</div> 
 		   <div class="bd"><div id="startCalendar" style="border:none;padding:1em"></div></div> 
 		  </div>
 	      <label for="end">To : </label><span id="endTimeDisplay"></span><input type="hidden" id="timeEnd" name="end" />
 	      <button type="button" id="showEndCalendar" title="Show Calendar"><img src="${rootURL}/plugin/global-build-stats/icons/yui/calendar/assets/calbtn.gif" width="18" height="18" alt="Calendar" /></button>
-		  <div id="endCalendarContainer"><div class="hd">Calendar</div> 
+		  <div id="endCalendarContainer"><div class="hd">End date</div> 
 		   <div class="bd"><div id="endCalendar" style="border:none;padding:1em"></div></div> 
 		  </div>
 	      <span id="datesError" class="width-validation-error-area" style="display:inline-block;"></span><br/>
