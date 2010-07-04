@@ -5,7 +5,7 @@ import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
 import org.junit.Test;
 
 
-public class UIUtilsTest {
+public class GlobalBuildStatsPluginTest {
 
 	@Test
 	public void testEscapeAntiSlashes(){
