@@ -71,10 +71,10 @@
 
 	<hr />
 	<strong>Statistics</strong><br/>
-	<j:if test="${empty(it.buildStatConfigs)}">
+	<j:if test="${empty(it.buildStatConfigsArrayed)}">
 		<em>No statistics for now on ...</em>
 	</j:if>
-    <j:forEach var="buildStatConfig" items="${it.buildStatConfigs}" varStatus="status">
+    <j:forEach var="buildStatConfig" items="${it.buildStatConfigsArrayed}" varStatus="status">
     	<div style="clear:left;">
     		<a name="buildStat_${status.index}" />
 			<img style="display:inline; float:left; margin-bottom: 10px; margin-right: 10px;"
@@ -128,7 +128,7 @@
     </em>
     <span id="initializeStatsMessage" style="color: rgb(52, 101, 0); display: none;">
     	<strong>Data successfully initialized !</strong>&#160;
-		<j:if test="${!empty(it.buildStatConfigs)}"><a href="#" onclick="window.location.href = '';">Refresh page</a></j:if>
+		<j:if test="${!empty(it.buildStatConfigsArrayed)}"><a href="#" onclick="window.location.href = '';">Refresh page</a></j:if>
 		<br/>
     </span>
     <input type="button" class="submit-button" onclick="initializeStats();" value="Initialize stats" />
