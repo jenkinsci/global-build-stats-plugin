@@ -1,4 +1,4 @@
-package hudson.plugins.global_build_stats.utils;
+package hudson.plugins.global_build_stats;
 
 import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
 
