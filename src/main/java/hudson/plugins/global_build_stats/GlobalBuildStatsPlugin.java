@@ -49,6 +49,16 @@ public class GlobalBuildStatsPlugin extends Plugin {
 	 * global build stats screen
 	 */
 	private List<BuildStatConfiguration> buildStatConfigs = new ArrayList<BuildStatConfiguration>();
+	
+	/**
+	 * Business layer for global build stats
+	 */
+	transient private GlobalBuildStatsBusiness business = new GlobalBuildStatsBusiness(this);
+	
+	/**
+	 * Validator layer for global build stats
+	 */
+	transient private GlobalBuildStatsValidator validator = new GlobalBuildStatsValidator();
 
 	@Override
 	public void start() throws Exception {
@@ -106,73 +116,62 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	}
     }
     
-    // TODO: use a singleton ?
     private static GlobalBuildStatsBusiness getPluginBusiness(){
 		// Retrieving global build stats plugin & adding build result to the registered build
 		// result
-    	return new GlobalBuildStatsBusiness(Hudson.getInstance().getPlugin(GlobalBuildStatsPlugin.class));
-    }
-    
-    // TODO: use a singleton ?
-    private GlobalBuildStatsBusiness getBusiness(){
-    	return new GlobalBuildStatsBusiness(this);
-    }
-    
-    // TODO: use a singleton ?
-    private GlobalBuildStatsValidator getValidator(){
-    	return new GlobalBuildStatsValidator();
+    	return Hudson.getInstance().getPlugin(GlobalBuildStatsPlugin.class).business;
     }
     
     // Form validations
     
     public FormValidation doCheckJobFilter(@QueryParameter String value){
-    	return getValidator().checkJobFilter(value);
+    	return validator.checkJobFilter(value);
     }
     
     public FormValidation doCheckFailuresShown(@QueryParameter String value){
-    	return getValidator().checkFailuresShown(value);
+    	return validator.checkFailuresShown(value);
     }
     
     public FormValidation doCheckUnstablesShown(@QueryParameter String value){
-    	return getValidator().checkUnstablesShown(value);
+    	return validator.checkUnstablesShown(value);
     }
     
     public FormValidation doCheckAbortedShown(@QueryParameter String value){
-    	return getValidator().checkAbortedShown(value);
+    	return validator.checkAbortedShown(value);
     }
     
     public FormValidation doCheckNotBuildsShown(@QueryParameter String value){
-    	return getValidator().checkNotBuildsShown(value);
+    	return validator.checkNotBuildsShown(value);
     }
     
     public FormValidation doCheckSuccessShown(@QueryParameter String value){
-    	return getValidator().checkSuccessShown(value);
+    	return validator.checkSuccessShown(value);
     }
     
 	public FormValidation doCheckHistoricScale(@QueryParameter String value){
-    	return getValidator().checkHistoricScale(value);
+    	return validator.checkHistoricScale(value);
     }
 
 	public FormValidation doCheckHistoricLength(@QueryParameter String value){
-    	return getValidator().checkHistoricLength(value);
+    	return validator.checkHistoricLength(value);
     }
 
     public FormValidation doCheckBuildStatHeight(@QueryParameter String value){
-    	return getValidator().checkBuildStatHeight(value);
+    	return validator.checkBuildStatHeight(value);
     }
 
     public FormValidation doCheckBuildStatWidth(@QueryParameter String value){
-    	return getValidator().checkBuildStatWidth(value);
+    	return validator.checkBuildStatWidth(value);
     }
 
     public FormValidation doCheckTitle(@QueryParameter String value){
-    	return getValidator().checkTitle(value);
+    	return validator.checkTitle(value);
     }
 
     public HttpResponse doRecordBuildInfos() throws IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
-    	getBusiness().recordBuildInfos();
+    	business.recordBuildInfos();
     	
         return new HttpResponse() {
 			public void generateResponse(StaplerRequest req, StaplerResponse rsp,
@@ -185,7 +184,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
     	BuildStatConfiguration config = createBuildStatConfig(req);
-    	JFreeChart chart = getBusiness().createChart(config);
+    	JFreeChart chart = business.createChart(config);
     	
         ChartUtil.generateGraph(req, res, chart, config.getBuildStatWidth(), config.getBuildStatHeight());
     }
@@ -194,7 +193,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
 
     	BuildStatConfiguration config = createBuildStatConfig(req);
-    	JFreeChart chart = getBusiness().createChart(config);
+    	JFreeChart chart = business.createChart(config);
     	
         ChartUtil.generateClickableMap(req, res, chart, config.getBuildStatWidth(), config.getBuildStatHeight());
     }
@@ -205,7 +204,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	BuildHistorySearchCriteria searchCriteria = new BuildHistorySearchCriteria();
     	req.bindParameters(searchCriteria);
     	
-    	List<JobBuildResult> filteredJobBuildResults = getBusiness().searchBuilds(searchCriteria);
+    	List<JobBuildResult> filteredJobBuildResults = business.searchBuilds(searchCriteria);
     	
         req.setAttribute("jobResults", filteredJobBuildResults);
         req.setAttribute("searchCriteria", searchCriteria);
@@ -215,7 +214,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void doUpdateBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
-    	getBusiness().updateBuildStatConfiguration(Integer.parseInt(req.getParameter("buildStatId")), createBuildStatConfig(req));
+    	business.updateBuildStatConfiguration(Integer.parseInt(req.getParameter("buildStatId")), createBuildStatConfig(req));
     	
     	res.forwardToPreviousPage(req);
     }
@@ -223,7 +222,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void doAddBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
-    	getBusiness().addBuildStatConfiguration(createBuildStatConfig(req));
+    	business.addBuildStatConfiguration(createBuildStatConfig(req));
     	
     	res.forwardToPreviousPage(req);
     }
@@ -231,7 +230,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void doDeleteConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
-    	getBusiness().deleteBuildStatConfiguration(Integer.parseInt(req.getParameter("buildStatId")));
+    	business.deleteBuildStatConfiguration(Integer.parseInt(req.getParameter("buildStatId")));
     	
         res.forwardToPreviousPage(req);
     }
@@ -240,7 +239,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
     	int buildStatId = Integer.parseInt(req.getParameter("buildStatId"));
-    	getBusiness().moveUpConf(buildStatId);
+    	business.moveUpConf(buildStatId);
     	
         res.forwardToPreviousPage(req);
     }
@@ -249,7 +248,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
     	int buildStatId = Integer.parseInt(req.getParameter("buildStatId"));
-    	getBusiness().moveDownConf(buildStatId);
+    	business.moveDownConf(buildStatId);
 
         res.forwardToPreviousPage(req);
     }
