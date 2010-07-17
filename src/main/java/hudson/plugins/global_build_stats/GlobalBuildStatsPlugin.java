@@ -181,6 +181,17 @@ public class GlobalBuildStatsPlugin extends Plugin {
 		};
     }
     
+    public void doShowChart(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    	// Don't check any role : this url is public and should provide a BuildStatConfiguration public id
+    	BuildStatConfiguration config = business.searchBuildStatConfigById(req.getParameter("buildStatId"));
+    	if(config == null){
+    		throw new IllegalArgumentException("Unknown buildStatId parameter !");
+    	}
+    	JFreeChart chart = business.createChart(config);
+    	
+        ChartUtil.generateGraph(req, res, chart, config.getBuildStatWidth(), config.getBuildStatHeight());
+    }
+    
     public void doCreateChart(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
@@ -194,8 +205,14 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void doCreateChartMap(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
 
-    	// Passing null id since this is a not persisted BuildStatConfiguration
-    	BuildStatConfiguration config = createBuildStatConfig(null, req);
+    	String buildStatId = req.getParameter("buildStatId");
+    	BuildStatConfiguration config = null;
+    	if(buildStatId != null){
+    		config = business.searchBuildStatConfigById(buildStatId);
+    	} else {
+        	// Passing null id since this is a not persisted BuildStatConfiguration
+        	config = createBuildStatConfig(null, req);
+    	}
     	JFreeChart chart = business.createChart(config);
     	
         ChartUtil.generateClickableMap(req, res, chart, config.getBuildStatWidth(), config.getBuildStatHeight());
