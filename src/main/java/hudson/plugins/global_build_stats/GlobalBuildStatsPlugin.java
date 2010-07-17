@@ -13,6 +13,7 @@ import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.HistoricScale;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
 import hudson.plugins.global_build_stats.validation.GlobalBuildStatsValidator;
+import hudson.plugins.global_build_stats.xstream.GlobalBuildStatsXStreamConverter;
 import hudson.security.Permission;
 import hudson.util.ChartUtil;
 import hudson.util.FormValidation;
@@ -49,6 +50,13 @@ public class GlobalBuildStatsPlugin extends Plugin {
 	 */
 	private List<BuildStatConfiguration> buildStatConfigs = new ArrayList<BuildStatConfiguration>();
 
+	@Override
+	public void start() throws Exception {
+		super.start();
+		
+		Hudson.XSTREAM.registerConverter(new GlobalBuildStatsXStreamConverter());
+	}
+	
 	@Override
 	public void postInitialize() throws Exception {
 		super.postInitialize();
