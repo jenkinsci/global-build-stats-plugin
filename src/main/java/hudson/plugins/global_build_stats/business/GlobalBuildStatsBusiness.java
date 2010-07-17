@@ -61,6 +61,15 @@ public class GlobalBuildStatsBusiness {
 		}
 	}
 	
+	public BuildStatConfiguration searchBuildStatConfigById(String buildStatId){
+		int index = searchBuildStatConfigIndexById(buildStatId);
+		if(index != -1){
+			return plugin.getBuildStatConfigs().get(index);
+		} else {
+			return null;
+		}
+	}
+	
 	private int searchBuildStatConfigIndexById(String id){
 		int idx = 0;
 		for(BuildStatConfiguration c : plugin.getBuildStatConfigs()){
@@ -68,6 +77,10 @@ public class GlobalBuildStatsBusiness {
 				break;
 			}
 			idx++;
+		}
+		
+		if(idx == plugin.getBuildStatConfigs().size()){
+			idx = -1;
 		}
 		
 		return idx;
