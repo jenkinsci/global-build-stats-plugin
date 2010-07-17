@@ -61,6 +61,18 @@ public class GlobalBuildStatsBusiness {
 		}
 	}
 	
+	private int searchBuildStatConfigIndexById(String id){
+		int idx = 0;
+		for(BuildStatConfiguration c : plugin.getBuildStatConfigs()){
+			if(id.equals(c.getId())){
+				break;
+			}
+			idx++;
+		}
+		
+		return idx;
+	}
+	
 	public void recordBuildInfos() throws IOException {
         List<JobBuildResult> jobBuildResultsRead = new ArrayList<JobBuildResult>();
         
@@ -105,10 +117,11 @@ public class GlobalBuildStatsBusiness {
         return filteredJobBuildResults;
 	}
 
-	public void updateBuildStatConfiguration(int buildStatId, BuildStatConfiguration config) throws IOException {
+	public void updateBuildStatConfiguration(String buildStatId, BuildStatConfiguration config) throws IOException {
 		// Synchronizing plugin instance every time we modify persisted informations on it
     	synchronized(plugin){
-	    	plugin.getBuildStatConfigs().set(buildStatId, config);
+    		int buildStatIndex = searchBuildStatConfigIndexById(buildStatId);
+	    	plugin.getBuildStatConfigs().set(buildStatIndex, config);
 	    	plugin.save();
     	}
 	}
@@ -121,31 +134,34 @@ public class GlobalBuildStatsBusiness {
     	}
 	}
 	
-	public void deleteBuildStatConfiguration(int buildStatId) throws IOException {
+	public void deleteBuildStatConfiguration(String buildStatId) throws IOException {
     	synchronized(plugin){
-    		plugin.getBuildStatConfigs().remove(buildStatId);
+    		int index = searchBuildStatConfigIndexById(buildStatId);
+    		plugin.getBuildStatConfigs().remove(index);
     		plugin.save();
     	}
 	}
 	
-	public void moveUpConf(int buildStatId) throws IOException {
+	public void moveUpConf(String buildStatId) throws IOException {
 		// Synchronizing plugin instance every time we modify persisted informations on it
     	synchronized(plugin){
-	    	BuildStatConfiguration b = plugin.getBuildStatConfigs().get(buildStatId);
+    		int index = searchBuildStatConfigIndexById(buildStatId);
+	    	BuildStatConfiguration b = plugin.getBuildStatConfigs().get(index);
 	    	// Swapping build confs
-	    	plugin.getBuildStatConfigs().set(buildStatId, plugin.getBuildStatConfigs().get(buildStatId-1));
-	    	plugin.getBuildStatConfigs().set(buildStatId-1, b);
+	    	plugin.getBuildStatConfigs().set(index, plugin.getBuildStatConfigs().get(index-1));
+	    	plugin.getBuildStatConfigs().set(index-1, b);
 	    	plugin.save();
     	}
 	}
 	
-	public void moveDownConf(int buildStatId) throws IOException {
+	public void moveDownConf(String buildStatId) throws IOException {
 		// Synchronizing plugin instance every time we modify persisted informations on it
     	synchronized(plugin){
-	    	BuildStatConfiguration b = plugin.getBuildStatConfigs().get(buildStatId);
+    		int index = searchBuildStatConfigIndexById(buildStatId);
+	    	BuildStatConfiguration b = plugin.getBuildStatConfigs().get(index);
 	    	// Swapping build confs
-	    	plugin.getBuildStatConfigs().set(buildStatId, plugin.getBuildStatConfigs().get(buildStatId+1));
-	    	plugin.getBuildStatConfigs().set(buildStatId+1, b);
+	    	plugin.getBuildStatConfigs().set(index, plugin.getBuildStatConfigs().get(index+1));
+	    	plugin.getBuildStatConfigs().set(index+1, b);
 	    	plugin.save();
     	}
 	}

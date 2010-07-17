@@ -2,6 +2,7 @@ package hudson.plugins.global_build_stats.xstream.migration.v1;
 
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
+import hudson.plugins.global_build_stats.model.ModelIdGenerator;
 import hudson.plugins.global_build_stats.xstream.migration.GlobalBuildStatsXStreamReader;
 
 import java.util.ArrayList;
@@ -40,6 +41,9 @@ public class V1XStreamReader implements GlobalBuildStatsXStreamReader<V1GlobalBu
 			
 			BuildStatConfiguration bsc = (BuildStatConfiguration)context.convertAnother(pojo, BuildStatConfiguration.class);
 			buildStatConfigs.add(bsc);
+			
+			// Registering BuildStatConfiguration's id in the ModelIdGenerator
+			ModelIdGenerator.INSTANCE.registerIdForClass(BuildStatConfiguration.class, bsc.getId());
 
 			reader.moveUp();
 		}

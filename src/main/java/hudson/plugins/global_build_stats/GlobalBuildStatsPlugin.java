@@ -12,6 +12,7 @@ import hudson.plugins.global_build_stats.model.BuildHistorySearchCriteria;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.HistoricScale;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
+import hudson.plugins.global_build_stats.model.ModelIdGenerator;
 import hudson.plugins.global_build_stats.validation.GlobalBuildStatsValidator;
 import hudson.plugins.global_build_stats.xstream.GlobalBuildStatsXStreamConverter;
 import hudson.security.Permission;
@@ -183,7 +184,8 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void doCreateChart(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
-    	BuildStatConfiguration config = createBuildStatConfig(req);
+    	// Passing null id since this is a not persisted BuildStatConfiguration
+    	BuildStatConfiguration config = createBuildStatConfig(null, req);
     	JFreeChart chart = business.createChart(config);
     	
         ChartUtil.generateGraph(req, res, chart, config.getBuildStatWidth(), config.getBuildStatHeight());
@@ -192,7 +194,8 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void doCreateChartMap(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
 
-    	BuildStatConfiguration config = createBuildStatConfig(req);
+    	// Passing null id since this is a not persisted BuildStatConfiguration
+    	BuildStatConfiguration config = createBuildStatConfig(null, req);
     	JFreeChart chart = business.createChart(config);
     	
         ChartUtil.generateClickableMap(req, res, chart, config.getBuildStatWidth(), config.getBuildStatHeight());
@@ -214,7 +217,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void doUpdateBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
-    	business.updateBuildStatConfiguration(Integer.parseInt(req.getParameter("buildStatId")), createBuildStatConfig(req));
+    	business.updateBuildStatConfiguration(req.getParameter("buildStatId"), createBuildStatConfig(req.getParameter("buildStatId"), req));
     	
     	res.forwardToPreviousPage(req);
     }
@@ -222,7 +225,8 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void doAddBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
-    	business.addBuildStatConfiguration(createBuildStatConfig(req));
+    	business.addBuildStatConfiguration(
+    			createBuildStatConfig(ModelIdGenerator.INSTANCE.generateIdForClass(BuildStatConfiguration.class), req));
     	
     	res.forwardToPreviousPage(req);
     }
@@ -230,7 +234,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void doDeleteConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
-    	business.deleteBuildStatConfiguration(Integer.parseInt(req.getParameter("buildStatId")));
+    	business.deleteBuildStatConfiguration(req.getParameter("buildStatId"));
     	
         res.forwardToPreviousPage(req);
     }
@@ -238,8 +242,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void doMoveUpConf(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
-    	int buildStatId = Integer.parseInt(req.getParameter("buildStatId"));
-    	business.moveUpConf(buildStatId);
+    	business.moveUpConf(req.getParameter("buildStatId"));
     	
         res.forwardToPreviousPage(req);
     }
@@ -247,8 +250,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void doMoveDownConf(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
-    	int buildStatId = Integer.parseInt(req.getParameter("buildStatId"));
-    	business.moveDownConf(buildStatId);
+    	business.moveDownConf(req.getParameter("buildStatId"));
 
         res.forwardToPreviousPage(req);
     }
@@ -263,9 +265,10 @@ public class GlobalBuildStatsPlugin extends Plugin {
 		return GlobalBuildStatsBusiness.escapeAntiSlashes(value);
 	}
     
-    private BuildStatConfiguration createBuildStatConfig(StaplerRequest req){
+    private BuildStatConfiguration createBuildStatConfig(String id, StaplerRequest req){
     	// TODO: refactor this using StaplerRequest.bindParameters() with introspection !
     	return new BuildStatConfiguration(
+    			id,
     			req.getParameter("title"), 
     			Integer.parseInt(req.getParameter("buildStatWidth")),
     			Integer.parseInt(req.getParameter("buildStatHeight")),

@@ -8,6 +8,7 @@ public class BuildStatConfiguration implements Serializable {
 
 	private static final long serialVersionUID = -2962124739645932894L;
 	
+	private String id;
 	private String buildStatTitle;
 	private int buildStatWidth=400, buildStatHeight=300;
 	private int historicLength;
@@ -18,11 +19,12 @@ public class BuildStatConfiguration implements Serializable {
 	public BuildStatConfiguration(){
 	}
 	
-	public BuildStatConfiguration(String _buildStatTitle, int _buildStatWidth, int _buildStatHeight, 
+	public BuildStatConfiguration(String _id, String _buildStatTitle, int _buildStatWidth, int _buildStatHeight, 
 			int _historicLength, HistoricScale _historicScale, String _jobFilter, 
 			boolean successShown, boolean failuresShown, boolean unstablesShown, 
 			boolean abortedShown, boolean notBuildsShown){
 		
+		this.id = _id;
 		this.buildStatTitle = _buildStatTitle;
 		this.buildStatHeight = _buildStatHeight;
 		this.buildStatWidth = _buildStatWidth;
@@ -108,5 +110,13 @@ public class BuildStatConfiguration implements Serializable {
 
 	public void setJobFilter(String jobFilter) {
 		this.jobFilter = jobFilter;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 }
