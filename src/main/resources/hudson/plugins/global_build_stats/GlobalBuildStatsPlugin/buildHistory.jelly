@@ -214,8 +214,13 @@
 				    	<tr class="build-row">
 				    		<td class="pane">${jobResult.result}</td>
 				    		<td class="pane"><a href="${rootURL}/job/${jobResult.jobName}/">${jobResult.jobName}</a></td>
-				    		<td class="pane"><a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/">#${jobResult.buildNumber}</a></td>
-				    		<td class="pane"><a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/"><i:formatDate value="${jobResult.buildDate.time}" type="both" dateStyle="medium" timeStyle="medium"/></a></td>
+				    		<td class="pane">
+				    			<a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/console"><img src="${rootURL}/plugin/global-build-stats/icons/terminal.gif" /></a>
+				    			<a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/">#${jobResult.buildNumber}</a>
+				    		</td>
+				    		<td class="pane">
+				    			<a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/"><i:formatDate value="${jobResult.buildDate.time}" type="both" dateStyle="medium" timeStyle="medium"/></a>
+				    		</td>
 				    	</tr>
 			  		</j:forEach>
 			  	</table>
