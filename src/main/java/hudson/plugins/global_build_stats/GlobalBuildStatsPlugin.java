@@ -21,6 +21,7 @@ import hudson.util.FormValidation;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -66,6 +67,23 @@ public class GlobalBuildStatsPlugin extends Plugin {
 		super.start();
 		
 		Hudson.XSTREAM.registerConverter(new GlobalBuildStatsXStreamConverter());
+		
+		// XStream compacting aliases...
+		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.JOB_BUILD_RESULT_CLASS_ALIAS, JobBuildResult.class);
+		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.BUILD_STAT_CONFIG_CLASS_ALIAS, BuildStatConfiguration.class);
+		
+		Hudson.XSTREAM.aliasField("t", BuildStatConfiguration.class, "buildStatTitle");
+		Hudson.XSTREAM.aliasField("w", BuildStatConfiguration.class, "buildStatWidth");
+		Hudson.XSTREAM.aliasField("h", BuildStatConfiguration.class, "buildStatHeight");
+		Hudson.XSTREAM.aliasField("l", BuildStatConfiguration.class, "historicLength");
+		Hudson.XSTREAM.aliasField("s", BuildStatConfiguration.class, "historicScale");
+		Hudson.XSTREAM.aliasField("jf", BuildStatConfiguration.class, "jobFilter");
+		Hudson.XSTREAM.aliasField("sbr", BuildStatConfiguration.class, "shownBuildResults");
+
+		Hudson.XSTREAM.aliasField("r", JobBuildResult.class, "result");
+		Hudson.XSTREAM.aliasField("n", JobBuildResult.class, "jobName");
+		Hudson.XSTREAM.aliasField("nb", JobBuildResult.class, "buildNumber");
+		Hudson.XSTREAM.aliasField("d", JobBuildResult.class, "buildDate");
 	}
 	
 	@Override

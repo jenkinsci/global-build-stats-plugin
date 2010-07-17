@@ -26,6 +26,9 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 public class GlobalBuildStatsXStreamConverter implements Converter {
 	
     private static final Logger LOGGER = Logger.getLogger(GlobalBuildStatsXStreamConverter.class.getName());
+    
+    public static final String BUILD_STAT_CONFIG_CLASS_ALIAS = "bsc";
+    public static final String JOB_BUILD_RESULT_CLASS_ALIAS = "jbr";
 
 	/**
 	 * List of XStream readers for previous XStream representations of
@@ -62,7 +65,7 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 		writer.startNode("jobBuildResults");
 		if(plugin.getJobBuildResults() != null){
 			for(JobBuildResult r: plugin.getJobBuildResults()){
-				writer.startNode(JobBuildResult.class.getName());
+				writer.startNode(BUILD_STAT_CONFIG_CLASS_ALIAS);
 				context.convertAnother(r);
 				writer.endNode();
 			}
@@ -73,7 +76,7 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 		writer.startNode("buildStatConfigs");
 		if(plugin.getBuildStatConfigs() != null){
 			for(BuildStatConfiguration c: plugin.getBuildStatConfigs()){
-				writer.startNode(BuildStatConfiguration.class.getName());
+				writer.startNode(JOB_BUILD_RESULT_CLASS_ALIAS);
 				context.convertAnother(c);
 				writer.endNode();
 			}
