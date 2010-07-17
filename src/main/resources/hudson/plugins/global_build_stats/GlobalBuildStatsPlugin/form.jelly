@@ -64,6 +64,11 @@
       </j:invokeStatic>
       <input id="${buildStatId}_jobFilter" type="hidden" name="jobFilter" value="${escapedJobFilter}" /><br/>
 	  <script type="text/javascript"><![CDATA[
+	  // Valeur par défaut de job filter
+	  if(document.getElementById('${buildStatId}_jobFilter').value == ''){
+	  	document.getElementById('${buildStatId}_jobFilter').value = 'ALL';
+	  }
+	  
 	  if(document.getElementById('${buildStatId}_jobFilter').value.indexOf('jobNameRegex') != -1){
 	  	  document.getElementById('${buildStatId}_jobFilteringType_REGEX').checked = 'checked';
 	  	  initializeRegexField('${buildStatId}', '${escapedJobFilter}');
