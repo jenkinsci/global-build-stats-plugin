@@ -5,6 +5,7 @@ import hudson.Plugin;
 import hudson.model.ManagementLink;
 import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
+import hudson.model.Api;
 import hudson.model.Hudson;
 import hudson.model.listeners.RunListener;
 import hudson.plugins.global_build_stats.business.GlobalBuildStatsBusiness;
@@ -21,7 +22,6 @@ import hudson.util.FormValidation;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -31,6 +31,8 @@ import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.export.Exported;
+import org.kohsuke.stapler.export.ExportedBean;
 
 /**
  * Entry point of the global build stats plugin
@@ -38,6 +40,7 @@ import org.kohsuke.stapler.StaplerResponse;
  * @author fcamblor
  * @plugin
  */
+@ExportedBean
 public class GlobalBuildStatsPlugin extends Plugin {
 
 	/**
@@ -85,6 +88,13 @@ public class GlobalBuildStatsPlugin extends Plugin {
 		Hudson.XSTREAM.aliasField("nb", JobBuildResult.class, "buildNumber");
 		Hudson.XSTREAM.aliasField("d", JobBuildResult.class, "buildDate");
 	}
+	
+    /**
+     * Expose {@link GlobalBuildStats} to the remote API.
+     */
+    public Api getApi() {
+        return new Api(this);
+    }
 	
 	@Override
 	public void postInitialize() throws Exception {
@@ -321,6 +331,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
 		return buildStatConfigs.toArray(new BuildStatConfiguration[]{});
 	}
 	
+	@Exported
 	public List<BuildStatConfiguration> getBuildStatConfigs() {
 		return buildStatConfigs;
 	}

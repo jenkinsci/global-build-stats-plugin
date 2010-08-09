@@ -4,6 +4,10 @@ import hudson.plugins.global_build_stats.JobFilterFactory;
 
 import java.io.Serializable;
 
+import org.kohsuke.stapler.export.Exported;
+import org.kohsuke.stapler.export.ExportedBean;
+
+@ExportedBean
 public class BuildStatConfiguration implements Serializable {
 
 	private static final long serialVersionUID = -2962124739645932894L;
@@ -40,34 +44,42 @@ public class BuildStatConfiguration implements Serializable {
 		this.shownBuildResults |= notBuildsShown?BuildResult.NOT_BUILD.code:0;
 	}
 
+	@Exported
 	public boolean isSuccessShown(){
 		return (shownBuildResults & BuildResult.SUCCESS.code) != 0;
 	}
 	
+	@Exported
 	public boolean isFailuresShown(){
 		return (shownBuildResults & BuildResult.FAILURE.code) != 0;
 	}
 	
+	@Exported
 	public boolean isUnstablesShown(){
 		return (shownBuildResults & BuildResult.UNSTABLE.code) != 0;
 	}
 	
+	@Exported
 	public boolean isAbortedShown(){
 		return (shownBuildResults & BuildResult.ABORTED.code) != 0;
 	}
 	
+	@Exported
 	public boolean isNotBuildShown(){
 		return (shownBuildResults & BuildResult.NOT_BUILD.code) != 0;
 	}
 	
+	@Exported
 	public String getBuildStatTitle() {
 		return buildStatTitle;
 	}
 
+	@Exported
 	public int getHistoricLength() {
 		return historicLength;
 	}
 
+	@Exported
 	public HistoricScale getHistoricScale() {
 		return historicScale;
 	}
@@ -76,14 +88,17 @@ public class BuildStatConfiguration implements Serializable {
 		return shownBuildResults;
 	}
 
+	@Exported
 	public int getBuildStatWidth() {
 		return buildStatWidth;
 	}
 
+	@Exported
 	public int getBuildStatHeight() {
 		return buildStatHeight;
 	}
 
+	@Exported
 	public String getJobFilter() {
 		return jobFilter;
 	}
@@ -112,6 +127,7 @@ public class BuildStatConfiguration implements Serializable {
 		this.jobFilter = jobFilter;
 	}
 
+	@Exported
 	public String getId() {
 		return id;
 	}
