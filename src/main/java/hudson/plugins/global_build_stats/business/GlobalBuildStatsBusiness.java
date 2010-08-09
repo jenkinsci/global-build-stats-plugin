@@ -157,8 +157,11 @@ public class GlobalBuildStatsBusiness {
 	
 	public void moveUpConf(String buildStatId) throws IOException {
 		// Synchronizing plugin instance every time we modify persisted informations on it
+		int index = searchBuildStatConfigIndexById(buildStatId);
+		if(index <= 0){
+			throw new IllegalArgumentException("Can't move up first build stat configuration !");
+		}
     	synchronized(plugin){
-    		int index = searchBuildStatConfigIndexById(buildStatId);
 	    	BuildStatConfiguration b = plugin.getBuildStatConfigs().get(index);
 	    	// Swapping build confs
 	    	plugin.getBuildStatConfigs().set(index, plugin.getBuildStatConfigs().get(index-1));
@@ -169,8 +172,11 @@ public class GlobalBuildStatsBusiness {
 	
 	public void moveDownConf(String buildStatId) throws IOException {
 		// Synchronizing plugin instance every time we modify persisted informations on it
+		int index = searchBuildStatConfigIndexById(buildStatId);
+		if(index >= plugin.getBuildStatConfigs().size()-1){
+			throw new IllegalArgumentException("Can't move down last build stat configuration !");
+		}
     	synchronized(plugin){
-    		int index = searchBuildStatConfigIndexById(buildStatId);
 	    	BuildStatConfiguration b = plugin.getBuildStatConfigs().get(index);
 	    	// Swapping build confs
 	    	plugin.getBuildStatConfigs().set(index, plugin.getBuildStatConfigs().get(index+1));

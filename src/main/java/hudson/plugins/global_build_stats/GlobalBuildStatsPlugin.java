@@ -289,7 +289,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	
     	business.moveUpConf(req.getParameter("buildStatId"));
     	
-        res.forwardToPreviousPage(req);
+    	res.getWriter().write("{ status : 'ok' }");
     }
     
     public void doMoveDownConf(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
@@ -297,7 +297,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	
     	business.moveDownConf(req.getParameter("buildStatId"));
 
-        res.forwardToPreviousPage(req);
+    	res.getWriter().write("{ status : 'ok' }");
     }
     
     /**
