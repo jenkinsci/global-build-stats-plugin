@@ -26,6 +26,8 @@ import java.util.List;
 
 import javax.servlet.ServletException;
 
+import net.sf.json.JSONObject;
+
 import org.jfree.chart.JFreeChart;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
@@ -262,18 +264,21 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void doUpdateBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
-    	business.updateBuildStatConfiguration(req.getParameter("buildStatId"), createBuildStatConfig(req.getParameter("buildStatId"), req));
+    	BuildStatConfiguration config = createBuildStatConfig(req.getParameter("buildStatId"), req);
+    	business.updateBuildStatConfiguration(req.getParameter("buildStatId"), config);
     	
-    	res.forwardToPreviousPage(req);
+    	String json = JSONObject.fromObject(config).toString();
+    	res.getWriter().write(json);
     }
     
     public void doAddBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
-    	business.addBuildStatConfiguration(
-    			createBuildStatConfig(ModelIdGenerator.INSTANCE.generateIdForClass(BuildStatConfiguration.class), req));
+    	BuildStatConfiguration config = createBuildStatConfig(ModelIdGenerator.INSTANCE.generateIdForClass(BuildStatConfiguration.class), req);
+    	business.addBuildStatConfiguration(config);
     	
-    	res.forwardToPreviousPage(req);
+    	String json = JSONObject.fromObject(config).toString();
+    	res.getWriter().write(json);
     }
     
     public void doDeleteConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
@@ -281,7 +286,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	
     	business.deleteBuildStatConfiguration(req.getParameter("buildStatId"));
     	
-        res.forwardToPreviousPage(req);
+    	res.getWriter().write("{ status : 'ok' }");
     }
     
     public void doMoveUpConf(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {

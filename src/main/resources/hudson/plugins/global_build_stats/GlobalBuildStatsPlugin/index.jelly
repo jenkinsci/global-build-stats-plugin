@@ -4,65 +4,353 @@
   <l:side-panel>
     <l:tasks>
       <l:task icon="images/24x24/up.gif" href="${rootURL}/" title="${%Back to Dashboard}" />
+      <l:task icon="images/24x24/save.gif" href="#" onclick="new BuildStatConfigForm(null).displayBuildStatConfigForm();" title="${%Create new chart}" />
     </l:tasks>
   </l:side-panel>
 
-  <l:main-panel>
-
+  <l:header>
     <st:include page="/hudson/plugins/global_build_stats/GlobalBuildStatsPlugin/formFunctions.jelly" />
 	<script type="text/javascript"><![CDATA[
 	BUILD_STAT_CONTAINER_ID_PREFIX = "container_buildStatConfig_";
-	// Initializing BUILD_STAT_CONFIGS array
-	BUILD_STAT_CONFIGS = new Array();
-	new Ajax.Request(rootURL+'/plugin/global-build-stats/api/json?depth=2', {
-	  method: 'get',
-	  onSuccess: function(ret) {
-	  	  var buildStat = eval('('+ret.responseText+')');
-	  	  for(i=0; i<buildStat.buildStatConfigs.length; i++){
-	  	  	var config = buildStat.buildStatConfigs[i];
-	  	  	BUILD_STAT_CONFIGS[config.id] = config;
-	  	  } 
-	  }
-	});
+	
+	var BuildStatConfigs = Class.create();
+	BuildStatConfigs.prototype = {
+		initialize: function(){
+			this.ids = new Array();
+		},
+		add: function(buildStatConfig){
+			this.createChartElement(buildStatConfig);
+			this[buildStatConfig.id] = buildStatConfig;
+			this.ids[this.size()] = buildStatConfig.id;
+		},
+		update: function(buildStatConfig){
+			this.updateChartElement(buildStatConfig);
+			this[buildStatConfig.id] = buildStatConfig;
+		},
+		delete: function(buildStatId){
+			this.deleteChartElement(buildStatId);
+			this[buildStatId] = null;
+			this.ids = this.ids.without(buildStatId);
+		},
+		deleteChartElement: function(buildStatId){
+			var buildStatContainerId = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatId;
+			var previousBuildStatContainer = this.getPreviousBuildStatConfigContainer(buildStatContainerId);
+			$(buildStatContainerId).update("");
+			$(buildStatContainerId).id="deletedBuildStatConfig";
+			if(previousBuildStatContainer != null){
+				this.updateButtonsFor(this.retrieveBuildStatIdFromContainerId(previousBuildStatContainer.id));
+			}
+		},
+		getBuildStat: function(buildStatId){
+			return this[buildStatId];
+		},
+		size: function(){
+			return this.ids.length;
+		},
+		getHTMLWithoutContainerFromBuildStatConfig: function getHTMLWithoutContainerFromBuildStatConfig(buildStatConfiguration){
+			var currentContext = createTemplateContext(buildStatConfiguration);
+			
+			var imageTemplateStr = '';
+			imageTemplateStr += '<img style="display:inline; float:left; margin-bottom: 10px; margin-right: 10px;"\n';
+			imageTemplateStr += 'src="#{rootURL}/plugin/global-build-stats/showChart?buildStatId=#{id}&time=#{currentTime}"\n';
+			imageTemplateStr += 'lazymap="#{rootURL}/plugin/global-build-stats/createChartMap?buildStatId=#{id}" /><br/>\n';
+			var imageTemplate = new Template(imageTemplateStr);
+			var image = imageTemplate.evaluate(currentContext);
+			
+			currentContext = jsonConcat(currentContext, { buildStatImage: image});
+			
+			var buildStatConfigWithoutContainerTemplate = new Template(getTemplateContent('buildStatConfigWithoutContainerTemplate'));
+			var buildStatConfigWithoutContainerHTML = buildStatConfigWithoutContainerTemplate.evaluate(currentContext);
+			
+			return buildStatConfigWithoutContainerHTML;
+		},
+		isBuildStatConfigContainer: function(htmlElement){
+			return htmlElement != null && htmlElement.id != null && htmlElement.id.startsWith(BUILD_STAT_CONTAINER_ID_PREFIX);
+		},
+		getPreviousBuildStatConfigContainer: function(currentBuildStatConfigContainerId){
+			var container = $(currentBuildStatConfigContainerId).previous();
+			while(container != null && !this.isBuildStatConfigContainer(container)){
+				container = container.previous();
+			}
+			return container;
+		},
+		getNextBuildStatConfigContainer: function(currentBuildStatConfigContainerId){
+			var container = $(currentBuildStatConfigContainerId).next();
+			while(container != null && !this.isBuildStatConfigContainer(container)){
+				container = container.next();
+			}
+			return container;
+		},
+		updateButtonsFor: function(buildStatConfigId){
+			var containerId = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConfigId;
+			var container = $(containerId);
+			
+			if($('moveUp_'+buildStatConfigId) != null){
+				if(this.getPreviousBuildStatConfigContainer(containerId) != null){
+					$('moveUp_'+buildStatConfigId).show();
+				} else {
+					$('moveUp_'+buildStatConfigId).hide();
+				}
+			}
+			if($('moveDown_'+buildStatConfigId) != null){
+				if(this.getNextBuildStatConfigContainer(containerId) != null){
+					$('moveDown_'+buildStatConfigId).show();
+				} else {
+					$('moveDown_'+buildStatConfigId).hide();
+				}
+			}
+		},
+		swapBuildStatConfigs: function(containerId1, containerId2){
+			var buildStatConf1 = this.getBuildStatConfigFromContainerId(containerId1);
+			var buildStatConf2 = this.getBuildStatConfigFromContainerId(containerId2);
+		
+			var buildStatConf1Container = $(BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConf1.id);
+			var buildStatConf2Container = $(BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConf2.id);
+			
+			var replacedHTML = buildStatConf1Container.innerHTML;
+			buildStatConf1Container.innerHTML = buildStatConf2Container.innerHTML;
+			buildStatConf2Container.innerHTML = replacedHTML;
+			
+			buildStatConf1Container.id = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConf2.id;
+			buildStatConf2Container.id = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConf1.id;
+			
+			this.updateButtonsFor(buildStatConf1.id);
+			this.updateButtonsFor(buildStatConf2.id);
+		},
+		retrieveBuildStatIdFromContainerId: function(containerId){
+			var extractingRegex = new RegExp("^"+BUILD_STAT_CONTAINER_ID_PREFIX+"(.*)$", "g");
+			var buildStatId = null;
+			if(extractingRegex.test(containerId)){
+				extractingRegex.exec(containerId);
+				buildStatId = RegExp.$1;
+			}
+			return buildStatId;
+		},
+		getBuildStatConfigFromContainerId: function(containerId){
+			var buildStatConfigId = this.retrieveBuildStatIdFromContainerId(containerId);
+			var buildStatConfig = null;
+			if(buildStatConfigId != null){
+				buildStatConfig = this.getBuildStat(buildStatConfigId);
+			}
+			return buildStatConfig;
+		},
+		updateChartElement: function(buildStatConfig){
+	    	var newContent = this.getHTMLWithoutContainerFromBuildStatConfig(buildStatConfig);
+	    	$(BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConfig.id).update(newContent);
+			this.updateButtonsFor(buildStatConfig.id);
+		},
+		createChartElement: function(buildStatConfig){
+			if(this.size() == 0){
+				$('buildStatConfigsContainer').update("");
+			}
+			
+			var newBuildStatContainerId = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConfig.id;
+			
+			// This stuff could be simpler with Prototype 1.6...
+			var newBuildStatConf = document.createElement("div");
+			newBuildStatConf.setAttribute("style", "clear:left");
+			newBuildStatConf.setAttribute("id", newBuildStatContainerId);
+			
+			$('buildStatConfigsContainer').appendChild(newBuildStatConf);
+			$(newBuildStatContainerId).update(this.getHTMLWithoutContainerFromBuildStatConfig(buildStatConfig));
+			
+			this.updateButtonsFor(buildStatConfig.id);
+			var previousBuildStatContainer = this.getPreviousBuildStatConfigContainer(newBuildStatContainerId);
+			if(previousBuildStatContainer != null){
+				this.updateButtonsFor(this.retrieveBuildStatIdFromContainerId(previousBuildStatContainer.id));
+			}
+		},
+		moveBuildStat: function(buildStatId, moveType){
+			var moveUrl = "";
+			if(moveType.toLowerCase() == "up"){
+				moveUrl = rootURL+'/plugin/global-build-stats/moveUpConf?buildStatId='+buildStatId;
+			} else if(moveType.toLowerCase() == "down"){
+				moveUrl = rootURL+'/plugin/global-build-stats/moveDownConf?buildStatId='+buildStatId;
+			}
+			
+			ajaxCall('link', moveUrl, function(transport) {
+			  	var currentContainerId = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatId;
+				var currentChartContainer = $(currentContainerId);
+				var otherChartContainer = null;
+				if(moveType.toLowerCase() == "up"){
+					otherChartContainer = BUILD_STAT_CONFIGS.getPreviousBuildStatConfigContainer(currentContainerId);
+				} else if(moveType.toLowerCase() == "down"){
+					otherChartContainer = BUILD_STAT_CONFIGS.getNextBuildStatConfigContainer(currentContainerId);
+				}
+				
+				BUILD_STAT_CONFIGS.swapBuildStatConfigs(currentChartContainer.id, otherChartContainer.id);
+				
+				window.location.href = "#"+BUILD_STAT_CONTAINER_ID_PREFIX+buildStatId;
+			});
+		}
+	};
+	
+	function deleteBuildStat(buildStatId){
+		if(confirm('Are you sure to delete this build stat configuration ?')){
+			ajaxCall('link', 'deleteConfiguration?buildStatId='+buildStatId, function(transport) {
+			  	BUILD_STAT_CONFIGS.delete(buildStatId);
+			});
+		}
+	}
+	
+	var BuildStatConfigForm = Class.create();
+	BuildStatConfigForm.prototype = {
+		initialize: function(buildStatConfId){
+			if(buildStatConfId != null){
+				this.buildStatConf = BUILD_STAT_CONFIGS.getBuildStat(buildStatConfId);
+			} else {
+				this.buildStatConf = null;
+			}
+			this.buildStatConfId = getBuildStatConfigId(buildStatConfId);
+			CURRENT_FORM = this;
+		},
+		
+		selectOption: function(selectElement, optionValue){
+			for (var i=0; i<selectElement.options.length; i++) {
+				selectElement.options[i].selected = selectElement.options[i].value == optionValue;
+			}
+			selectElement.onchange();
+		},
+		
+		changeChartLengthUnit: function(newScale){
+			for(var i=0; i<chartLengthUnits.length; i++){
+			    if(newScale == chartLengthUnits[i]){
+			    	document.getElementById(this.buildStatConfId+'_'+chartLengthUnits[i]).style.display = "inline";
+			    } else {
+			    	document.getElementById(this.buildStatConfId+'_'+chartLengthUnits[i]).style.display = "none";
+			    }
+			}
+		},
+		
+		isModificationMode: function(){
+			return this.buildStatConf != null;
+		},
+		
+		// Called after buildStatConfigForm is displayed
+		initForm: function(){
+	      if(this.buildStatConf!=null && this.buildStatConf.historicScale != '') {
+	      	this.selectOption($(this.buildStatConfId+'_historicScale'), this.buildStatConf.historicScale); 
+	      }
+		  // Valeur par défaut de job filter
+		  if($(this.buildStatConfId+'_jobFilter').value == ''){
+		  	$(this.buildStatConfId+'_jobFilter').value = 'ALL';
+		  }
+		  
+		  if($(this.buildStatConfId+'_jobFilter').value.indexOf('jobNameRegex') != -1){
+		  	  $(this.buildStatConfId+'_jobFilteringType_REGEX').checked = 'checked';
+		  	  initializeRegexField(this.buildStatConfId, this.buildStatConf.jobFilter);
+ 		 	  $(this.buildStatConfId+'_jobFilteringType_REGEX').onchange();
+		  	  $(this.buildStatConfId+'_jobNameRegex').disabled = false;
+		  } else if($(this.buildStatConfId+'_jobFilter').value.indexOf('ALL') != -1){
+		  	  $(this.buildStatConfId+'_jobFilteringType_ALL').checked = 'checked';
+		  	  $(this.buildStatConfId+'_jobFilteringType_ALL').onchange();
+		  }
+		  
+		  // Changing default values...
+		  if(this.buildStatConf != null){
+			  if(this.buildStatConf.successShown == 'false') { $(this.buildStatConfId+'_successShown').selected = false; }
+			  if(this.buildStatConf.failuresShown == 'false') { $(this.buildStatConfId+'_failuresShown').selected = false; }
+			  if(this.buildStatConf.unstablesShown == 'false') { $(this.buildStatConfId+'_unstablesShown').selected = false; }
+			  if(this.buildStatConf.abortedShown == 'false') { $(this.buildStatConfId+'_abortedShown').selected = false; }
+			  if(this.buildStatConf.notBuildsShown == 'true') { $(this.buildStatConfId+'_notBuildsShown').selected = true; }
+		  }
+		  		  
+		  // Initializing validations 
+		  $(this.buildStatConfId+'_title').onchange();
+		  $(this.buildStatConfId+'_buildStatWidth').onchange();
+		  $(this.buildStatConfId+'_buildStatHeight').onchange();
+		  $(this.buildStatConfId+'_historicScale').onchange();
+		  $(this.buildStatConfId+'_historicLength').onchange();
+		},
 
+		// Display a creation/modification form for build stat config
+		displayBuildStatConfigForm: function(){
+			var modificationMode = this.isModificationMode();
+		
+	       	if(modificationMode){
+	       		var submitLabel = "Update build stat configuration";
+	       		var popupTitle = "Updating build stat configuration";
+	    		var bsId = this.buildStatConfId;
+	       	} else {
+	       		var submitLabel = "Create new chart";
+	       		var popupTitle = "Adding new chart";
+	    		var bsId = "new";
+	       	}
+	       	
+			YAHOO.namespace("global.build.stat.configuration");
+			YAHOO.global.build.stat.configuration._buttons = [];
+		    YAHOO.global.build.stat.configuration.handleSubmit = function() {
+				ajaxCall('form', 'createBuildStat_'+bsId, function(ret) {
+				  	var buildStatConfig = eval('('+ret.responseText+')');
+				  	if(modificationMode){
+		    			BUILD_STAT_CONFIGS.update(buildStatConfig);
+				  	} else {
+			    		BUILD_STAT_CONFIGS.add(buildStatConfig);
+				  	}
+			        YAHOO.global.build.stat.configuration.modalPopup.hide();
+			        CURRENT_FORM = null;
+				});
+		    } 
+		    YAHOO.global.build.stat.configuration.handleCancel = function() { 
+		        YAHOO.global.build.stat.configuration.modalPopup.hide(); 
+		        CURRENT_FORM = null;
+		    }
+			YAHOO.global.build.stat.configuration.modalPopup =  
+		        new YAHOO.widget.Panel("buildStatConfigForm",   
+		            { width:"720px",
+		              fixedcenter:true,  
+		              close:false,  
+		              draggable:false,  
+		              zindex:4, 
+		              modal:true
+		            }
+		        ); 
+		        
+			content = this.getHTMLForBuildStatConfigForm();
+			YAHOO.global.build.stat.configuration.modalPopup.setHeader(popupTitle);
+			YAHOO.global.build.stat.configuration.modalPopup.setBody(content); 
+		    YAHOO.global.build.stat.configuration.modalPopup.setFooter('<span id="panelFooter" class="button-group"></span>'); 
+		    YAHOO.global.build.stat.configuration.modalPopup.showEvent.subscribe(function() { 
+		        if (this._buttons.length == 0) { 
+		            this._buttons[0] = new YAHOO.widget.Button({ 
+		                type: 'button', 
+		                label: submitLabel, 
+		                container: 'panelFooter' 
+		            }); 
+		            this._buttons[0].on('click', YAHOO.global.build.stat.configuration.handleSubmit); 
+		            this._buttons[1] = new YAHOO.widget.Button({ 
+		                type: 'button', 
+		                label: 'Cancel', 
+		                container: 'panelFooter' 
+		            }); 
+		            this._buttons[1].on('click', YAHOO.global.build.stat.configuration.handleCancel); 
+		        }
+		    }, YAHOO.global.build.stat.configuration, true); 
+		    YAHOO.global.build.stat.configuration.modalPopup.renderEvent.subscribe(function() {
+		    	CURRENT_FORM.initForm();
+		    }, YAHOO.global.build.stat.configuration, true); 
+			YAHOO.global.build.stat.configuration.modalPopup.render(document.body);
+		},
+
+		getHTMLForBuildStatConfigForm: function(){
+			var currentContext = createTemplateContext(this.buildStatConf);
+			
+			// Generating content for creation/update form
+			var formBlockTemplate = new Template(getTemplateContent('formBlockTemplate'));
+			var formBlock = formBlockTemplate.evaluate(currentContext);
+			
+			return formBlock;
+		}
+
+	};
+	var CURRENT_FORM = null;
 	
 	chartLengthUnits = new Array();
-	function changeChartLengthUnit(formId, scale){
-		for(var i=0; i<chartLengthUnits.length; i++){
-		    if(scale == chartLengthUnits[i]){
-		    	document.getElementById(formId+'_'+chartLengthUnits[i]).style.display = "inline";
-		    } else {
-		    	document.getElementById(formId+'_'+chartLengthUnits[i]).style.display = "none";
-		    }
-		}
-	}
 	
-	function selectionOption(selectElement, optionValue){
-		for (var i=0; i<selectElement.options.length; i++) {
-			selectElement.options[i].selected = selectElement.options[i].value == optionValue;
-		}
-		selectElement.onchange();
-	}
-	
-	function initializeForms(){
-		var fieldsToRefresh = new Array("title", "buildStatWidth", "buildStatHeight", "historicScale",
-										"historicLength");
-		for(var i=0; i<fieldsToRefresh.length; i++){
-			fields = document.getElementsByName(fieldsToRefresh[i]);
-			for(var j=0; j<fields.length; j++){
-				fields[j].onchange();
-			}
-		}
-	}
-	
+	// Called after button "initialize stats" is clicked
 	function initializeStats(){
-		$('initializeStatsSpinner').style.display = "inline";
-		new Ajax.Request('recordBuildInfos', {
-		  method: 'get',
-		  onSuccess: function(transport) {
-			$('initializeStatsSpinner').style.display = "none";
+		ajaxCall('link', 'recordBuildInfos', function(transport) {
 			$('initializeStatsMessage').style.display = "inline";
-		  }
 		});
 	}
 
@@ -72,280 +360,109 @@
 		}
 		return o1;
 	}
+
+	function getBuildStatConfigId(buildStatConfigId){
+		if(buildStatConfigId == null){
+			return "new";
+		} else {
+			return buildStatConfigId;
+		}
+	}
 	
-var buildStatConfigTemplateStr = "";
-buildStatConfigTemplateStr += '		<div style="clear:left;" id="'+BUILD_STAT_CONTAINER_ID_PREFIX+'#{id}">\n';
-buildStatConfigTemplateStr += '    		<a name="buildStat_#{id}" />\n';
-buildStatConfigTemplateStr += '			<img style="display:inline; float:left; margin-bottom: 10px; margin-right: 10px;"\n';
-buildStatConfigTemplateStr += '				src="#{rootURL}/plugin/global-build-stats/showChart?buildStatId=#{id}" \n';
-buildStatConfigTemplateStr += '				lazymap="#{rootURL}/plugin/global-build-stats/createChartMap?buildStatId=#{id}" /><br/>\n';
-buildStatConfigTemplateStr += '			\n';
-buildStatConfigTemplateStr += '			<a href="#buildStat_#{id}" id="edit_#{id}" onclick="$(\'edit_#{id}\').style.display=\'none\'; $(\'global_#{id}\').style.display=\'block\';">\n';
-buildStatConfigTemplateStr += '				<img src="#{rootURL}/plugin/global-build-stats/icons/save-new.png" height="36" />\n';
-buildStatConfigTemplateStr += '			</a>\n';
-buildStatConfigTemplateStr += '			<a href="#" onclick="moveBuildStat(\'#{id}\', \'up\');" id="moveUp_#{id}">\n';
-buildStatConfigTemplateStr += '				<img src="#{rootURL}/plugin/global-build-stats/icons/up.png" height="36" />\n';
-buildStatConfigTemplateStr += '			</a>\n';
-buildStatConfigTemplateStr += '			<a href="#" onclick="moveBuildStat(\'#{id}\', \'down\');" id="moveDown_#{id}">\n';
-buildStatConfigTemplateStr += '				<img src="#{rootURL}/plugin/global-build-stats/icons/down.png" height="36" />\n';
-buildStatConfigTemplateStr += '			</a>\n';
-buildStatConfigTemplateStr += '			<a href="#buildStat_#{id}" onclick="if(confirm(\'Are you sure to delete this build stat configuration ?\')){ window.location=\'#{rootURL}/plugin/global-build-stats/deleteConfiguration?buildStatId=#{id}\'; }">\n';
-buildStatConfigTemplateStr += '				<img src="#{rootURL}/plugin/global-build-stats/icons/stop.png" height="36" />\n';
-buildStatConfigTemplateStr += '			</a>\n';
-buildStatConfigTemplateStr += '			<div id="global_#{id}" style="display:none">\n';
-buildStatConfigTemplateStr += '				#{formBlock}\n';
-buildStatConfigTemplateStr += '		    </div>\n';
-buildStatConfigTemplateStr += '		</div>\n';
-var buildStatConfigTemplate = new Template(buildStatConfigTemplateStr);
+	function ajaxCall(callType, param, successCallback){
+		
+		YAHOO.namespace("global.build.stat.wait");
+		YAHOO.global.build.stat.wait.modalPopup =  
+	        new YAHOO.widget.Panel("wait",   
+	            { width:"240px",
+	              fixedcenter:true,  
+	              close:false,  
+	              draggable:false,  
+	              zindex:4, 
+	              modal:true
+	            }
+	        ); 
+	        
+		YAHOO.global.build.stat.wait.modalPopup.setHeader("Loading, please wait...");
+		YAHOO.global.build.stat.wait.modalPopup.setBody(getTemplateContent('loadingTemplate')); 
+		
+		var ajaxCallParams = {
+			onSuccess: function(ret) {
+				successCallback.call(null, ret);
+				YAHOO.global.build.stat.wait.modalPopup.hide();
+			},/* For unknown reasons, an exception is thrown after the onSuccess process .. :(
+			onException: function(transport, ex) { 
+				alert('exception : '+ex);
+			    YAHOO.global.build.stat.wait.modalPopup.hide();
+			    throw ex;
+			},*/
+			onFailure: function(transport) { 
+			  alert('failure : '+Object.toJSON(transport));
+			  YAHOO.global.build.stat.wait.modalPopup.hide();
+			}
+		};
+		
+		YAHOO.global.build.stat.wait.modalPopup.render(document.body);
+		if(callType == 'form'){
+			$(param).request(ajaxCallParams);
+		} else {
+			new Ajax.Request(param, ajaxCallParams);
+		}
+	}	
 
-var formBlockTemplateStr = "";
-formBlockTemplateStr += '   <form name="createBuildStat_#{buildStatId}" action="#{formAction}" method="post" class="globalBuildStatsForm"\n';
-formBlockTemplateStr += '    	  id="createBuildStat_#{buildStatId}" onsubmit="return !isDivErrorPresentInForm(this);">\n';
-formBlockTemplateStr += '      Title : <input type="text" name="title" \n';
-formBlockTemplateStr += '      				 value="#{buildStatTitle}" \n';
-formBlockTemplateStr += '      				 checkUrl="\'#{rootURL}/plugin/global-build-stats/checkTitle?value=\'+escape(field.value)"\n';
-formBlockTemplateStr += '      				 onblur="validateField(this);" onchange="validateField(this);"\n';
-formBlockTemplateStr += '      		  /><span class="validation-error-area" style="display:inline-block;"></span><br/>\n';
-formBlockTemplateStr += '      Chart Width * Height :\n';
-formBlockTemplateStr += '      <input type="text" name="buildStatWidth"\n'; 
-formBlockTemplateStr += '      		 size="3" value="#{buildStatWidth}" \n';
-formBlockTemplateStr += '      		 checkUrl="\'#{rootURL}/plugin/global-build-stats/checkBuildStatWidth?value=\'+escape(field.value)"\n';
-formBlockTemplateStr += '      		 onblur="validateField(this);" onchange="validateField(this);"\n';
-formBlockTemplateStr += '      		 validationErrorAreaClassName="width-validation-error-area"\n';
-formBlockTemplateStr += '      /> \n';
-formBlockTemplateStr += '      <span class="width-validation-error-area" style="display:inline-block;"></span>\n';
-formBlockTemplateStr += '      * \n';
-formBlockTemplateStr += '      <input type="text" name="buildStatHeight"\n'; 
-formBlockTemplateStr += '      		 size="3" value="#{buildStatHeight}" \n';
-formBlockTemplateStr += '      		 checkUrl="\'#{rootURL}/plugin/global-build-stats/checkBuildStatHeight?value=\'+escape(field.value)"\n';
-formBlockTemplateStr += '      		 onblur="validateField(this);" onchange="validateField(this);"\n';
-formBlockTemplateStr += '      		 validationErrorAreaClassName="height-validation-error-area"\n';
-formBlockTemplateStr += '      />\n';
-formBlockTemplateStr += '      <span class="height-validation-error-area" style="display:inline-block;"></span><br/>\n';
-formBlockTemplateStr += '      Chart scale : \n';
-formBlockTemplateStr += '      <select id="#{buildStatId}_historicScale"\n'; 
-formBlockTemplateStr += '      		  name="historicScale" checkUrl="\'#{rootURL}/plugin/global-build-stats/checkHistoricScale?value=\'+escape(field.value)"\n';
-formBlockTemplateStr += '      		  onchange="validateField(this); changeChartLengthUnit(\'#{buildStatId}\', this.value);">\n';
-formBlockTemplateStr += '      #{historicScaleOptionsBlock}\n';
-formBlockTemplateStr += '      </select><span class="validation-error-area" style="display:inline-block;"></span><br/>\n';
-formBlockTemplateStr += '      Chart length :\n';
-formBlockTemplateStr += '	   <input type="text" name="historicLength"\n'; 
-formBlockTemplateStr += '	  		 size="3" value="#{historicLength}" \n';
-formBlockTemplateStr += '      		 checkUrl="\'#{rootURL}/plugin/global-build-stats/checkHistoricLength?value=\'+escape(field.value)"\n';
-formBlockTemplateStr += '      		 onblur="validateField(this);" onchange="validateField(this);"\n';
-formBlockTemplateStr += '	   />\n';
-formBlockTemplateStr += '      #{historicScaleLabelsBlock}\n';
-formBlockTemplateStr += '      <span class="validation-error-area" style="display:inline-block;"></span><br/>\n';
-formBlockTemplateStr += '      <script type="text/javascript"><![CDATA[\n';
-formBlockTemplateStr += '      if(\'#{historicScale}\' != \'\') { selectionOption($(\'#{buildStatId}_historicScale\'), \'#{historicScale}\'); }\n';
-formBlockTemplateStr += '      #{CDATAEndAndScript}\n';
-formBlockTemplateStr += '      Job filtering : <input type="radio" id="#{buildStatId}_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="ALL" onchange="jobFilterTypeSelected(\'#{buildStatId}\', this.value);" />ALL Jobs\n';
-formBlockTemplateStr += '      <input type="radio" id="#{buildStatId}_jobFilteringType_REGEX" name="jobFilteringType" value="jobNameRegex" onchange="jobFilterTypeSelected(\'#{buildStatId}\', this.value);" />\n';
-formBlockTemplateStr += '      Job name regex :\n';
-formBlockTemplateStr += '      <input type="text" id="#{buildStatId}_jobNameRegex"\n'; 
-formBlockTemplateStr += '      		 disabled="true" name="jobNameRegex" size="10" \n';
-formBlockTemplateStr += '      		 onblur="$(\'#{buildStatId}_jobFilter\').value=\'jobNameRegex(\'+this.value+\')\';"\n'; 
-formBlockTemplateStr += '      />\n';
-formBlockTemplateStr += '      <input id="#{buildStatId}_jobFilter" type="hidden" name="jobFilter" value="#{escapedJobFilter}" /><br/>\n';
-formBlockTemplateStr += '	  <script type="text/javascript"><![CDATA[\n';
-formBlockTemplateStr += '	  // Valeur par défaut de job filter\n';
-formBlockTemplateStr += '	  if($(\'#{buildStatId}_jobFilter\').value == \'\'){\n';
-formBlockTemplateStr += '	  	$(\'#{buildStatId}_jobFilter\').value = \'ALL\';\n';
-formBlockTemplateStr += '	  }\n';
-formBlockTemplateStr += '	  \n';
-formBlockTemplateStr += '	  if($(\'#{buildStatId}_jobFilter\').value.indexOf(\'jobNameRegex\') != -1){\n';
-formBlockTemplateStr += '	  	  $(\'#{buildStatId}_jobFilteringType_REGEX\').checked = \'checked\';\n';
-formBlockTemplateStr += '	  	  initializeRegexField(\'#{buildStatId}\', \'#{escapedJobFilter}\');\n';
-formBlockTemplateStr += '	  	  $(\'#{buildStatId}_jobFilteringType_REGEX\').onchange();\n';
-formBlockTemplateStr += '	  	  $(\'#{buildStatId}_jobNameRegex\').disabled = false;\n';
-formBlockTemplateStr += '	  } else if($(\'#{buildStatId}_jobFilter\').value.indexOf(\'ALL\') != -1){\n';
-formBlockTemplateStr += '	  	  $(\'#{buildStatId}_jobFilteringType_ALL\').checked = \'checked\';\n';
-formBlockTemplateStr += '	  	  $(\'#{buildStatId}_jobFilteringType_ALL\').change();\n';
-formBlockTemplateStr += '	  }\n';
-formBlockTemplateStr += '	  #{CDATAEndAndScript}\n';
-formBlockTemplateStr += '      Statuses shown :\n';
-formBlockTemplateStr += '      <input type="checkbox" value="true" id="#{buildStatId}_successShown" name="successShown" checked="checked" />Success\n';
-formBlockTemplateStr += '      <input type="checkbox" value="true" id="#{buildStatId}_failuresShown" name="failuresShown" checked="checked" />Failures\n';
-formBlockTemplateStr += '      <input type="checkbox" value="true" id="#{buildStatId}_unstablesShown" name="unstablesShown" checked="checked" />Unstables\n';
-formBlockTemplateStr += '      <input type="checkbox" value="true" id="#{buildStatId}_abortedShown" name="abortedShown" checked="checked" />Aborted\n';
-formBlockTemplateStr += '      <input type="checkbox" value="true" id="#{buildStatId}_notBuildsShown" name="notBuildsShown" />Not Build<br/>\n';
-formBlockTemplateStr += '	  <script type="text/javascript"><![CDATA[\n';
-formBlockTemplateStr += '	  // Changing default values...\n';
-formBlockTemplateStr += '	  if(\'#{successShown}\' == \'false\') { $(\'#{buildStatId}_successShown\').selected = false; }\n';
-formBlockTemplateStr += '	  if(\'#{failuresShown}\' == \'false\') { $(\'#{buildStatId}_failuresShown\').selected = false; }\n';
-formBlockTemplateStr += '	  if(\'#{unstablesShown}\' == \'false\') { $(\'#{buildStatId}_unstablesShown\').selected = false; }\n';
-formBlockTemplateStr += '	  if(\'#{abortedShown}\' == \'false\') { $(\'#{buildStatId}_abortedShown\').selected = false; }\n';
-formBlockTemplateStr += '	  if(\'#{notBuildsShown}\' == \'true\') { $(\'#{buildStatId}_notBuildsShown\').selected = true; }\n';
-formBlockTemplateStr += '	  #{CDATAEndAndScript}\n';
-formBlockTemplateStr += '      <input type="hidden" name="buildStatId" value="#{buildStatId}" />\n';
-formBlockTemplateStr += '      <input type="submit" class="submit-button" value="#{formSubmitLabel}" name="Submit" />\n';
-formBlockTemplateStr += '    </form>\n';
-var formBlockTemplate = new Template(formBlockTemplateStr);
+	// For some unknown reasons, on firefox, some #{XXX} template variables a replaced by #%7BXXX%7D :(
+	function getTemplateContent(templateId){
+		var content = $(templateId).innerHTML;
+		content = content.replace(new RegExp("%7B", "g"), "{");
+		content = content.replace(new RegExp("%7D", "g"), "}");
+		return content;
+	}
 
-]]></script>
-<script type="text/javascript">
-var historicScaleOptionsBlockStr = "";
-<j:forEach var="historicScale" items="${it.historicScales}" varStatus="status">
-historicScaleOptionsBlockStr += '	        <option value="${historicScale}">${historicScale}</option>\n';
-</j:forEach>
-
-var historicScaleLabelsBlockStr = "";
-<j:forEach var="historicScale" items="${it.historicScales}" varStatus="status">
-historicScaleLabelsBlockStr += '        <span id="#{buildStatId}_${historicScale}" style="display:none">${historicScale.label}</span>\n';
-</j:forEach>
-var historicScaleLabelsBlockTemplate = new Template(historicScaleLabelsBlockStr);
-</script>
-<script type="text/javascript"><![CDATA[
-	function getHTMLFromBuildStatConfig(buidStatConfiguration, position){
-		if(position == null){
+	function createTemplateContext(buildStatConfiguration){
+		if(buildStatConfiguration==null || buildStatConfiguration.length == 0){
 			// Creating context for creation
-			var currentContext = jsonConcat(buidStatConfiguration, {
+			var currentContext = {
 				rootURL: rootURL, 
 				formAction: "addBuildStatConfiguration", 
-				historicScaleOptionsBlock: historicScaleOptionsBlockStr,
-				buildStatId: "new",
-				escapedJobFilter: "",
-				formSubmitLabel: "Create new chart",
+				buildStatId: getBuildStatConfigId(null),
+				currentTime: new Date().getTime(),
+				BUILD_STAT_CONTAINER_ID_PREFIX: BUILD_STAT_CONTAINER_ID_PREFIX,
 				CDATAEndAndScript: "]]"+">"+"</"+"script"+">"
-			});
+			};
 		} else {
 			// Creating context for update
-			var currentContext = jsonConcat(buidStatConfiguration, {
+			var currentContext = jsonConcat(buildStatConfiguration, {
 				rootURL: rootURL, 
 				formAction: "updateBuildStatConfiguration", 
-				historicScaleOptionsBlock: historicScaleOptionsBlockStr,
-				buildStatId: buildStatConfiguration.id,
-				escapedJobFilter: buildStatConfiguration.jobFilter.replace("\\", "\\\\"),
-				formSubmitLabel: "Update build stat configuration",
+				buildStatId: getBuildStatConfigId(buildStatConfiguration.id),
+				currentTime: new Date().getTime(),
+				BUILD_STAT_CONTAINER_ID_PREFIX: BUILD_STAT_CONTAINER_ID_PREFIX,
 				CDATAEndAndScript: "]]"+">"+"</"+"script"+">"
 			});
 		}
 		
-		// Generating content for historicScale labels
-		var histoScaleLabels = historicScaleLabelsBlockTemplate.evaluate(currentContext);
-		
-		currentContext = jsonConcat(currentContext, { historicScaleLabelsBlock: histoScaleLabels });
-		
-		// Generating content for update form
-		var formBlock = formBlockTemplate.evaluate(currentContext);
-		
-		currentContext = jsonConcat(currentContext, { formBlock: formBlock });
-		
-		// Generating final content
-		var buildStatConfigurationHTML = buildStatConfigTemplate.evaluate(currentContext);
-		
-		return buildStatConfigurationHTML;
+		return currentContext;
 	}
 	
-	function isBuildStatConfigContainer(htmlElement){
-		return htmlElement != null && htmlElement.id != null && htmlElement.id.startsWith(BUILD_STAT_CONTAINER_ID_PREFIX);
-	}
-
-	function updateButtonsFor(buildStatConfigId){
-		var container = $(BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConfigId);
-		
-		if($('moveUp_'+buildStatConfigId) != null){
-			if(isBuildStatConfigContainer(container.previous())){
-				$('moveUp_'+buildStatConfigId).show();
-			} else {
-				$('moveUp_'+buildStatConfigId).hide();
-			}
-		}
-		if($('moveDown_'+buildStatConfigId) != null){
-			if(isBuildStatConfigContainer(container.next())){
-				$('moveDown_'+buildStatConfigId).show();
-			} else {
-				$('moveDown_'+buildStatConfigId).hide();
-			}
-		}
-	}
-
-	function swapBuildStatConfigs(buildStatConf1, buildStatConf2){
-		var buildStatConf1Container = $(BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConf1.id);
-		var buildStatConf2Container = $(BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConf2.id);
-		
-		var replacedHTML = buildStatConf1Container.innerHTML;
-		buildStatConf1Container.innerHTML = buildStatConf2Container.innerHTML;
-		buildStatConf2Container.innerHTML = replacedHTML;
-		
-		buildStatConf1Container.id = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConf2.id;
-		buildStatConf2Container.id = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConf1.id;
-		
-		updateButtonsFor(buildStatConf1.id);
-		updateButtonsFor(buildStatConf2.id);
-	}
-
-	function retrieveBuildStatIdFromContainerId(containerId){
-		var extractingRegex = new RegExp("^"+BUILD_STAT_CONTAINER_ID_PREFIX+"(.*)$", "g");
-		var buildStatId = null;
-		if(extractingRegex.test(containerId)){
-			extractingRegex.exec(containerId);
-			buildStatId = RegExp.$1;
-		}
-		return buildStatId;
-	}
-	
-	function getBuildStatConfigFromContainerId(containerId){
-		var buildStatConfigId = retrieveBuildStatIdFromContainerId(containerId);
-		var buildStatConfig = null;
-		if(buildStatConfigId != null){
-			buildStatConfig = BUILD_STAT_CONFIGS[buildStatConfigId];
-		}
-		return buildStatConfig;
-	}
-
-	function createChartElement(buildStatId){
-	}
-	
-	function moveBuildStat(buildStatId, moveType){
-		$('buildStatActionSpinner').style.display = "inline";
-		
-		var moveUrl = "";
-		if(moveType.toLowerCase() == "up"){
-			moveUrl = rootURL+'/plugin/global-build-stats/moveUpConf?buildStatId='+buildStatId;
-		} else if(moveType.toLowerCase() == "down"){
-			moveUrl = rootURL+'/plugin/global-build-stats/moveDownConf?buildStatId='+buildStatId;
-		}
-		
-		new Ajax.Request(moveUrl, {
-		  method: 'get',
-		  onSuccess: function(transport) {
-			var currentChartContainer = $(BUILD_STAT_CONTAINER_ID_PREFIX+buildStatId);
-			var otherChartContainer = null;
-			if(moveType.toLowerCase() == "up"){
-				otherChartContainer = currentChartContainer.previous();
-			} else if(moveType.toLowerCase() == "down"){
-				otherChartContainer = currentChartContainer.next();
-			}
-			
-			swapBuildStatConfigs(getBuildStatConfigFromContainerId(currentChartContainer.id), 
-								 getBuildStatConfigFromContainerId(otherChartContainer.id));
-			
-			$('buildStatActionSpinner').style.display = "none";
-			$('buildStatActionErrorMessage').style.display = "none";
-			$('buildStatActionValidationMessage').style.display = "inline";
-			
-			window.location.href = "#"+BUILD_STAT_CONTAINER_ID_PREFIX+buildStatId;
-		  },
-		  onException: function(transport, ex) { 
-		  	alert('exception !');
-		  	alert(ex);
-		  },
-		  onFailure: function(transport) { 
-		    alert('failure');
-		  }
+	var BUILD_STAT_CONFIGS = new BuildStatConfigs();
+	new Event.observe(window, 'load', function(){
+		ajaxCall('link', rootURL+'/plugin/global-build-stats/api/json?depth=2', function(ret) {
+		  	  var buildStat = eval('('+ret.responseText+')');
+		  	  for(i=0; i<buildStat.buildStatConfigs.length; i++){
+		  	  	var config = buildStat.buildStatConfigs[i];
+		  	  	BUILD_STAT_CONFIGS.add(config);
+		  	  }
 		});
-	}
-	
-	function deleteBuildStat(buildStatId){
-	}
-	
+	});
 	]]></script>
 	<script type="text/javascript">
-	<j:forEach var="historicScale" items="${it.historicScales}" varStatus="status">
-	chartLengthUnits[${status.index}] = "${historicScale}";</j:forEach>
+		<j:forEach var="historicScale" items="${it.historicScales}" varStatus="status">
+		chartLengthUnits[${status.index}] = "${historicScale}";</j:forEach>
 	</script>
-	
+  </l:header>
+
+
+  <l:main-panel>
     <h1><img src="${rootURL}/plugin/global-build-stats/icons/global-build-stats.png" /> Global Build Stats </h1>
     <hr />
     
@@ -354,7 +471,7 @@ var historicScaleLabelsBlockTemplate = new Template(historicScaleLabelsBlockStr)
     <div id="buildStatActionSpinner" class="spinner" style="display: none" />
     <span id="buildStatActionValidationMessage" style="color: rgb(52, 101, 0); display: none;"></span>
     <span id="buildStatActionErrorMessage" class="error" style="display: none;"></span>
-    
+	
     <div id="errors">
 	    <j:forEach var="error" items="${requestScope['errors']}">
 	    ${error.renderHtml()}
@@ -362,69 +479,93 @@ var historicScaleLabelsBlockTemplate = new Template(historicScaleLabelsBlockStr)
     </div>
 
 	<hr />
+	<div style="display:none" id="jsTemplates">
+		<div id="loadingTemplate">
+			<img src="${rootURL}/plugin/global-build-stats/icons/loading.gif" />
+		</div>
+		<div id="buildStatConfigWithoutContainerTemplate">
+    		<a name="buildStat_#{id}" />
+    		#{buildStatImage}
+			<a href="#buildStat_#{id}" id="edit_#{id}" onclick="new BuildStatConfigForm('#{id}').displayBuildStatConfigForm();">
+				<img src="${rootURL}/plugin/global-build-stats/icons/save-new.png" height="36" />
+			</a>
+			<a href="#" onclick="BUILD_STAT_CONFIGS.moveBuildStat('#{id}', 'up');" id="moveUp_#{id}">
+				<img src="${rootURL}/plugin/global-build-stats/icons/up.png" height="36" />
+			</a>
+			<a href="#" onclick="BUILD_STAT_CONFIGS.moveBuildStat('#{id}', 'down');" id="moveDown_#{id}">
+				<img src="${rootURL}/plugin/global-build-stats/icons/down.png" height="36" />
+			</a>
+			<a href="#buildStat_#{id}" onclick="deleteBuildStat('#{id}');">
+				<img src="${rootURL}/plugin/global-build-stats/icons/stop.png" height="36" />
+			</a>
+		</div>
+		<div id="formBlockTemplate">
+		   <form name="createBuildStat_#{buildStatId}" action="#{formAction}" method="post" class="globalBuildStatsForm"
+		    	  id="createBuildStat_#{buildStatId}" onsubmit="return !isDivErrorPresentInForm(this);">
+		      Title : <input type="text" id="#{buildStatId}_title" name="title"
+		      				 value="#{buildStatTitle}"
+		      				 checkUrl="'${rootURL}/plugin/global-build-stats/checkTitle?value='+escape(field.value)"
+		      				 onblur="validateField(this);" onchange="validateField(this);"
+		      		  /><span class="validation-error-area" style="display:inline-block;"></span><br/>
+		      Chart Width * Height :
+		      <input type="text" id="#{buildStatId}_buildStatWidth" name="buildStatWidth" 
+		      		 size="3" value="#{buildStatWidth}"
+		      		 checkUrl="'${rootURL}/plugin/global-build-stats/checkBuildStatWidth?value='+escape(field.value)"
+		      		 onblur="validateField(this);" onchange="validateField(this);"
+		      		 validationErrorAreaClassName="width-validation-error-area"
+		      />
+		      <span class="width-validation-error-area" style="display:inline-block;"></span>
+		      * 
+		      <input type="text" id="#{buildStatId}_buildStatHeight" name="buildStatHeight" 
+		      		 size="3" value="#{buildStatHeight}"
+		      		 checkUrl="'${rootURL}/plugin/global-build-stats/checkBuildStatHeight?value='+escape(field.value)"
+		      		 onblur="validateField(this);" onchange="validateField(this);"
+		      		 validationErrorAreaClassName="height-validation-error-area"
+		      />
+		      <span class="height-validation-error-area" style="display:inline-block;"></span><br/>
+		      Chart scale :
+		      <select id="#{buildStatId}_historicScale" 
+		      		  name="historicScale" checkUrl="'${rootURL}/plugin/global-build-stats/checkHistoricScale?value='+escape(field.value)"
+		      		  onchange="validateField(this); CURRENT_FORM.changeChartLengthUnit(this.value);">
+				<j:forEach var="historicScale" items="${it.historicScales}" varStatus="status">
+					<option value="${historicScale}">${historicScale}</option>
+				</j:forEach>
+		      </select><span class="validation-error-area" style="display:inline-block;"></span><br/>
+		      Chart length :
+			   <input type="text" id="#{buildStatId}_historicLength" name="historicLength" 
+			  		 size="3" value="#{historicLength}"
+		      		 checkUrl="'${rootURL}/plugin/global-build-stats/checkHistoricLength?value='+escape(field.value)"
+		      		 onblur="validateField(this);" onchange="validateField(this);"
+			   />
+			  <j:forEach var="historicScale" items="${it.historicScales}" varStatus="status">
+				<span id="#{buildStatId}_${historicScale}" style="display:none">${historicScale.label}</span>
+			  </j:forEach>
+		      <span class="validation-error-area" style="display:inline-block;"></span><br/>
+		      Job filtering : <input type="radio" id="#{buildStatId}_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="ALL" onchange="jobFilterTypeSelected('#{buildStatId}', this.value);" />ALL Jobs
+		      <input type="radio" id="#{buildStatId}_jobFilteringType_REGEX" name="jobFilteringType" value="jobNameRegex" onchange="jobFilterTypeSelected('#{buildStatId}', this.value);" />
+		      Job name regex :
+		      <input type="text" id="#{buildStatId}_jobNameRegex" 
+		      		 disabled="true" name="jobNameRegex" size="10"
+		      		 onblur="$('#{buildStatId}_jobFilter').value='jobNameRegex('+this.value+')';" 
+		      />
+		      <input id="#{buildStatId}_jobFilter" type="hidden" name="jobFilter" value="#{jobFilter}" /><br/>
+		      Statuses shown :
+		      <input type="checkbox" value="true" id="#{buildStatId}_successShown" name="successShown" checked="checked" />Success
+		      <input type="checkbox" value="true" id="#{buildStatId}_failuresShown" name="failuresShown" checked="checked" />Failures
+		      <input type="checkbox" value="true" id="#{buildStatId}_unstablesShown" name="unstablesShown" checked="checked" />Unstables
+		      <input type="checkbox" value="true" id="#{buildStatId}_abortedShown" name="abortedShown" checked="checked" />Aborted
+		      <input type="checkbox" value="true" id="#{buildStatId}_notBuildsShown" name="notBuildsShown" />Not Build<br/>
+		      <input type="hidden" name="buildStatId" value="#{buildStatId}" />
+		    </form>
+		</div>
+	</div>
 	<strong>Statistics</strong><br/>
 	<div id="buildStatConfigsContainer">
 	<j:if test="${empty(it.buildStatConfigsArrayed)}">
 		<em>No statistics for now on ...</em>
 	</j:if>
-    <j:forEach var="buildStatConfig" items="${it.buildStatConfigsArrayed}" varStatus="status">
-    	<div style="clear:left;" id="container_buildStatConfig_${buildStatConfig.id}">
-    		<a name="buildStat_${buildStatConfig.id}" />
-			<img style="display:inline; float:left; margin-bottom: 10px; margin-right: 10px;"
-				src="${rootURL}/plugin/global-build-stats/showChart?buildStatId=${buildStatConfig.id}" 
-				lazymap="${rootURL}/plugin/global-build-stats/createChartMap?buildStatId=${buildStatConfig.id}" /><br/>
-			
-			<a href="#buildStat_${buildStatConfig.id}" id="edit_${buildStatConfig.id}" onclick="document.getElementById('edit_${buildStatConfig.id}').style.display='none'; document.getElementById('global_${buildStatConfig.id}').style.display='block';">
-				<img src="${rootURL}/plugin/global-build-stats/icons/save-new.png" height="36" />
-			</a>
-			<j:choose>
-				<j:when test="${! status.first}">
-					<j:set var="display" value="inline'" />
-				</j:when>
-				<j:otherwise>
-					<j:set var="display" value="none'" />
-				</j:otherwise>
-			</j:choose>
-			<a href="#" onclick="moveBuildStat('${buildStatConfig.id}', 'up');" id="moveUp_${buildStatConfig.id}" style="display: ${display}">
-				<img src="${rootURL}/plugin/global-build-stats/icons/up.png" height="36" />
-			</a>
-			<j:choose>
-				<j:when test="${! status.last}">
-					<j:set var="display" value="inline'" />
-				</j:when>
-				<j:otherwise>
-					<j:set var="display" value="none'" />
-				</j:otherwise>
-			</j:choose>
-			<a href="#" onclick="moveBuildStat('${buildStatConfig.id}', 'down');" id="moveDown_${buildStatConfig.id}" style="display: ${display}">
-				<img src="${rootURL}/plugin/global-build-stats/icons/down.png" height="36" />
-			</a>
-			<a href="#buildStat_${buildStatConfig.id}" onclick="if(confirm('Are you sure to delete this build stat configuration ?')){ window.location='${rootURL}/plugin/global-build-stats/deleteConfiguration?buildStatId=${buildStatConfig.id}'; }">
-				<img src="${rootURL}/plugin/global-build-stats/icons/stop.png" height="36" />
-			</a>
-			<div id="global_${buildStatConfig.id}" style="display:none">
-				<j:set var="formAction" value="updateBuildStatConfiguration" />
-				<j:set var="formSubmitLabel" value="Update build stat configuration" />
-				<j:set var="currentBuildStatConfig" value="${buildStatConfig}" />
-				<j:set var="buildStatId" value="${buildStatConfig.id}" />
-			    <st:include page="/hudson/plugins/global_build_stats/GlobalBuildStatsPlugin/form.jelly" />
-		    </div>
-		</div>
-	</j:forEach>
 	</div>
 	
-	<hr style="clear:both;" />
-	<a name="CreateNew" />
-	<strong>Adding new chart</strong><br/>
-	<j:set var="formAction" value="addBuildStatConfiguration" />
-	<j:set var="formSubmitLabel" value="Create new chart" />
-	<j:set var="currentBuildStatConfig" value="" />
-	<j:set var="buildStatId" value="new" />
-    <st:include page="/hudson/plugins/global_build_stats/GlobalBuildStatsPlugin/form.jelly" />
-
-	<script type="text/javascript"><![CDATA[
-	initializeForms();
-	]]></script>
 	<hr />
 	<a name="Initialize" />
 	<strong>Data Initialization</strong><br/>
@@ -439,7 +580,6 @@ var historicScaleLabelsBlockTemplate = new Template(historicScaleLabelsBlockStr)
     </span>
     <input type="button" class="submit-button" onclick="initializeStats();" value="Initialize stats" />
     <div id="initializeStatsSpinner" class="spinner" style="display: none" />
-	
   </l:main-panel>
 </l:layout>
 </j:jelly>
