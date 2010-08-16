@@ -47,13 +47,13 @@
 		size: function(){
 			return this.ids.length;
 		},
-		getHTMLWithoutContainerFromBuildStatConfig: function getHTMLWithoutContainerFromBuildStatConfig(buildStatConfiguration){
+		getHTMLWithoutContainerFromBuildStatConfig: function(buildStatConfiguration){
 			var currentContext = createTemplateContext(buildStatConfiguration);
 			
 			var imageTemplateStr = '';
-			imageTemplateStr += '<img style="display:inline; float:left; margin-bottom: 10px; margin-right: 10px;"\n';
-			imageTemplateStr += 'src="#{rootURL}/plugin/global-build-stats/showChart?buildStatId=#{id}&time=#{currentTime}"\n';
-			imageTemplateStr += 'lazymap="#{rootURL}/plugin/global-build-stats/createChartMap?buildStatId=#{id}" /><br/>\n';
+			imageTemplateStr += '<img style="display:inline; float:left; margin-bottom: 10px; margin-right: 10px;" id="img_#{id}" \n';
+			imageTemplateStr += 'src="#{rootURL}/plugin/global-build-stats/showChart?buildStatId=#{id}&time=#{currentTime}" />\n';
+			imageTemplateStr += '<div id="map_#{id}_container"></div><br/>\n';
 			var imageTemplate = new Template(imageTemplateStr);
 			var image = imageTemplate.evaluate(currentContext);
 			
@@ -134,10 +134,22 @@
 			}
 			return buildStatConfig;
 		},
+		fillDivWithChart: function(divId, buildStatConfig, updateButtonsCallback){
+			ajaxCall('link', rootURL+'/plugin/global-build-stats/createChartMap?buildStatId='+buildStatConfig.id, function(ret){
+				var content = BUILD_STAT_CONFIGS.getHTMLWithoutContainerFromBuildStatConfig(buildStatConfig);
+				$(divId).update(content);
+				$('map_'+buildStatConfig.id+'_container').update(ret.responseText);
+				var mapId = "map_"+buildStatConfig.id;
+				$('map_'+buildStatConfig.id+'_container').firstChild.setAttribute("name", mapId);
+				$('img_'+buildStatConfig.id).setAttribute("usemap", "#" + mapId);
+				
+				updateButtonsCallback.call(null);
+			}, true);
+		},
 		updateChartElement: function(buildStatConfig){
-	    	var newContent = this.getHTMLWithoutContainerFromBuildStatConfig(buildStatConfig);
-	    	$(BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConfig.id).update(newContent);
-			this.updateButtonsFor(buildStatConfig.id);
+			this.fillDivWithChart(BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConfig.id, buildStatConfig, function(){
+				BUILD_STAT_CONFIGS.updateButtonsFor(buildStatConfig.id);
+			});
 		},
 		createChartElement: function(buildStatConfig){
 			if(this.size() == 0){
@@ -152,13 +164,13 @@
 			newBuildStatConf.setAttribute("id", newBuildStatContainerId);
 			
 			$('buildStatConfigsContainer').appendChild(newBuildStatConf);
-			$(newBuildStatContainerId).update(this.getHTMLWithoutContainerFromBuildStatConfig(buildStatConfig));
-			
-			this.updateButtonsFor(buildStatConfig.id);
-			var previousBuildStatContainer = this.getPreviousBuildStatConfigContainer(newBuildStatContainerId);
-			if(previousBuildStatContainer != null){
-				this.updateButtonsFor(this.retrieveBuildStatIdFromContainerId(previousBuildStatContainer.id));
-			}
+			this.fillDivWithChart(newBuildStatContainerId, buildStatConfig, function(){
+				BUILD_STAT_CONFIGS.updateButtonsFor(buildStatConfig.id);
+				var previousBuildStatContainer = BUILD_STAT_CONFIGS.getPreviousBuildStatConfigContainer(newBuildStatContainerId);
+				if(previousBuildStatContainer != null){
+					BUILD_STAT_CONFIGS.updateButtonsFor(BUILD_STAT_CONFIGS.retrieveBuildStatIdFromContainerId(previousBuildStatContainer.id));
+				}
+			});
 		},
 		moveBuildStat: function(buildStatId, moveType){
 			var moveUrl = "";
@@ -425,35 +437,46 @@
 	}
 	
 	function ajaxCall(callType, param, successCallback){
+		ajaxCall(callType, param, successCallback, false);
+	}
+	function ajaxCall(callType, param, successCallback, skipLoading){
 		
-		YAHOO.namespace("global.build.stat.wait");
-		YAHOO.global.build.stat.wait.modalPopup =  
-	        new YAHOO.widget.Panel("wait",   
-	            { width:"240px",
-	              fixedcenter:true,  
-	              close:false,  
-	              draggable:false,  
-	              zindex:4, 
-	              modal:true
-	            }
-	        ); 
-	        
-		YAHOO.global.build.stat.wait.modalPopup.setHeader("Loading, please wait...");
-		YAHOO.global.build.stat.wait.modalPopup.setBody(getTemplateContent('loadingTemplate')); 
-		
+		if(!skipLoading){
+			YAHOO.namespace("global.build.stat.wait");
+			YAHOO.global.build.stat.wait.modalPopup =  
+		        new YAHOO.widget.Panel("wait",   
+		            { width:"240px",
+		              fixedcenter:true,  
+		              close:false,  
+		              draggable:false,  
+		              zindex:4, 
+		              modal:true
+		            }
+		        ); 
+		        
+			YAHOO.global.build.stat.wait.modalPopup.setHeader("Loading, please wait...");
+			YAHOO.global.build.stat.wait.modalPopup.setBody(getTemplateContent('loadingTemplate')); 
+		}
+				
 		var ajaxCallParams = {
 			onSuccess: function(ret) {
 				successCallback.call(null, ret);
-				YAHOO.global.build.stat.wait.modalPopup.hide();
+				if(!skipLoading){
+					YAHOO.global.build.stat.wait.modalPopup.hide();
+				}
 			},/* For unknown reasons, an exception is thrown after the onSuccess process .. :(
 			onException: function(transport, ex) { 
 				alert('exception : '+ex);
-			    YAHOO.global.build.stat.wait.modalPopup.hide();
+				if(!skipLoading){
+					YAHOO.global.build.stat.wait.modalPopup.hide();
+				}
 			    throw ex;
 			},*/
 			onFailure: function(transport) { 
-			  alert('failure : '+Object.toJSON(transport));
-			  YAHOO.global.build.stat.wait.modalPopup.hide();
+				alert('failure : '+Object.toJSON(transport));
+				if(!skipLoading){
+					YAHOO.global.build.stat.wait.modalPopup.hide();
+				}
 			}
 		};
 		
@@ -542,16 +565,16 @@
     		<a name="buildStat_#{id}" />
     		#{buildStatImage}
 			<a href="#buildStat_#{id}" id="edit_#{id}" onclick="new BuildStatConfigForm('#{id}').displayBuildStatConfigForm();">
-				<img src="${rootURL}/plugin/global-build-stats/icons/save-new.png" height="36" />
+				<img src="${rootURL}/plugin/global-build-stats/icons/save-new.png" height="36" /><br/>
 			</a>
 			<a href="#" onclick="BUILD_STAT_CONFIGS.moveBuildStat('#{id}', 'up');" id="moveUp_#{id}">
-				<img src="${rootURL}/plugin/global-build-stats/icons/up.png" height="36" />
+				<img src="${rootURL}/plugin/global-build-stats/icons/up.png" height="36" /><br/>
 			</a>
 			<a href="#" onclick="BUILD_STAT_CONFIGS.moveBuildStat('#{id}', 'down');" id="moveDown_#{id}">
-				<img src="${rootURL}/plugin/global-build-stats/icons/down.png" height="36" />
+				<img src="${rootURL}/plugin/global-build-stats/icons/down.png" height="36" /><br/>
 			</a>
 			<a href="#buildStat_#{id}" onclick="deleteBuildStat('#{id}');">
-				<img src="${rootURL}/plugin/global-build-stats/icons/stop.png" height="36" />
+				<img src="${rootURL}/plugin/global-build-stats/icons/stop.png" height="36" /><br/>
 			</a>
 		</div>
 		<div id="formBlockTemplate">
@@ -621,7 +644,7 @@
 	</j:if>
 	</div>
 	
-	<hr />
+	<hr style="clear:both;"/>
 	<a name="Initialize" />
 	<strong>Data Initialization</strong><br/>
     <em>
