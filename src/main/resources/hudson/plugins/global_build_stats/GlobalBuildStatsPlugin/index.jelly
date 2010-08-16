@@ -248,11 +248,11 @@
 		  
 		  // Changing default values...
 		  if(this.buildStatConf != null){
-			  if(this.buildStatConf.successShown == 'false') { $(this.buildStatConfId+'_successShown').selected = false; }
-			  if(this.buildStatConf.failuresShown == 'false') { $(this.buildStatConfId+'_failuresShown').selected = false; }
-			  if(this.buildStatConf.unstablesShown == 'false') { $(this.buildStatConfId+'_unstablesShown').selected = false; }
-			  if(this.buildStatConf.abortedShown == 'false') { $(this.buildStatConfId+'_abortedShown').selected = false; }
-			  if(this.buildStatConf.notBuildsShown == 'true') { $(this.buildStatConfId+'_notBuildsShown').selected = true; }
+			  if(this.buildStatConf.successShown == 'false') { $(this.buildStatConfId+'_successShown').checked = false; }
+			  if(this.buildStatConf.failuresShown == 'false') { $(this.buildStatConfId+'_failuresShown').checked = false; }
+			  if(this.buildStatConf.unstablesShown == 'false') { $(this.buildStatConfId+'_unstablesShown').checked = false; }
+			  if(this.buildStatConf.abortedShown == 'false') { $(this.buildStatConfId+'_abortedShown').checked = false; }
+			  if(this.buildStatConf.notBuildsShown == 'true') { $(this.buildStatConfId+'_notBuildsShown').checked = true; }
 		  }
 		  		  
 		  // Initializing validations 
@@ -279,7 +279,56 @@
 	       	
 			YAHOO.namespace("global.build.stat.configuration");
 			YAHOO.global.build.stat.configuration._buttons = [];
+		    YAHOO.global.build.stat.configuration.handleOverview = function() {
+		    	// If error resides in form, don't do anything here !
+		    	if(isDivErrorPresentInForm($('createBuildStat_'+bsId))){ return; }
+		    	
+				YAHOO.namespace("global.build.stat.overview");
+				
+				var title = $(bsId+'_title').value;
+				var width = $(bsId+'_buildStatWidth').value;
+				var height = $(bsId+'_buildStatHeight').value;
+				var scale = $(bsId+'_historicScale').value;
+				var length = $(bsId+'_historicLength').value;
+				var jobFilter = $(bsId+'_jobFilter').value;
+				var successShown = $(bsId+'_successShown').checked;
+				var failuresShown = $(bsId+'_failuresShown').checked;
+				var unstablesShown = $(bsId+'_unstablesShown').checked;
+				var abortedShown = $(bsId+'_abortedShown').checked;
+				var notBuildsShown = $(bsId+'_notBuildsShown').checked;
+
+				var overviewContent = '<img src="'+rootURL+'/plugin/global-build-stats/createChart?';
+				overviewContent += 'title='+title;
+				overviewContent += '&buildStatWidth='+width;
+				overviewContent += '&buildStatHeight='+height;
+				overviewContent += '&historicLength='+length;
+				overviewContent += '&historicScale='+scale;
+				overviewContent += '&jobFilter='+jobFilter;
+				overviewContent += '&successShown='+successShown;
+				overviewContent += '&failuresShown='+failuresShown;
+				overviewContent += '&unstablesShown='+unstablesShown;
+				overviewContent += '&abortedShown='+abortedShown;
+				overviewContent += '&notBuildsShown='+notBuildsShown;
+				overviewContent += '" />';
+
+				YAHOO.global.build.stat.overview.modalPopup =  
+			        new YAHOO.widget.Panel("buildStatOverview",   
+			            { width:width+"px",
+			              fixedcenter:true,  
+			              close:true,  
+			              draggable:true,
+			              zindex:8, 
+			              modal:true
+			            }
+			        ); 
+				YAHOO.global.build.stat.overview.modalPopup.setHeader("Overview");
+				YAHOO.global.build.stat.overview.modalPopup.setBody(overviewContent);
+				YAHOO.global.build.stat.overview.modalPopup.render(document.body);
+		    }
 		    YAHOO.global.build.stat.configuration.handleSubmit = function() {
+		    	// If error resides in form, don't do anything here !
+		    	if(isDivErrorPresentInForm($('createBuildStat_'+bsId))){ return; }
+		    	
 				ajaxCall('form', 'createBuildStat_'+bsId, function(ret) {
 				  	var buildStatConfig = eval('('+ret.responseText+')');
 				  	if(modificationMode){
@@ -314,16 +363,22 @@
 		        if (this._buttons.length == 0) { 
 		            this._buttons[0] = new YAHOO.widget.Button({ 
 		                type: 'button', 
+		                label: "Overview", 
+		                container: 'panelFooter' 
+		            }); 
+		            this._buttons[0].on('click', YAHOO.global.build.stat.configuration.handleOverview); 
+		            this._buttons[1] = new YAHOO.widget.Button({ 
+		                type: 'button', 
 		                label: submitLabel, 
 		                container: 'panelFooter' 
 		            }); 
-		            this._buttons[0].on('click', YAHOO.global.build.stat.configuration.handleSubmit); 
-		            this._buttons[1] = new YAHOO.widget.Button({ 
+		            this._buttons[1].on('click', YAHOO.global.build.stat.configuration.handleSubmit); 
+		            this._buttons[2] = new YAHOO.widget.Button({ 
 		                type: 'button', 
 		                label: 'Cancel', 
 		                container: 'panelFooter' 
 		            }); 
-		            this._buttons[1].on('click', YAHOO.global.build.stat.configuration.handleCancel); 
+		            this._buttons[2].on('click', YAHOO.global.build.stat.configuration.handleCancel); 
 		        }
 		    }, YAHOO.global.build.stat.configuration, true); 
 		    YAHOO.global.build.stat.configuration.modalPopup.renderEvent.subscribe(function() {
