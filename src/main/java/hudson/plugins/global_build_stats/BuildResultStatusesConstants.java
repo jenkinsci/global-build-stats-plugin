@@ -4,9 +4,9 @@ package hudson.plugins.global_build_stats;
  * Constants for differents build result statuses
  */
 public interface BuildResultStatusesConstants {
-	String ABORTED = "aborted";
-	String SUCCESS = "success";
-	String FAILURES = "failures";
-	String UNSTABLES = "unstables";
-	String NOT_BUILD = "not build";
+	String ABORTED = "2) aborted";
+	String SUCCESS = "5) success";
+	String FAILURES = "4) failures";
+	String UNSTABLES = "3) unstables";
+	String NOT_BUILD = "1) not build";
 }

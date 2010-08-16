@@ -211,8 +211,10 @@ public class GlobalBuildStatsBusiness {
 
         final CategoryPlot plot = chart.getCategoryPlot();
         
+        plot.setBackgroundPaint(Color.lightGray);
         plot.setForegroundAlpha(0.85F);
         plot.setRangeGridlinesVisible(true);
+        plot.setRangeGridlinePaint(Color.darkGray);
 
         CategoryAxis domainAxis = new ShiftedCategoryAxis(null);
         domainAxis.setCategoryLabelPositions(CategoryLabelPositions.UP_45);
@@ -265,11 +267,11 @@ public class GlobalBuildStatsBusiness {
             }*/
         };
         plot.setRenderer(renderer);
-        renderer.setSeriesPaint(0, new Color(255, 85, 255));
-        renderer.setSeriesPaint(1, new Color(255, 85, 85));
-        renderer.setSeriesPaint(2, new Color(85, 85, 85));
-        renderer.setSeriesPaint(3, new Color(85, 85, 255));
-        renderer.setSeriesPaint(4, new Color(255, 255, 85));
+        renderer.setSeriesPaint(0, new Color(85, 85, 85));
+        renderer.setSeriesPaint(1, new Color(255, 85, 255));
+        renderer.setSeriesPaint(2, new Color(255, 255, 85));
+        renderer.setSeriesPaint(3, new Color(255, 85, 85));
+        renderer.setSeriesPaint(4, new Color(85, 85, 255));
 
         plot.setRenderer(renderer);
         plot.setInsets(new RectangleInsets(5.0, 0, 0, 5.0));
