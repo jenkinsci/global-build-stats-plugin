@@ -27,7 +27,8 @@
 			this.updateChartElement(buildStatConfig);
 			this[buildStatConfig.id] = buildStatConfig;
 		},
-		delete: function(buildStatId){
+		// renamed from delete to deleteChart since in chrome_linux, delete is a reserved keyword
+		deleteChart: function(buildStatId){
 			this.deleteChartElement(buildStatId);
 			this[buildStatId] = null;
 			this.ids = this.ids.without(buildStatId);
@@ -200,7 +201,7 @@
 	function deleteBuildStat(buildStatId){
 		if(confirm('Are you sure to delete this build stat configuration ?')){
 			ajaxCall('link', 'deleteConfiguration?buildStatId='+buildStatId, function(transport) {
-			  	BUILD_STAT_CONFIGS.delete(buildStatId);
+			  	BUILD_STAT_CONFIGS.deleteChart(buildStatId);
 			});
 		}
 	}
