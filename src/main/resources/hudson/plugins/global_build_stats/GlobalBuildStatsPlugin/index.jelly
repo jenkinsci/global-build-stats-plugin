@@ -545,7 +545,7 @@
     <h1><img src="${rootURL}/plugin/global-build-stats/icons/global-build-stats.png" /> Global Build Stats </h1>
     <hr />
     
-    <a href="#CreateNew">Create new chart</a><br/>
+    <!--<a href="#CreateNew">Create new chart</a><br/>-->
     <a href="#Initialize">Data Initialization</a><br/>
     <div id="buildStatActionSpinner" class="spinner" style="display: none" />
     <span id="buildStatActionValidationMessage" style="color: rgb(52, 101, 0); display: none;"></span>
