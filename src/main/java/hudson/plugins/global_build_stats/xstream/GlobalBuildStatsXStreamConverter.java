@@ -8,8 +8,12 @@ import hudson.plugins.global_build_stats.xstream.migration.GlobalBuildStatsPOJO;
 import hudson.plugins.global_build_stats.xstream.migration.GlobalBuildStatsXStreamReader;
 import hudson.plugins.global_build_stats.xstream.migration.v0.V0XStreamReader;
 import hudson.plugins.global_build_stats.xstream.migration.v1.V0ToV1Migrator;
-import hudson.plugins.global_build_stats.xstream.migration.v1.V1GlobalBuildStatsPOJO;
 import hudson.plugins.global_build_stats.xstream.migration.v1.V1XStreamReader;
+import hudson.plugins.global_build_stats.xstream.migration.v2.V1ToV2Migrator;
+import hudson.plugins.global_build_stats.xstream.migration.v2.V2XStreamReader;
+import hudson.plugins.global_build_stats.xstream.migration.v3.V2ToV3Migrator;
+import hudson.plugins.global_build_stats.xstream.migration.v3.V3GlobalBuildStatsPOJO;
+import hudson.plugins.global_build_stats.xstream.migration.v3.V3XStreamReader;
 
 import java.util.logging.Logger;
 
@@ -21,6 +25,17 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 
 /**
  * XStream converter for GlobalBuildStatsPlugin XStream data
+ * Allows to provide API to migrate from one version to another of persisted global build stats data
+ * When creating a new migrator you must :
+ * - Create a new package hudson.plugins.global_build_stats.xstream.migration.v[X]
+ * - Inside this package, copy/paste every classes located in hudson.plugins.global_build_stats.xstream.migration.v[X-1]
+ * - Rename every *V[X-1]* POJOs to *V[X]* POJO
+ * - Eventually, change attributes in V[X]GlobalBuildStatsPOJO (for example, if additionnal attribute has appeared)
+ * - If parsing algorithm has changed, update V[X]XstreamReader with the new algorithm (if, for example, new root elements
+ * has appeared in XStream file)
+ * - Update GlobalBuildStatsXStreamConverter.populateGlobalBuildStatsPlugin() and cast pojo parameter to last
+ * V[X]GlobalBuildStatsPOJO
+ * - Update GlobalBuildStatsXStreamConverter.READERS and GlobalBuildStatsXStreamConverter.MIGRATORS with new provided classes
  * @author fcamblor
  */
 public class GlobalBuildStatsXStreamConverter implements Converter {
@@ -36,14 +51,18 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 	 */
 	private static final GlobalBuildStatsXStreamReader[] READERS = new GlobalBuildStatsXStreamReader[]{
 		new V0XStreamReader(),
-		new V1XStreamReader()
+		new V1XStreamReader(),
+		new V2XStreamReader(),
+		new V3XStreamReader()
 	};
 
 	/**
 	 * Migrators for old versions of GlobalBuildStatsPlugin data representations
 	 */
 	private static final GlobalBuildStatsDataMigrator[] MIGRATORS = new GlobalBuildStatsDataMigrator[]{
-		new V0ToV1Migrator()
+		new V0ToV1Migrator(),
+		new V1ToV2Migrator(),
+		new V2ToV3Migrator()
 	};
 
 	/**
@@ -137,8 +156,9 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 	}
 	
 	protected void populateGlobalBuildStatsPlugin(GlobalBuildStatsPlugin plugin, GlobalBuildStatsPOJO pojo){
-		// Latest POJO is v1
-		V1GlobalBuildStatsPOJO versionedPojo = (V1GlobalBuildStatsPOJO)pojo;
+		// Latest POJO is v2
+		// Update this line every time you add a new migrator !
+		V3GlobalBuildStatsPOJO versionedPojo = (V3GlobalBuildStatsPOJO)pojo;
 		
 		plugin.getBuildStatConfigs().clear();
 		plugin.getBuildStatConfigs().addAll(versionedPojo.buildStatConfigs);
