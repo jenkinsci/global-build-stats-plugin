@@ -244,6 +244,9 @@
 	      if(this.buildStatConf!=null && this.buildStatConf.historicScale != '') {
 	      	this.selectOption($(this.buildStatConfId+'_historicScale'), this.buildStatConf.historicScale); 
 	      }
+	      if(this.buildStatConf!=null && this.buildStatConf.yAxisChartType!= '') {
+	      	this.selectOption($(this.buildStatConfId+'_yAxisChartType'), this.buildStatConf.yAxisChartType); 
+	      }
 		  // Valeur par défaut de job filter
 		  if($(this.buildStatConfId+'_jobFilter').value == ''){
 		  	$(this.buildStatConfId+'_jobFilter').value = 'ALL';
@@ -309,6 +312,7 @@
 				var unstablesShown = $(bsId+'_unstablesShown').checked;
 				var abortedShown = $(bsId+'_abortedShown').checked;
 				var notBuildsShown = $(bsId+'_notBuildsShown').checked;
+				var yAxisChartType = $(bsId+'_yAxisChartType').value;
 
 				var overviewContent = '<img src="'+rootURL+'/plugin/global-build-stats/createChart?';
 				overviewContent += 'title='+title;
@@ -322,6 +326,7 @@
 				overviewContent += '&unstablesShown='+unstablesShown;
 				overviewContent += '&abortedShown='+abortedShown;
 				overviewContent += '&notBuildsShown='+notBuildsShown;
+				overviewContent += '&yAxisChartType='+yAxisChartType;
 				overviewContent += '" />';
 
 				YAHOO.global.build.stat.overview.modalPopup =  
@@ -634,6 +639,14 @@
 		      <input type="checkbox" value="true" id="#{buildStatId}_unstablesShown" name="unstablesShown" checked="checked" />Unstables
 		      <input type="checkbox" value="true" id="#{buildStatId}_abortedShown" name="abortedShown" checked="checked" />Aborted
 		      <input type="checkbox" value="true" id="#{buildStatId}_notBuildsShown" name="notBuildsShown" />Not Build<br/>
+		      Y Axis type :
+		      <select id="#{buildStatId}_yAxisChartType" 
+		      		  name="yAxisChartType" checkUrl="'${rootURL}/plugin/global-build-stats/checkYAxisChartType?value='+escape(field.value)"
+		      		  onchange="validateField(this);">
+				  <j:forEach var="yAxisChartType" items="${it.yAxisChartTypes}" varStatus="status">
+				  	<option value="${yAxisChartType}">${yAxisChartType.label}</option>
+				  </j:forEach>
+		      </select><span class="validation-error-area" style="display:inline-block;"></span><br/>
 		      <input type="hidden" name="buildStatId" value="#{buildStatId}" />
 		    </form>
 		</div>

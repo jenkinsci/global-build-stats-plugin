@@ -66,4 +66,9 @@ public class GlobalBuildStatsValidator {
     	if(!ValidationHelper.isMandatory(value)){ return FormValidation.error("Title is mandatory"); }
     	else { return FormValidation.ok(); }
     }
+    
+    public FormValidation checkYAxisChartType(String value){
+    	if(!ValidationHelper.isMandatory(value)){ return FormValidation.error("Y-Axis Chart type is mandatory"); }
+    	else { return FormValidation.ok(); }
+    }
 }

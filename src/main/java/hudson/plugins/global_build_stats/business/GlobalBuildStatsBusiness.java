@@ -4,6 +4,7 @@ import hudson.model.TopLevelItem;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Hudson;
+import hudson.model.Job;
 import hudson.plugins.global_build_stats.BuildResultStatusesConstants;
 import hudson.plugins.global_build_stats.JobBuildResultFactory;
 import hudson.plugins.global_build_stats.JobFilter;
@@ -14,6 +15,7 @@ import hudson.plugins.global_build_stats.model.BuildResult;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.DateRange;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
+import hudson.plugins.global_build_stats.model.JobBuildSearchResult;
 import hudson.util.DataSetBuilder;
 import hudson.util.ShiftedCategoryAxis;
 import hudson.util.StackedAreaRenderer2;
@@ -111,8 +113,8 @@ public class GlobalBuildStatsBusiness {
         return createChart(config, dsb.build(), config.getBuildStatTitle());
 	}
 	
-	public List<JobBuildResult> searchBuilds(BuildHistorySearchCriteria searchCriteria){
-    	List<JobBuildResult> filteredJobBuildResults = new ArrayList<JobBuildResult>();
+	public List<JobBuildSearchResult> searchBuilds(BuildHistorySearchCriteria searchCriteria){
+    	List<JobBuildSearchResult> filteredJobBuildResults = new ArrayList<JobBuildSearchResult>();
     	
     	JobFilter jobFilter = JobFilterFactory.createJobFilter(searchCriteria.jobFilter);
         for(JobBuildResult r : plugin.getJobBuildResults()){
@@ -120,7 +122,21 @@ public class GlobalBuildStatsBusiness {
         			&& r.getBuildDate().getTimeInMillis() < searchCriteria.end
         			&& jobResultStatusMatchesWith(r.getResult(), searchCriteria)
         			&& jobFilter.isJobApplicable(r.getJobName())){
-        		filteredJobBuildResults.add(r);
+        		boolean isJobAccessible = false;
+        		boolean isBuildAccessible = false;
+        		
+        		Job targetJob = ((Job) Hudson.getInstance().getItem(r.getJobName()));
+        		// Link to job will be provided only if job has not been deleted/renamed
+        		if(targetJob != null){
+        			isJobAccessible = true;
+        			if(targetJob.getBuildByNumber(r.getBuildNumber()) != null){
+        				// Link to build infos will be provided only if build result has not been purged
+        				// @see issue #7240
+        				isBuildAccessible = true;
+        			}
+        		}
+        		
+        		filteredJobBuildResults.add(new JobBuildSearchResult(r, isJobAccessible, isBuildAccessible));
         	}
         }
         
@@ -203,7 +219,7 @@ public class GlobalBuildStatsBusiness {
     
     private JFreeChart createChart(final BuildStatConfiguration config, CategoryDataset dataset, String title) {
 
-    	final JFreeChart chart = ChartFactory.createStackedAreaChart(title, null, "Count", dataset, PlotOrientation.VERTICAL, true, true, false);
+    	final JFreeChart chart = ChartFactory.createStackedAreaChart(title, null, config.getyAxisChartType().getLabel(), dataset, PlotOrientation.VERTICAL, true, true, false);
         chart.setBackgroundPaint(Color.white);
         
         final LegendTitle legend = chart.getLegend();
@@ -299,11 +315,7 @@ public class GlobalBuildStatsBusiness {
 	    	// Finding range where the build resides
 	    	while(nbSteps < config.getHistoricLength() && d1.after(buildDate)){
 	    		DateRange range = new DateRange(d1, d2, config.getHistoricScale().getDateRangeFormatter());
-	    		dsb.add(nbSuccess, BuildResultStatusesConstants.SUCCESS, range);
-				dsb.add(nbFailures, BuildResultStatusesConstants.FAILURES, range);
-				dsb.add(nbUnstables, BuildResultStatusesConstants.UNSTABLES, range);
-				dsb.add(nbAborted, BuildResultStatusesConstants.ABORTED, range);
-				dsb.add(nbNotBuild, BuildResultStatusesConstants.NOT_BUILD, range);
+	    		config.getyAxisChartType().provideDataInDataSet(dsb, range, nbSuccess, nbFailures, nbUnstables, nbAborted, nbNotBuild);
 	    		
 				d2 = (Calendar)d1.clone();
 				d1 = config.getHistoricScale().getPreviousStep(d2);
@@ -332,7 +344,7 @@ public class GlobalBuildStatsBusiness {
 	    return dsb;
 	}
 	
-    private static void sortJobBuildResultsByBuildDate(List<JobBuildResult> c){
+    private static void sortJobBuildResultsByBuildDate(List<? extends JobBuildResult> c){
         Collections.sort(c, Collections.reverseOrder(new Comparator<JobBuildResult>() {
         	public int compare(JobBuildResult o1, JobBuildResult o2) {
         		return o1.getBuildDate().compareTo(o2.getBuildDate());

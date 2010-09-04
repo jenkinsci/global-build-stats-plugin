@@ -209,17 +209,47 @@
 			  			<th>Job name</th>
 			  			<th>#</th>
 			  			<th>Date</th>
+			  			<th>Duration</th>
 			        </tr>
 				    <j:forEach var="jobResult" items="${jobResults}">
 				    	<tr class="build-row">
 				    		<td class="pane">${jobResult.result}</td>
-				    		<td class="pane"><a href="${rootURL}/job/${jobResult.jobName}/">${jobResult.jobName}</a></td>
 				    		<td class="pane">
-				    			<a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/console"><img src="${rootURL}/plugin/global-build-stats/icons/terminal.gif" /></a>
-				    			<a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/">#${jobResult.buildNumber}</a>
+				    			<j:choose>
+				    				<j:when test="${jobResult.jobAccessible}">
+				    					<a href="${rootURL}/job/${jobResult.jobName}/">${jobResult.jobName}</a>
+				    				</j:when>
+				    				<j:otherwise>
+				    					${jobResult.jobName}
+				    				</j:otherwise>
+				    			</j:choose>
 				    		</td>
 				    		<td class="pane">
-				    			<a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/"><i:formatDate value="${jobResult.buildDate.time}" type="both" dateStyle="medium" timeStyle="medium"/></a>
+				    			<j:choose>
+				    				<j:when test="${jobResult.buildAccessible}">
+						    			<a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/console"><img src="${rootURL}/plugin/global-build-stats/icons/terminal.gif" /></a>
+						    			<a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/">#${jobResult.buildNumber}</a>
+				    				</j:when>
+				    				<j:otherwise>
+				    					#${jobResult.buildNumber}
+				    				</j:otherwise>
+				    			</j:choose>
+				    		</td>
+				    		<td class="pane">
+				    			<j:choose>
+				    				<j:when test="${jobResult.buildAccessible}">
+						    			<a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/"><i:formatDate value="${jobResult.buildDate.time}" type="both" dateStyle="medium" timeStyle="medium"/></a>
+				    				</j:when>
+				    				<j:otherwise>
+				    					<i:formatDate value="${jobResult.buildDate.time}" type="both" dateStyle="medium" timeStyle="medium"/>
+				    				</j:otherwise>
+				    			</j:choose>
+				    		</td>
+				    		<td class="pane">
+				    			<j:choose>
+				    				<j:when test="${jobResult.durationEmpty}"><em>Data not recorded</em></j:when>
+				    				<j:otherwise>${jobResult.durationString}</j:otherwise>
+				    			</j:choose>
 				    		</td>
 				    	</tr>
 			  		</j:forEach>

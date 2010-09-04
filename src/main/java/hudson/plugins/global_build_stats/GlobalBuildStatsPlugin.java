@@ -7,13 +7,16 @@ import hudson.model.TaskListener;
 import hudson.model.AbstractBuild;
 import hudson.model.Api;
 import hudson.model.Hudson;
+import hudson.model.listeners.ItemListener;
 import hudson.model.listeners.RunListener;
 import hudson.plugins.global_build_stats.business.GlobalBuildStatsBusiness;
 import hudson.plugins.global_build_stats.model.BuildHistorySearchCriteria;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.HistoricScale;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
+import hudson.plugins.global_build_stats.model.JobBuildSearchResult;
 import hudson.plugins.global_build_stats.model.ModelIdGenerator;
+import hudson.plugins.global_build_stats.model.YAxisChartType;
 import hudson.plugins.global_build_stats.validation.GlobalBuildStatsValidator;
 import hudson.plugins.global_build_stats.xstream.GlobalBuildStatsXStreamConverter;
 import hudson.security.Permission;
@@ -23,6 +26,8 @@ import hudson.util.FormValidation;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 
@@ -45,6 +50,8 @@ import org.kohsuke.stapler.export.ExportedBean;
 @ExportedBean
 public class GlobalBuildStatsPlugin extends Plugin {
 
+    private static final Logger LOGGER = Logger.getLogger(GlobalBuildStatsPlugin.class.getName());
+    
 	/**
 	 * List of aggregated job build results
 	 * This list will grow over time
@@ -66,7 +73,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
 	 * Validator layer for global build stats
 	 */
 	transient private GlobalBuildStatsValidator validator = new GlobalBuildStatsValidator();
-
+	
 	@Override
 	public void start() throws Exception {
 		super.start();
@@ -84,11 +91,14 @@ public class GlobalBuildStatsPlugin extends Plugin {
 		Hudson.XSTREAM.aliasField("s", BuildStatConfiguration.class, "historicScale");
 		Hudson.XSTREAM.aliasField("jf", BuildStatConfiguration.class, "jobFilter");
 		Hudson.XSTREAM.aliasField("sbr", BuildStatConfiguration.class, "shownBuildResults");
+		Hudson.XSTREAM.aliasField("yact", BuildStatConfiguration.class, "yAxisChartType");
 
 		Hudson.XSTREAM.aliasField("r", JobBuildResult.class, "result");
 		Hudson.XSTREAM.aliasField("n", JobBuildResult.class, "jobName");
 		Hudson.XSTREAM.aliasField("nb", JobBuildResult.class, "buildNumber");
 		Hudson.XSTREAM.aliasField("d", JobBuildResult.class, "buildDate");
+		Hudson.XSTREAM.aliasField("du", JobBuildResult.class, "duration");
+		Hudson.XSTREAM.aliasField("nn", JobBuildResult.class, "nodeName");
 	}
 	
     /**
@@ -98,13 +108,25 @@ public class GlobalBuildStatsPlugin extends Plugin {
         return new Api(this);
     }
 	
-	@Override
-	public void postInitialize() throws Exception {
-		super.postInitialize();
-		
-		// Reload plugin informations
-		this.load();
-	}
+    @Extension
+    public static class GlobalBuildStatsItemListener extends ItemListener {
+    	/**
+    	 * After all items are loaded, plugin is loaded
+    	 */
+    	@Override
+    	public void onLoaded() {
+    		super.onLoaded();
+    		
+    		try {
+				Hudson.getInstance().getPlugin(GlobalBuildStatsPlugin.class).load();
+			} catch (IOException e) {
+				LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			}
+    	}
+    	
+    	// TODO: check if a node has been renamed and, if so, replace old name by new name in
+    	// every job results
+    }
 	
 	/**
 	 * Let's add a link in the administration panel linking to the global build stats page
@@ -199,6 +221,10 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	return validator.checkTitle(value);
     }
 
+    public FormValidation doCheckYAxisChartType(@QueryParameter String value){
+    	return validator.checkYAxisChartType(value);
+    }
+
     public HttpResponse doRecordBuildInfos() throws IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
@@ -254,7 +280,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	BuildHistorySearchCriteria searchCriteria = new BuildHistorySearchCriteria();
     	req.bindParameters(searchCriteria);
     	
-    	List<JobBuildResult> filteredJobBuildResults = business.searchBuilds(searchCriteria);
+    	List<JobBuildSearchResult> filteredJobBuildResults = business.searchBuilds(searchCriteria);
     	
         req.setAttribute("jobResults", filteredJobBuildResults);
         req.setAttribute("searchCriteria", searchCriteria);
@@ -329,7 +355,8 @@ public class GlobalBuildStatsPlugin extends Plugin {
     			Boolean.parseBoolean(req.getParameter("failuresShown")),
     			Boolean.parseBoolean(req.getParameter("unstablesShown")),
     			Boolean.parseBoolean(req.getParameter("abortedShown")),
-    			Boolean.parseBoolean(req.getParameter("notBuildsShown")));
+    			Boolean.parseBoolean(req.getParameter("notBuildsShown")),
+    			YAxisChartType.valueOf(req.getParameter("yAxisChartType")));
     }
     
 	public BuildStatConfiguration[] getBuildStatConfigsArrayed() {
@@ -347,6 +374,10 @@ public class GlobalBuildStatsPlugin extends Plugin {
 	
 	public HistoricScale[] getHistoricScales(){
 		return HistoricScale.values();
+	}
+	
+	public YAxisChartType[] getYAxisChartTypes(){
+		return YAxisChartType.values();
 	}
 
 	public List<JobBuildResult> getJobBuildResults() {

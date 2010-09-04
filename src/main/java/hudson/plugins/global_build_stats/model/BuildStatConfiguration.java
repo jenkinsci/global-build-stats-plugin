@@ -7,6 +7,13 @@ import java.io.Serializable;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
 
+/**
+ * Data persisted for every build stat configuration allowing to create charts
+ * on build results
+ * WARNING : if any change is made to this class, don't miss to create a new
+ * data migrator in the hudson.plugins.global_build_stats.xstream.migration package ! 
+ * @author fcamblor
+ */
 @ExportedBean
 public class BuildStatConfiguration implements Serializable {
 
@@ -19,6 +26,7 @@ public class BuildStatConfiguration implements Serializable {
 	private HistoricScale historicScale;
 	private String jobFilter = JobFilterFactory.ALL_JOBS_FILTER_PATTERN;
 	private short shownBuildResults;
+	private YAxisChartType yAxisChartType = YAxisChartType.COUNT;
 	
 	public BuildStatConfiguration(){
 	}
@@ -26,7 +34,7 @@ public class BuildStatConfiguration implements Serializable {
 	public BuildStatConfiguration(String _id, String _buildStatTitle, int _buildStatWidth, int _buildStatHeight, 
 			int _historicLength, HistoricScale _historicScale, String _jobFilter, 
 			boolean successShown, boolean failuresShown, boolean unstablesShown, 
-			boolean abortedShown, boolean notBuildsShown){
+			boolean abortedShown, boolean notBuildsShown, YAxisChartType yAxisChartType){
 		
 		this.id = _id;
 		this.buildStatTitle = _buildStatTitle;
@@ -42,6 +50,8 @@ public class BuildStatConfiguration implements Serializable {
 		this.shownBuildResults |= unstablesShown?BuildResult.UNSTABLE.code:0;
 		this.shownBuildResults |= abortedShown?BuildResult.ABORTED.code:0;
 		this.shownBuildResults |= notBuildsShown?BuildResult.NOT_BUILD.code:0;
+		
+		this.yAxisChartType = yAxisChartType;
 	}
 
 	@Exported
@@ -103,6 +113,16 @@ public class BuildStatConfiguration implements Serializable {
 		return jobFilter;
 	}
 
+	@Exported
+	public String getId() {
+		return id;
+	}
+
+	@Exported
+	public YAxisChartType getyAxisChartType() {
+		return yAxisChartType;
+	}
+
 	public void setBuildStatTitle(String buildStatTitle) {
 		this.buildStatTitle = buildStatTitle;
 	}
@@ -127,12 +147,11 @@ public class BuildStatConfiguration implements Serializable {
 		this.jobFilter = jobFilter;
 	}
 
-	@Exported
-	public String getId() {
-		return id;
-	}
-
 	public void setId(String id) {
 		this.id = id;
+	}
+
+	public void setyAxisChartType(YAxisChartType yAxisChartType) {
+		this.yAxisChartType = yAxisChartType;
 	}
 }
