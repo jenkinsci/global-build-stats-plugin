@@ -1,7 +1,7 @@
 package hudson.plugins.global_build_stats;
 
-import hudson.model.AbstractBuild;
 import hudson.model.Result;
+import hudson.model.AbstractBuild;
 import hudson.plugins.global_build_stats.model.BuildResult;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
 
@@ -14,13 +14,14 @@ public class JobBuildResultFactory {
 	
 	public JobBuildResult createJobBuildResult(AbstractBuild build){
 		String buildName = build.getProject().getName();
+		long duration = build.getDuration();
+		String nodeName = build.getBuiltOn().getNodeName();
 		/* Can't do that since MavenModuleSet is in maven-plugin artefact which is in test scope
 		if(build.getProject() instanceof MavenModuleSet){
 			buildName = ((MavenModuleSet)build.getProject()).getRootModule().toString();
 		}*/
-		
     	return new JobBuildResult(createBuildResult(build.getResult()), buildName, 
-    			build.getNumber(), build.getTimestamp());
+    			build.getNumber(), build.getTimestamp(), duration, nodeName);
 	}
 	
 	public BuildResult createBuildResult(Result result){
