@@ -3,6 +3,10 @@ package hudson.plugins.global_build_stats.model;
 import java.text.DateFormat;
 import java.util.Calendar;
 
+import org.kohsuke.stapler.export.Exported;
+import org.kohsuke.stapler.export.ExportedBean;
+
+@ExportedBean(defaultVisibility=3)
 public class DateRange implements Comparable<DateRange> {
 
 	private Calendar start, end;
@@ -23,10 +27,12 @@ public class DateRange implements Comparable<DateRange> {
 		return new StringBuilder().append(dateFormatter.format(start.getTime())).append(" --> ").append(dateFormatter.format(end.getTime())).toString();
 	}
 
+	@Exported
 	public Calendar getStart() {
 		return start;
 	}
 
+	@Exported
 	public Calendar getEnd() {
 		return end;
 	}
