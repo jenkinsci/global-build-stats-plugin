@@ -23,9 +23,15 @@
 			this[buildStatConfig.id] = buildStatConfig;
 			this.ids[this.size()] = buildStatConfig.id;
 		},
-		update: function(buildStatConfig){
-			this.updateChartElement(buildStatConfig);
+		update: function(bsId, buildStatConfig){
+			this.updateChartElement(bsId, buildStatConfig);
 			this[buildStatConfig.id] = buildStatConfig;
+			
+			// Is id is updated, remove old id reference
+			if(bsId != buildStatConfig.id){
+				this[bsId] = null;
+				this.ids = this.ids.without(bsId);
+			}
 		},
 		// renamed from delete to deleteChart since in chrome_linux, delete is a reserved keyword
 		deleteChart: function(buildStatId){
@@ -147,7 +153,8 @@
 				updateButtonsCallback.call(null);
 			}, true);
 		},
-		updateChartElement: function(buildStatConfig){
+		updateChartElement: function(bsId, buildStatConfig){
+			$(BUILD_STAT_CONTAINER_ID_PREFIX+bsId).id = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConfig.id;
 			this.fillDivWithChart(BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConfig.id, buildStatConfig, function(){
 				BUILD_STAT_CONFIGS.updateButtonsFor(buildStatConfig.id);
 			});
@@ -350,7 +357,7 @@
 				ajaxCall('form', 'createBuildStat_'+bsId, function(ret) {
 				  	var buildStatConfig = eval('('+ret.responseText+')');
 				  	if(modificationMode){
-		    			BUILD_STAT_CONFIGS.update(buildStatConfig);
+		    			BUILD_STAT_CONFIGS.update(bsId, buildStatConfig);
 				  	} else {
 			    		BUILD_STAT_CONFIGS.add(buildStatConfig);
 				  	}
@@ -407,6 +414,15 @@
 
 		getHTMLForBuildStatConfigForm: function(){
 			var currentContext = createTemplateContext(this.buildStatConf);
+			
+			if(this.isModificationMode()){
+				var	regenerateIdBlockTemplate = new Template(getTemplateContent('regenerateIdBlockTemplate'));
+				var regenerateIdBlock = regenerateIdBlockTemplate.evaluate(currentContext);
+			} else {
+				var regenerateIdBlock = "";
+			}
+			
+			currentContext = jsonConcat(currentContext, { regenerateIdBlock: regenerateIdBlock});
 			
 			// Generating content for creation/update form
 			var formBlockTemplate = new Template(getTemplateContent('formBlockTemplate'));
@@ -583,9 +599,16 @@
 				<img src="${rootURL}/plugin/global-build-stats/icons/stop.png" height="36" /><br/>
 			</a>
 		</div>
+		<div id="regenerateIdBlockTemplate">
+			Identifier : 
+			<input type="radio" id="#{buildStatId}_regenerateId_no" name="regenerateId" value="false" checked="checked" />#{buildStatId}
+			<input type="radio" id="#{buildStatId}_regenerateId_yes" name="regenerateId" value="true" />Regenerate a new identifier
+			<br/>
+		</div>
 		<div id="formBlockTemplate">
 		   <form name="createBuildStat_#{buildStatId}" action="#{formAction}" method="post" class="globalBuildStatsForm"
 		    	  id="createBuildStat_#{buildStatId}" onsubmit="return !isDivErrorPresentInForm(this);">
+		      #{regenerateIdBlock}
 		      Title : <input type="text" id="#{buildStatId}_title" name="title"
 		      				 value="#{buildStatTitle}"
 		      				 checkUrl="'${rootURL}/plugin/global-build-stats/checkTitle?value='+escape(field.value)"

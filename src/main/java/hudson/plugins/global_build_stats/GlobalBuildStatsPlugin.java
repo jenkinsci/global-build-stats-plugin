@@ -336,8 +336,10 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void doUpdateBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
+    	boolean regenerateId = Boolean.valueOf(req.getParameter("regenerateId")).booleanValue();
+    	
     	BuildStatConfiguration config = createBuildStatConfig(req.getParameter("buildStatId"), req);
-    	business.updateBuildStatConfiguration(req.getParameter("buildStatId"), config);
+    	business.updateBuildStatConfiguration(req.getParameter("buildStatId"), config, regenerateId);
     	
     	String json = JSONObject.fromObject(config).toString();
     	res.getWriter().write(json);

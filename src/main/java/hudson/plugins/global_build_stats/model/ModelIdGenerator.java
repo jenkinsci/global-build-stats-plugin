@@ -35,6 +35,12 @@ public class ModelIdGenerator {
 		registeredIds.get(clazz).add(id);
 	}
 	
+	public void unregisterIdForClass(Class clazz, String id){
+		if(registeredIds.containsKey(clazz)){
+			registeredIds.get(clazz).remove(id);
+		}
+	}
+	
 	public String generateIdForClass(Class clazz){
 		String id = null;
 		do{

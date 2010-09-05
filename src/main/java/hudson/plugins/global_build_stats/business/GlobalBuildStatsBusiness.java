@@ -16,6 +16,7 @@ import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.DateRange;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
 import hudson.plugins.global_build_stats.model.JobBuildSearchResult;
+import hudson.plugins.global_build_stats.model.ModelIdGenerator;
 import hudson.util.DataSetBuilder;
 import hudson.util.ShiftedCategoryAxis;
 import hudson.util.StackedAreaRenderer2;
@@ -144,12 +145,21 @@ public class GlobalBuildStatsBusiness {
         return filteredJobBuildResults;
 	}
 
-	public void updateBuildStatConfiguration(String buildStatId, BuildStatConfiguration config) throws IOException {
+	public void updateBuildStatConfiguration(String oldBuildStatId, BuildStatConfiguration config, boolean regenerateId) throws IOException {
 		// Synchronizing plugin instance every time we modify persisted informations on it
     	synchronized(plugin){
-    		int buildStatIndex = searchBuildStatConfigIndexById(buildStatId);
+        	if(regenerateId){
+        		String newBuildStatId = ModelIdGenerator.INSTANCE.generateIdForClass(BuildStatConfiguration.class);
+        		config.setId(newBuildStatId);
+        	}
+        	
+    		int buildStatIndex = searchBuildStatConfigIndexById(oldBuildStatId);
 	    	plugin.getBuildStatConfigs().set(buildStatIndex, config);
 	    	plugin.save();
+	    	
+	    	if(regenerateId){
+	    		ModelIdGenerator.INSTANCE.unregisterIdForClass(BuildStatConfiguration.class, oldBuildStatId);
+	    	}
     	}
 	}
 	
