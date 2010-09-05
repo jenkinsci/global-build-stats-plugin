@@ -6,10 +6,10 @@ import hudson.model.AbstractProject;
 import hudson.model.Hudson;
 import hudson.model.Job;
 import hudson.plugins.global_build_stats.BuildResultStatusesConstants;
+import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
 import hudson.plugins.global_build_stats.JobBuildResultFactory;
 import hudson.plugins.global_build_stats.JobFilter;
 import hudson.plugins.global_build_stats.JobFilterFactory;
-import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
 import hudson.plugins.global_build_stats.model.BuildHistorySearchCriteria;
 import hudson.plugins.global_build_stats.model.BuildResult;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
@@ -107,9 +107,7 @@ public class GlobalBuildStatsBusiness {
 	}
 	
 	public JFreeChart createChart(BuildStatConfiguration config){
-    	List<JobBuildResult> filteredJobBuildResults = createFilteredAndSortedBuildResults(config);
-        DataSetBuilder<String, DateRange> dsb = createDataSetBuilder(filteredJobBuildResults, config);
-    	
+		DataSetBuilder<String, DateRange> dsb = createDataSetBuilder(config);
         return createChart(config, dsb.build(), config.getBuildStatTitle());
 	}
 	
@@ -295,10 +293,10 @@ public class GlobalBuildStatsBusiness {
         return chart;
     }
     
-    private DataSetBuilder<String, DateRange> createDataSetBuilder(List<JobBuildResult> filteredJobBuildResults, 
-																	BuildStatConfiguration config){
-	    DataSetBuilder<String, DateRange> dsb = new DataSetBuilder<String, DateRange>();
-	    
+    public DataSetBuilder<String, DateRange> createDataSetBuilder(BuildStatConfiguration config) {
+    	DataSetBuilder<String, DateRange> dsb = new DataSetBuilder<String, DateRange>();
+    	
+    	List<JobBuildResult> filteredJobBuildResults = createFilteredAndSortedBuildResults(config);
 	    if(filteredJobBuildResults.size() == 0){
 	    	return dsb;
 	    }

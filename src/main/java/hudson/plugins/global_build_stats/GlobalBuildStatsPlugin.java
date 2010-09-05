@@ -11,7 +11,9 @@ import hudson.model.listeners.ItemListener;
 import hudson.model.listeners.RunListener;
 import hudson.plugins.global_build_stats.business.GlobalBuildStatsBusiness;
 import hudson.plugins.global_build_stats.model.BuildHistorySearchCriteria;
+import hudson.plugins.global_build_stats.model.BuildStatChartData;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
+import hudson.plugins.global_build_stats.model.DateRange;
 import hudson.plugins.global_build_stats.model.HistoricScale;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
 import hudson.plugins.global_build_stats.model.JobBuildSearchResult;
@@ -21,6 +23,7 @@ import hudson.plugins.global_build_stats.validation.GlobalBuildStatsValidator;
 import hudson.plugins.global_build_stats.xstream.GlobalBuildStatsXStreamConverter;
 import hudson.security.Permission;
 import hudson.util.ChartUtil;
+import hudson.util.DataSetBuilder;
 import hudson.util.FormValidation;
 
 import java.io.IOException;
@@ -34,12 +37,14 @@ import javax.servlet.ServletException;
 import net.sf.json.JSONObject;
 
 import org.jfree.chart.JFreeChart;
+import org.jfree.data.category.CategoryDataset;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
+import org.kohsuke.stapler.export.Flavor;
 
 /**
  * Entry point of the global build stats plugin
@@ -67,12 +72,12 @@ public class GlobalBuildStatsPlugin extends Plugin {
 	/**
 	 * Business layer for global build stats
 	 */
-	transient private GlobalBuildStatsBusiness business = new GlobalBuildStatsBusiness(this);
+	transient private final GlobalBuildStatsBusiness business = new GlobalBuildStatsBusiness(this);
 	
 	/**
 	 * Validator layer for global build stats
 	 */
-	transient private GlobalBuildStatsValidator validator = new GlobalBuildStatsValidator();
+	transient private final GlobalBuildStatsValidator validator = new GlobalBuildStatsValidator();
 	
 	@Override
 	public void start() throws Exception {
@@ -102,10 +107,51 @@ public class GlobalBuildStatsPlugin extends Plugin {
 	}
 	
     /**
-     * Expose {@link GlobalBuildStats} to the remote API.
+     * Expose {@link GlobalBuildStats} to the remote API :
+     * - Either all build stat configuration data
+     * - OR (if buildStatConfigId http parameter is given) chart data
      */
     public Api getApi() {
-        return new Api(this);
+    	return new GlobalBuildStatsApi(this);
+    }
+    
+    /**
+     * Hack allowing to either generate plugin informations (build stat configurations) OR
+     * generate chart data for a given buildStatConfigId request parameter
+     * @author fcamblor
+     */
+    public static class GlobalBuildStatsApi extends Api{
+    	public GlobalBuildStatsApi(Object bean) {
+    		super(bean);
+		}
+    	@Override
+    	public void doJson(StaplerRequest req, StaplerResponse rsp)
+    			throws IOException, ServletException {
+    		if(!exposeChartData(req, rsp, Flavor.JSON)){
+    			super.doJson(req, rsp);
+    		}
+    	}
+    	@Override
+    	public void doPython(StaplerRequest req, StaplerResponse rsp)
+    			throws IOException, ServletException {
+    		if(!exposeChartData(req, rsp, Flavor.PYTHON)){
+        		super.doPython(req, rsp);
+    		}
+    	}
+    	
+    	private boolean exposeChartData(StaplerRequest req, StaplerResponse rsp, Flavor flavor) throws ServletException, IOException{
+    		boolean chartDataHasBeenExposed = false;
+    		String buildStatConfigId = req.getParameter("buildStatConfigId");
+    		if(buildStatConfigId != null){
+    	    	BuildStatConfiguration config = GlobalBuildStatsPlugin.getPluginBusiness().searchBuildStatConfigById(buildStatConfigId);
+    	    	if(config != null){
+    	    		DataSetBuilder<String, DateRange> dsb = GlobalBuildStatsPlugin.getPluginBusiness().createDataSetBuilder(config);
+    	    		rsp.serveExposedBean(req, new BuildStatChartData(dsb), flavor);
+    	    		chartDataHasBeenExposed = true;
+    	    	}
+    		}
+    		return chartDataHasBeenExposed;
+    	}
     }
 	
     @Extension
