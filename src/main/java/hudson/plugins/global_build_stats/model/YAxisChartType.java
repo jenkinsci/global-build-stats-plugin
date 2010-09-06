@@ -1,27 +1,28 @@
 package hudson.plugins.global_build_stats.model;
 
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.TickUnitSource;
-
-import hudson.plugins.global_build_stats.BuildResultStatusesConstants;
+import hudson.plugins.global_build_stats.Messages;
 import hudson.util.DataSetBuilder;
 
 public enum YAxisChartType {
 
-	COUNT("Count") {
+	COUNT() {
 		@Override
 		public void provideDataInDataSet(DataSetBuilder<String, DateRange> dsb,
 				DateRange range, int nbSuccess, int nbFailures, int nbUnstables, 
 				int nbAborted, int nbNotBuild) {
 
-			dsb.add(nbSuccess, BuildResultStatusesConstants.SUCCESS, range);
-			dsb.add(nbFailures, BuildResultStatusesConstants.FAILURES, range);
-			dsb.add(nbUnstables, BuildResultStatusesConstants.UNSTABLES, range);
-			dsb.add(nbAborted, BuildResultStatusesConstants.ABORTED, range);
-			dsb.add(nbNotBuild, BuildResultStatusesConstants.NOT_BUILD, range);
+			dsb.add(nbSuccess, Messages.Build_Results_Statuses_5_SUCCESS(), range);
+			dsb.add(nbFailures, Messages.Build_Results_Statuses_4_FAILURES(), range);
+			dsb.add(nbUnstables, Messages.Build_Results_Statuses_3_UNSTABLES(), range);
+			dsb.add(nbAborted, Messages.Build_Results_Statuses_2_ABORTED(), range);
+			dsb.add(nbNotBuild, Messages.Build_Results_Statuses_1_NOT_BUILD(), range);
+		}
+		@Override
+		public String getLabel() {
+			return Messages.YAxis_Chart_Types_Count();
 		}
 	},
-	PERCENTAGE("Percentage"){
+	PERCENTAGE(){
 		@Override
 		public void provideDataInDataSet(DataSetBuilder<String, DateRange> dsb,
 				DateRange range, int nbSuccess, int nbFailures, int nbUnstables, 
@@ -29,31 +30,29 @@ public enum YAxisChartType {
 			
 			double total = nbSuccess + nbFailures + nbUnstables + nbAborted + nbNotBuild;
 			if(total == 0){
-				dsb.add(Double.valueOf(0.0), BuildResultStatusesConstants.SUCCESS, range);
-				dsb.add(Double.valueOf(0.0), BuildResultStatusesConstants.FAILURES, range);
-				dsb.add(Double.valueOf(0.0), BuildResultStatusesConstants.UNSTABLES, range);
-				dsb.add(Double.valueOf(0.0), BuildResultStatusesConstants.ABORTED, range);
-				dsb.add(Double.valueOf(0.0), BuildResultStatusesConstants.NOT_BUILD, range);
+				dsb.add(Double.valueOf(0.0), Messages.Build_Results_Statuses_5_SUCCESS(), range);
+				dsb.add(Double.valueOf(0.0), Messages.Build_Results_Statuses_4_FAILURES(), range);
+				dsb.add(Double.valueOf(0.0), Messages.Build_Results_Statuses_3_UNSTABLES(), range);
+				dsb.add(Double.valueOf(0.0), Messages.Build_Results_Statuses_2_ABORTED(), range);
+				dsb.add(Double.valueOf(0.0), Messages.Build_Results_Statuses_1_NOT_BUILD(), range);
 			} else {
-				dsb.add(Double.valueOf(nbSuccess*100.0/total), BuildResultStatusesConstants.SUCCESS, range);
-				dsb.add(Double.valueOf(nbFailures*100.0/total), BuildResultStatusesConstants.FAILURES, range);
-				dsb.add(Double.valueOf(nbUnstables*100.0/total), BuildResultStatusesConstants.UNSTABLES, range);
-				dsb.add(Double.valueOf(nbAborted*100.0/total), BuildResultStatusesConstants.ABORTED, range);
-				dsb.add(Double.valueOf(nbNotBuild*100.0/total), BuildResultStatusesConstants.NOT_BUILD, range);
+				dsb.add(Double.valueOf(nbSuccess*100.0/total), Messages.Build_Results_Statuses_5_SUCCESS(), range);
+				dsb.add(Double.valueOf(nbFailures*100.0/total), Messages.Build_Results_Statuses_4_FAILURES(), range);
+				dsb.add(Double.valueOf(nbUnstables*100.0/total), Messages.Build_Results_Statuses_3_UNSTABLES(), range);
+				dsb.add(Double.valueOf(nbAborted*100.0/total), Messages.Build_Results_Statuses_2_ABORTED(), range);
+				dsb.add(Double.valueOf(nbNotBuild*100.0/total), Messages.Build_Results_Statuses_1_NOT_BUILD(), range);
 			}
+		}
+		@Override
+		public String getLabel() {
+			return Messages.YAxis_Chart_Types_Percentage();
 		}
 	};
 
-	private String label;
-	
-	private YAxisChartType(String label){
-		this.label = label;
+	private YAxisChartType(){
 	}
 
-	public String getLabel() {
-		return label;
-	}
-	
+	public abstract String getLabel();
 	public abstract void provideDataInDataSet(DataSetBuilder<String, DateRange> dsb, DateRange range, int nbSuccess, 
 			int nbFailures, int nbUnstables, int nbAborted, int nbNotBuild);
 }

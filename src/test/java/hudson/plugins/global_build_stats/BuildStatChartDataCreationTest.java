@@ -19,8 +19,8 @@ public class BuildStatChartDataCreationTest {
 		Calendar firstDay = new GregorianCalendar(2010, 0, 1);
 		Calendar secondDay = new GregorianCalendar(2010, 0, 2);
 		DateRange dr = new DateRange(firstDay, secondDay, new SimpleDateFormat("dd/MM/yyyy"));
-		dsb.add(1, BuildResultStatusesConstants.SUCCESS, dr);
-		dsb.add(2, BuildResultStatusesConstants.FAILURES, dr);
+		dsb.add(1, Messages.Build_Results_Statuses_5_SUCCESS(), dr);
+		dsb.add(2, Messages.Build_Results_Statuses_4_FAILURES(), dr);
 		
 		// Calling constructor
 		new BuildStatChartData(dsb);

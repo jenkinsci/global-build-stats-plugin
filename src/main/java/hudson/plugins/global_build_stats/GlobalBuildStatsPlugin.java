@@ -37,7 +37,6 @@ import javax.servlet.ServletException;
 import net.sf.json.JSONObject;
 
 import org.jfree.chart.JFreeChart;
-import org.jfree.data.category.CategoryDataset;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
@@ -185,15 +184,16 @@ public class GlobalBuildStatsPlugin extends Plugin {
         }
 
         public String getDisplayName() {
-            return "Global Builds Stats";
+            return Messages.Global_Builds_Stats();
         }
 
         public String getUrlName() {
             return "plugin/global-build-stats/";
         }
         
-        @Override public String getDescription() {
-            return "Displays stats about daily build results";
+        @Override 
+        public String getDescription() {
+            return Messages.Displays_stats_about_daily_build_results();
         }
     }
     

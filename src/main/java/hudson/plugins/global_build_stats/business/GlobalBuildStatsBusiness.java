@@ -5,11 +5,11 @@ import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Hudson;
 import hudson.model.Job;
-import hudson.plugins.global_build_stats.BuildResultStatusesConstants;
 import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
 import hudson.plugins.global_build_stats.JobBuildResultFactory;
 import hudson.plugins.global_build_stats.JobFilter;
 import hudson.plugins.global_build_stats.JobFilterFactory;
+import hudson.plugins.global_build_stats.Messages;
 import hudson.plugins.global_build_stats.model.BuildHistorySearchCriteria;
 import hudson.plugins.global_build_stats.model.BuildResult;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
@@ -258,11 +258,11 @@ public class GlobalBuildStatsBusiness {
                 DateRange range = (DateRange) dataset.getColumnKey(column);
                 String status = (String) dataset.getRowKey(row);
                 
-                boolean successShown=BuildResultStatusesConstants.SUCCESS.equals(status);
-                boolean failuresShown=BuildResultStatusesConstants.FAILURES.equals(status);
-                boolean unstablesShown=BuildResultStatusesConstants.UNSTABLES.equals(status);
-                boolean abortedShown=BuildResultStatusesConstants.ABORTED.equals(status);
-                boolean notBuildShown=BuildResultStatusesConstants.NOT_BUILD.equals(status);
+                boolean successShown=Messages.Build_Results_Statuses_5_SUCCESS().equals(status);
+                boolean failuresShown=Messages.Build_Results_Statuses_4_FAILURES().equals(status);
+                boolean unstablesShown=Messages.Build_Results_Statuses_3_UNSTABLES().equals(status);
+                boolean abortedShown=Messages.Build_Results_Statuses_2_ABORTED().equals(status);
+                boolean notBuildShown=Messages.Build_Results_Statuses_1_NOT_BUILD().equals(status);
                 
                 return new StringBuilder()
                 	.append("buildHistory?jobFilter=").append(config.getJobFilter())
