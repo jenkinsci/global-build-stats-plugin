@@ -1,8 +1,12 @@
 package hudson.plugins.global_build_stats.model;
 
+import hudson.plugins.global_build_stats.JobFilter;
 import hudson.plugins.global_build_stats.JobFilterFactory;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
@@ -20,13 +24,19 @@ public class BuildStatConfiguration implements Serializable {
 	private static final long serialVersionUID = -2962124739645932894L;
 	
 	private String id;
+	
+	// Chart configuration
 	private String buildStatTitle;
 	private int buildStatWidth=400, buildStatHeight=300;
 	private int historicLength;
 	private HistoricScale historicScale;
-	private String jobFilter = JobFilterFactory.ALL_JOBS_FILTER_PATTERN;
-	private short shownBuildResults;
 	private YAxisChartType yAxisChartType = YAxisChartType.COUNT;
+	private YAxisChartDimension[] dimensionsShown;
+	
+	// Filters on jobs
+	private String jobFilter = JobFilterFactory.ALL_JOBS_FILTER_PATTERN;
+	transient JobFilter calculatedJobFilter = null; // For calcul optimizations only
+	private short shownBuildResults;
 	
 	public BuildStatConfiguration(){
 	}
@@ -34,7 +44,8 @@ public class BuildStatConfiguration implements Serializable {
 	public BuildStatConfiguration(String _id, String _buildStatTitle, int _buildStatWidth, int _buildStatHeight, 
 			int _historicLength, HistoricScale _historicScale, String _jobFilter, 
 			boolean successShown, boolean failuresShown, boolean unstablesShown, 
-			boolean abortedShown, boolean notBuildsShown, YAxisChartType yAxisChartType){
+			boolean abortedShown, boolean notBuildsShown, YAxisChartType yAxisChartType,
+			boolean buildCountsShown, boolean totalBuildTimeShown, boolean averageBuildTimeShown){
 		
 		this.id = _id;
 		this.buildStatTitle = _buildStatTitle;
@@ -42,7 +53,8 @@ public class BuildStatConfiguration implements Serializable {
 		this.buildStatWidth = _buildStatWidth;
 		this.historicLength = _historicLength;
 		this.historicScale = _historicScale;
-		this.jobFilter = _jobFilter;
+		
+		this.setJobFilter(_jobFilter);
 		
 		this.shownBuildResults = 0;
 		this.shownBuildResults |= successShown?BuildResult.SUCCESS.code:0;
@@ -52,8 +64,27 @@ public class BuildStatConfiguration implements Serializable {
 		this.shownBuildResults |= notBuildsShown?BuildResult.NOT_BUILD.code:0;
 		
 		this.yAxisChartType = yAxisChartType;
+		
+		List<YAxisChartDimension> dimensionsList = new ArrayList<YAxisChartDimension>();
+		if(buildCountsShown){ dimensionsList.add(YAxisChartDimension.BUILD_COUNTER); }
+		if(totalBuildTimeShown){ dimensionsList.add(YAxisChartDimension.BUILD_TOTAL_DURATION); }
+		if(averageBuildTimeShown){ dimensionsList.add(YAxisChartDimension.BUILD_AVERAGE_DURATION); }
+		this.dimensionsShown = dimensionsList.toArray(new YAxisChartDimension[]{});
 	}
 
+	public boolean isJobResultEligible(JobBuildResult result){
+		boolean jobBuildEligible = true;
+
+		jobBuildEligible &= getCalculatedJobFilter().isJobApplicable(result.getJobName());
+		jobBuildEligible &= isAbortedShown() || result.getResult().getAbortedCount()!=1;
+		jobBuildEligible &= isFailuresShown() || result.getResult().getFailureCount()!=1;
+		jobBuildEligible &= isNotBuildShown() || result.getResult().getNotBuildCount()!=1;
+		jobBuildEligible &= isSuccessShown() || result.getResult().getSuccessCount()!=1;
+		jobBuildEligible &= isUnstablesShown() || result.getResult().getUnstableCount()!=1;
+		
+		return jobBuildEligible;
+	}
+	
 	@Exported
 	public boolean isSuccessShown(){
 		return (shownBuildResults & BuildResult.SUCCESS.code) != 0;
@@ -145,6 +176,7 @@ public class BuildStatConfiguration implements Serializable {
 
 	public void setJobFilter(String jobFilter) {
 		this.jobFilter = jobFilter;
+		this.calculatedJobFilter = JobFilterFactory.createJobFilter(jobFilter);
 	}
 
 	public void setId(String id) {
@@ -153,5 +185,40 @@ public class BuildStatConfiguration implements Serializable {
 
 	public void setyAxisChartType(YAxisChartType yAxisChartType) {
 		this.yAxisChartType = yAxisChartType;
+	}
+
+	public void setShownBuildResults(short shownBuildResults) {
+		this.shownBuildResults = shownBuildResults;
+	}
+
+	@Exported
+	public YAxisChartDimension[] getDimensionsShown() {
+		return dimensionsShown;
+	}
+
+	public void setDimensionsShown(YAxisChartDimension[] dimensionsShown) {
+		this.dimensionsShown = dimensionsShown;
+	}
+	
+	protected JobFilter getCalculatedJobFilter(){
+		// When BuildStatConfiguration is XStream deserialized, the transient calculatedJobFilter field
+		// will be null !
+		if(calculatedJobFilter == null){ calculatedJobFilter = JobFilterFactory.createJobFilter(jobFilter); }
+		return this.calculatedJobFilter;
+	}
+	
+	@Exported
+	public boolean isBuildStatusesShown(){
+		return Arrays.binarySearch(this.dimensionsShown, YAxisChartDimension.BUILD_COUNTER)>=0;
+	}
+	
+	@Exported
+	public boolean isTotalBuildTimeShown (){
+		return Arrays.binarySearch(this.dimensionsShown, YAxisChartDimension.BUILD_TOTAL_DURATION)>=0;
+	}
+	
+	@Exported
+	public boolean isAverageBuildTimeShown(){
+		return Arrays.binarySearch(this.dimensionsShown, YAxisChartDimension.BUILD_AVERAGE_DURATION)>=0;
 	}
 }

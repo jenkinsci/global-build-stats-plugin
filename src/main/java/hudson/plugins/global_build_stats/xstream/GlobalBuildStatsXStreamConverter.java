@@ -12,8 +12,10 @@ import hudson.plugins.global_build_stats.xstream.migration.v1.V1XStreamReader;
 import hudson.plugins.global_build_stats.xstream.migration.v2.V1ToV2Migrator;
 import hudson.plugins.global_build_stats.xstream.migration.v2.V2XStreamReader;
 import hudson.plugins.global_build_stats.xstream.migration.v3.V2ToV3Migrator;
-import hudson.plugins.global_build_stats.xstream.migration.v3.V3GlobalBuildStatsPOJO;
 import hudson.plugins.global_build_stats.xstream.migration.v3.V3XStreamReader;
+import hudson.plugins.global_build_stats.xstream.migration.v4.V3ToV4Migrator;
+import hudson.plugins.global_build_stats.xstream.migration.v4.V4GlobalBuildStatsPOJO;
+import hudson.plugins.global_build_stats.xstream.migration.v4.V4XStreamReader;
 
 import java.util.logging.Logger;
 
@@ -44,6 +46,9 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
     
     public static final String BUILD_STAT_CONFIG_CLASS_ALIAS = "bsc";
     public static final String JOB_BUILD_RESULT_CLASS_ALIAS = "jbr";
+    public static final String HISTORIC_SCALE_CLASS_ALIAS = "GBS_HS";
+    public static final String YAXIS_CHART_TYPE_CLASS_ALIAS = "GBS_YACT";
+    public static final String YAXIS_CHART_DIMENSION_CLASS_ALIAS = "GBS_YACD";
 
 	/**
 	 * List of XStream readers for previous XStream representations of
@@ -53,7 +58,8 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 		new V0XStreamReader(),
 		new V1XStreamReader(),
 		new V2XStreamReader(),
-		new V3XStreamReader()
+		new V3XStreamReader(),
+		new V4XStreamReader()
 	};
 
 	/**
@@ -62,7 +68,8 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 	private static final GlobalBuildStatsDataMigrator[] MIGRATORS = new GlobalBuildStatsDataMigrator[]{
 		new V0ToV1Migrator(),
 		new V1ToV2Migrator(),
-		new V2ToV3Migrator()
+		new V2ToV3Migrator(),
+		new V3ToV4Migrator()
 	};
 
 	/**
@@ -156,9 +163,9 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 	}
 	
 	protected void populateGlobalBuildStatsPlugin(GlobalBuildStatsPlugin plugin, GlobalBuildStatsPOJO pojo){
-		// Latest POJO is v2
+		// Latest POJO is v4
 		// Update this line every time you add a new migrator !
-		V3GlobalBuildStatsPOJO versionedPojo = (V3GlobalBuildStatsPOJO)pojo;
+		V4GlobalBuildStatsPOJO versionedPojo = (V4GlobalBuildStatsPOJO)pojo;
 		
 		plugin.getBuildStatConfigs().clear();
 		plugin.getBuildStatConfigs().addAll(versionedPojo.buildStatConfigs);

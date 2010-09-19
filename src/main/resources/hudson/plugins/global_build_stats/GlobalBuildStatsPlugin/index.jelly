@@ -273,11 +273,14 @@
 		  
 		  // Changing default values...
 		  if(this.buildStatConf != null){
-			  if(this.buildStatConf.successShown == 'false') { $(this.buildStatConfId+'_successShown').checked = false; }
-			  if(this.buildStatConf.failuresShown == 'false') { $(this.buildStatConfId+'_failuresShown').checked = false; }
-			  if(this.buildStatConf.unstablesShown == 'false') { $(this.buildStatConfId+'_unstablesShown').checked = false; }
-			  if(this.buildStatConf.abortedShown == 'false') { $(this.buildStatConfId+'_abortedShown').checked = false; }
-			  if(this.buildStatConf.notBuildsShown == 'true') { $(this.buildStatConfId+'_notBuildsShown').checked = true; }
+			  if(this.buildStatConf.successShown == false) { $(this.buildStatConfId+'_successShown').checked = false; }
+			  if(this.buildStatConf.failuresShown == false) { $(this.buildStatConfId+'_failuresShown').checked = false; }
+			  if(this.buildStatConf.unstablesShown == false) { $(this.buildStatConfId+'_unstablesShown').checked = false; }
+			  if(this.buildStatConf.abortedShown == false) { $(this.buildStatConfId+'_abortedShown').checked = false; }
+			  if(this.buildStatConf.notBuildsShown == true) { $(this.buildStatConfId+'_notBuildsShown').checked = true; }
+			  if(this.buildStatConf.buildStatusesShown == false) { $(this.buildStatConfId+'_buildStatusesShown').checked = false; }
+			  if(this.buildStatConf.totalBuildTimeShown == true) { $(this.buildStatConfId+'_totalBuildTimeShown').checked = true; }
+			  if(this.buildStatConf.averageBuildTimeShown == true) { $(this.buildStatConfId+'_averageBuildTimeShown').checked = true; }
 		  }
 		  		  
 		  // Initializing validations 
@@ -323,6 +326,9 @@
 				var unstablesShown = $(bsId+'_unstablesShown').checked;
 				var abortedShown = $(bsId+'_abortedShown').checked;
 				var notBuildsShown = $(bsId+'_notBuildsShown').checked;
+				var buildStatusesShown = $(bsId+'_buildStatusesShown').checked;
+				var totalBuildTimeShown = $(bsId+'_totalBuildTimeShown').checked;
+				var averageBuildTimeShown = $(bsId+'_averageBuildTimeShown').checked;
 				var yAxisChartType = $(bsId+'_yAxisChartType').value;
 
 				var overviewContent = '<img src="'+rootURL+'/plugin/global-build-stats/createChart?';
@@ -338,6 +344,9 @@
 				overviewContent += '&abortedShown='+abortedShown;
 				overviewContent += '&notBuildsShown='+notBuildsShown;
 				overviewContent += '&yAxisChartType='+yAxisChartType;
+				overviewContent += '&buildStatusesShown='+buildStatusesShown;
+				overviewContent += '&totalBuildTimeShown='+totalBuildTimeShown;
+				overviewContent += '&averageBuildTimeShown='+averageBuildTimeShown;
 				overviewContent += '" />';
 
 				YAHOO.global.build.stat.overview.modalPopup =  
@@ -665,20 +674,34 @@
 		      		 onblur="$('#{buildStatId}_jobFilter').value='jobNameRegex('+this.value+')';" 
 		      />
 		      <input id="#{buildStatId}_jobFilter" type="hidden" name="jobFilter" value="#{jobFilter}" /><br/>
-		      ${%Statuses shown} :
+		      ${%Statuses taken into account} :
 		      <input type="checkbox" value="true" id="#{buildStatId}_successShown" name="successShown" checked="checked" />${%Success}
 		      <input type="checkbox" value="true" id="#{buildStatId}_failuresShown" name="failuresShown" checked="checked" />${%Failures}
 		      <input type="checkbox" value="true" id="#{buildStatId}_unstablesShown" name="unstablesShown" checked="checked" />${%Unstables}
 		      <input type="checkbox" value="true" id="#{buildStatId}_abortedShown" name="abortedShown" checked="checked" />${%Aborted}
 		      <input type="checkbox" value="true" id="#{buildStatId}_notBuildsShown" name="notBuildsShown" />${%Not Build}<br/>
-		      ${%Y Axis type} :
-		      <select id="#{buildStatId}_yAxisChartType" 
-		      		  name="yAxisChartType" checkUrl="'${rootURL}/plugin/global-build-stats/checkYAxisChartType?value='+escape(field.value)"
-		      		  onchange="validateField(this);">
-				  <j:forEach var="yAxisChartType" items="${it.yAxisChartTypes}" varStatus="status">
-				  	<option value="${yAxisChartType}">${yAxisChartType.label}</option>
-				  </j:forEach>
-		      </select><span class="validation-error-area" style="display:inline-block;"></span><br/>
+		      ${%Elements displayed on chart} :
+		      <ul>
+		      	<li>
+			      <input type="checkbox" value="true" id="#{buildStatId}_buildStatusesShown" name="buildStatusesShown" checked="checked" />
+			      ${%Build statuses with Y Axis type} :
+			      <select id="#{buildStatId}_yAxisChartType" 
+			      		  name="yAxisChartType" checkUrl="'${rootURL}/plugin/global-build-stats/checkYAxisChartType?value='+escape(field.value)"
+			      		  onchange="validateField(this);">
+					  <j:forEach var="yAxisChartType" items="${it.yAxisChartTypes}" varStatus="status">
+					  	<option value="${yAxisChartType}">${yAxisChartType.label}</option>
+					  </j:forEach>
+			      </select><span class="validation-error-area" style="display:inline-block;"></span>
+		      	</li>
+		      	<li>
+			      <input type="checkbox" value="true" id="#{buildStatId}_totalBuildTimeShown" name="totalBuildTimeShown" />
+			      ${%Total build time}
+		      	</li>
+		      	<li>
+			      <input type="checkbox" value="true" id="#{buildStatId}_averageBuildTimeShown" name="averageBuildTimeShown" />
+			      ${%Average build time}
+		      	</li>
+		      </ul>
 		      <input type="hidden" name="buildStatId" value="#{buildStatId}" />
 		    </form>
 		</div>

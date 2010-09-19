@@ -87,6 +87,9 @@ public class GlobalBuildStatsPlugin extends Plugin {
 		// XStream compacting aliases...
 		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.JOB_BUILD_RESULT_CLASS_ALIAS, JobBuildResult.class);
 		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.BUILD_STAT_CONFIG_CLASS_ALIAS, BuildStatConfiguration.class);
+		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.HISTORIC_SCALE_CLASS_ALIAS, HistoricScale.class);
+		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.YAXIS_CHART_TYPE_CLASS_ALIAS, YAxisChartType.class);
+		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.YAXIS_CHART_DIMENSION_CLASS_ALIAS, YAxisChartDimension.class);
 		
 		Hudson.XSTREAM.aliasField("t", BuildStatConfiguration.class, "buildStatTitle");
 		Hudson.XSTREAM.aliasField("w", BuildStatConfiguration.class, "buildStatWidth");
@@ -96,6 +99,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
 		Hudson.XSTREAM.aliasField("jf", BuildStatConfiguration.class, "jobFilter");
 		Hudson.XSTREAM.aliasField("sbr", BuildStatConfiguration.class, "shownBuildResults");
 		Hudson.XSTREAM.aliasField("yact", BuildStatConfiguration.class, "yAxisChartType");
+		Hudson.XSTREAM.aliasField("ds", BuildStatConfiguration.class, "dimensionsShown");
 
 		Hudson.XSTREAM.aliasField("r", JobBuildResult.class, "result");
 		Hudson.XSTREAM.aliasField("n", JobBuildResult.class, "jobName");
@@ -404,7 +408,10 @@ public class GlobalBuildStatsPlugin extends Plugin {
     			Boolean.parseBoolean(req.getParameter("unstablesShown")),
     			Boolean.parseBoolean(req.getParameter("abortedShown")),
     			Boolean.parseBoolean(req.getParameter("notBuildsShown")),
-    			YAxisChartType.valueOf(req.getParameter("yAxisChartType"))
+    			YAxisChartType.valueOf(req.getParameter("yAxisChartType")),
+    			Boolean.parseBoolean(req.getParameter("buildStatusesShown")),
+    			Boolean.parseBoolean(req.getParameter("totalBuildTimeShown")),
+    			Boolean.parseBoolean(req.getParameter("averageBuildTimeShown"))
     			);
     }
     
