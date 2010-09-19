@@ -10,20 +10,20 @@ import hudson.model.Hudson;
 import hudson.model.listeners.ItemListener;
 import hudson.model.listeners.RunListener;
 import hudson.plugins.global_build_stats.business.GlobalBuildStatsBusiness;
+import hudson.plugins.global_build_stats.model.AbstractBuildStatChartDimension;
 import hudson.plugins.global_build_stats.model.BuildHistorySearchCriteria;
 import hudson.plugins.global_build_stats.model.BuildStatChartData;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
-import hudson.plugins.global_build_stats.model.DateRange;
 import hudson.plugins.global_build_stats.model.HistoricScale;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
 import hudson.plugins.global_build_stats.model.JobBuildSearchResult;
 import hudson.plugins.global_build_stats.model.ModelIdGenerator;
+import hudson.plugins.global_build_stats.model.YAxisChartDimension;
 import hudson.plugins.global_build_stats.model.YAxisChartType;
 import hudson.plugins.global_build_stats.validation.GlobalBuildStatsValidator;
 import hudson.plugins.global_build_stats.xstream.GlobalBuildStatsXStreamConverter;
 import hudson.security.Permission;
 import hudson.util.ChartUtil;
-import hudson.util.DataSetBuilder;
 import hudson.util.FormValidation;
 
 import java.io.IOException;
@@ -144,8 +144,8 @@ public class GlobalBuildStatsPlugin extends Plugin {
     		if(buildStatConfigId != null){
     	    	BuildStatConfiguration config = GlobalBuildStatsPlugin.getPluginBusiness().searchBuildStatConfigById(buildStatConfigId);
     	    	if(config != null){
-    	    		DataSetBuilder<String, DateRange> dsb = GlobalBuildStatsPlugin.getPluginBusiness().createDataSetBuilder(config);
-    	    		rsp.serveExposedBean(req, new BuildStatChartData(dsb), flavor);
+    	    		List<AbstractBuildStatChartDimension> dimensions = GlobalBuildStatsPlugin.getPluginBusiness().createDataSetBuilder(config);
+    	    		rsp.serveExposedBean(req, new BuildStatChartData(dimensions), flavor);
     	    		chartDataHasBeenExposed = true;
     	    	}
     		}
@@ -404,7 +404,8 @@ public class GlobalBuildStatsPlugin extends Plugin {
     			Boolean.parseBoolean(req.getParameter("unstablesShown")),
     			Boolean.parseBoolean(req.getParameter("abortedShown")),
     			Boolean.parseBoolean(req.getParameter("notBuildsShown")),
-    			YAxisChartType.valueOf(req.getParameter("yAxisChartType")));
+    			YAxisChartType.valueOf(req.getParameter("yAxisChartType"))
+    			);
     }
     
 	public BuildStatConfiguration[] getBuildStatConfigsArrayed() {

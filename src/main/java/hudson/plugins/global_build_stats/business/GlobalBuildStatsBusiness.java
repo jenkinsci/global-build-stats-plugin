@@ -9,7 +9,8 @@ import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
 import hudson.plugins.global_build_stats.JobBuildResultFactory;
 import hudson.plugins.global_build_stats.JobFilter;
 import hudson.plugins.global_build_stats.JobFilterFactory;
-import hudson.plugins.global_build_stats.Messages;
+import hudson.plugins.global_build_stats.model.AbstractBuildStatChartDimension;
+import hudson.plugins.global_build_stats.model.AbstractBuildStatChartDimension.LegendItemData;
 import hudson.plugins.global_build_stats.model.BuildHistorySearchCriteria;
 import hudson.plugins.global_build_stats.model.BuildResult;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
@@ -17,11 +18,12 @@ import hudson.plugins.global_build_stats.model.DateRange;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
 import hudson.plugins.global_build_stats.model.JobBuildSearchResult;
 import hudson.plugins.global_build_stats.model.ModelIdGenerator;
+import hudson.plugins.global_build_stats.model.YAxisChartDimension;
 import hudson.util.DataSetBuilder;
 import hudson.util.ShiftedCategoryAxis;
-import hudson.util.StackedAreaRenderer2;
 
 import java.awt.Color;
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -33,13 +35,14 @@ import java.util.List;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.LegendItem;
+import org.jfree.chart.LegendItemCollection;
 import org.jfree.chart.axis.CategoryAxis;
 import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.title.LegendTitle;
-import org.jfree.data.category.CategoryDataset;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
 
@@ -108,8 +111,8 @@ public class GlobalBuildStatsBusiness {
 	}
 	
 	public JFreeChart createChart(BuildStatConfiguration config){
-		DataSetBuilder<String, DateRange> dsb = createDataSetBuilder(config);
-        return createChart(config, dsb.build(), config.getBuildStatTitle());
+		List<AbstractBuildStatChartDimension> dimensions = createDataSetBuilder(config);
+        return createChart(config, dimensions, config.getBuildStatTitle());
 	}
 	
 	public List<JobBuildSearchResult> searchBuilds(BuildHistorySearchCriteria searchCriteria){
@@ -225,9 +228,10 @@ public class GlobalBuildStatsBusiness {
 					|| (BuildResult.UNSTABLE.equals(r) && c.unstablesShown);
     }
     
-    private JFreeChart createChart(final BuildStatConfiguration config, CategoryDataset dataset, String title) {
+    private JFreeChart createChart(final BuildStatConfiguration config, List<AbstractBuildStatChartDimension> dimensions, String title) {
 
-    	final JFreeChart chart = ChartFactory.createStackedAreaChart(title, null, config.getyAxisChartType().getLabel(), dataset, PlotOrientation.VERTICAL, true, true, false);
+    	final JFreeChart chart = ChartFactory.createStackedAreaChart(title, null, "", 
+    			new DataSetBuilder<String, DateRange>().build(), PlotOrientation.VERTICAL, true, true, false);
         chart.setBackgroundPaint(Color.white);
         
         final LegendTitle legend = chart.getLegend();
@@ -250,94 +254,81 @@ public class GlobalBuildStatsBusiness {
         final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         rangeAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
 
-        // This renderer allows to map area for clicks
-        // + it fixes some rendering bug (0 is displayed on "demi" tick instead of "plain" tick)
-        final StackedAreaRenderer2 renderer = new StackedAreaRenderer2(){
-            @Override
-            public String generateURL(CategoryDataset dataset, int row, int column) {
-                DateRange range = (DateRange) dataset.getColumnKey(column);
-                String status = (String) dataset.getRowKey(row);
-                
-                boolean successShown=Messages.Build_Results_Statuses_5_SUCCESS().equals(status);
-                boolean failuresShown=Messages.Build_Results_Statuses_4_FAILURES().equals(status);
-                boolean unstablesShown=Messages.Build_Results_Statuses_3_UNSTABLES().equals(status);
-                boolean abortedShown=Messages.Build_Results_Statuses_2_ABORTED().equals(status);
-                boolean notBuildShown=Messages.Build_Results_Statuses_1_NOT_BUILD().equals(status);
-                
-                return new StringBuilder()
-                	.append("buildHistory?jobFilter=").append(config.getJobFilter())
-                	.append("&start=").append(range.getStart().getTimeInMillis())
-                	.append("&end=").append(range.getEnd().getTimeInMillis())
-                	.append("&successShown=").append(successShown)
-                	.append("&failuresShown=").append(failuresShown)
-                	.append("&unstablesShown=").append(unstablesShown)
-                	.append("&abortedShown=").append(abortedShown)
-                	.append("&notBuildShown=").append(notBuildShown).toString();
-            }
-
-/*          TODO: add tooltip  
-			@Override
-            public String generateToolTip(CategoryDataset dataset, int row, int column) {
-                NumberOnlyBuildLabel label = (NumberOnlyBuildLabel) dataset.getColumnKey(column);
-                AbstractTestResultAction a = label.build.getAction(AbstractTestResultAction.class);
-                switch (row) {
-                    case 0:
-                        return String.valueOf(Messages.AbstractTestResultAction_fail(a.getFailCount()));
-                    case 1:
-                        return String.valueOf(Messages.AbstractTestResultAction_skip(a.getSkipCount()));
-                    default:
-                        return String.valueOf(Messages.AbstractTestResultAction_test(a.getTotalCount()));
-                }
-            }*/
-        };
-        plot.setRenderer(renderer);
-        renderer.setSeriesPaint(0, new Color(85, 85, 85));
-        renderer.setSeriesPaint(1, new Color(255, 85, 255));
-        renderer.setSeriesPaint(2, new Color(255, 255, 85));
-        renderer.setSeriesPaint(3, new Color(255, 85, 85));
-        renderer.setSeriesPaint(4, new Color(85, 85, 255));
-
-        plot.setRenderer(renderer);
+        for(int i=0; i<dimensions.size(); i++){
+        	AbstractBuildStatChartDimension dimension = dimensions.get(dimensions.size()-1-i);
+        	plot.setRangeAxis(i, dimension.getRangeAxis());
+        	plot.setRenderer(i, dimension.getRenderer());
+        	plot.setDataset(i, dimension.getDatasetBuilder().build());
+        	plot.mapDatasetToRangeAxis(i,i);
+        }
+        
+        //plot.setFixedLegendItems(sortLegendItems(plot.getLegendItems()));
         plot.setInsets(new RectangleInsets(5.0, 0, 0, 5.0));
 
         return chart;
     }
     
-    public DataSetBuilder<String, DateRange> createDataSetBuilder(BuildStatConfiguration config) {
-    	DataSetBuilder<String, DateRange> dsb = new DataSetBuilder<String, DateRange>();
+    // Useless... for the moment...
+    private static LegendItemCollection sortLegendItems(LegendItemCollection legendItems){
+    	LegendItemCollection sortedLegendItems = new LegendItemCollection();
+
+    	List<LegendItemData> sortedLegendItemsLabels = AbstractBuildStatChartDimension.getSortedLegendItemsLabels();
+    	for(LegendItemData legendItemData : sortedLegendItemsLabels){
+    		// Looking for item legend label matching with current label
+    		Iterator<LegendItem> legendItemsIter = legendItems.iterator();
+    		LegendItem legendItemMatchingCurrentLabel = null;
+    		while(legendItemMatchingCurrentLabel == null && legendItemsIter.hasNext()){
+    			LegendItem currentLegendItem = legendItemsIter.next();
+    			if(legendItemData.label.equals(currentLegendItem.getLabel())){
+    				legendItemMatchingCurrentLabel = new LegendItem(legendItemData.label, currentLegendItem.getDescription(), 
+    						currentLegendItem.getToolTipText(), "", new Rectangle2D.Double(-4.0, -4.0, 8.0, 8.0), legendItemData.color); 
+    			}
+    		}
+    		
+    		if(legendItemMatchingCurrentLabel != null){
+    			sortedLegendItems.add(legendItemMatchingCurrentLabel);
+    		}
+    	}
     	
-    	List<JobBuildResult> filteredJobBuildResults = createFilteredAndSortedBuildResults(config);
-	    if(filteredJobBuildResults.size() == 0){
-	    	return dsb;
-	    }
+    	return sortedLegendItems;
+    }
+    
+    public List<AbstractBuildStatChartDimension> createDataSetBuilder(BuildStatConfiguration config) {
+    	List<AbstractBuildStatChartDimension> dimensions = new ArrayList<AbstractBuildStatChartDimension>();
+    	for(YAxisChartDimension dimensionShown : config.getDimensionsShown()){
+    		dimensions.add(dimensionShown.createBuildStatChartDimension(config, new DataSetBuilder<String, DateRange>()));
+    	}
+    	
+    	List<JobBuildResult> sortedJobResults = new ArrayList<JobBuildResult>(plugin.getJobBuildResults());
+    	sortJobBuildResultsByBuildDate(sortedJobResults);
 	    
 		Calendar d2 = new GregorianCalendar();
 		Calendar d1 = config.getHistoricScale().getPreviousStep(d2);
 		
-		int nbSuccess=0, nbFailures=0, nbUnstables=0, nbAborted=0, nbNotBuild=0;
-		int nbSteps = 0;
-		Iterator<JobBuildResult> buildsIter = filteredJobBuildResults.iterator();
+		int tickCount = 0;
+		Iterator<JobBuildResult> buildsIter = sortedJobResults.iterator();
 		JobBuildResult currentBuild = buildsIter.next();
 		Calendar buildDate = currentBuild.getBuildDate();
-		while(nbSteps != config.getHistoricLength()){
+		while(tickCount != config.getHistoricLength()){
 	    	// Finding range where the build resides
-	    	while(nbSteps < config.getHistoricLength() && d1.after(buildDate)){
+	    	while(tickCount < config.getHistoricLength() && d1.after(buildDate)){
 	    		DateRange range = new DateRange(d1, d2, config.getHistoricScale().getDateRangeFormatter());
-	    		config.getyAxisChartType().provideDataInDataSet(dsb, range, nbSuccess, nbFailures, nbUnstables, nbAborted, nbNotBuild);
+	    		for(AbstractBuildStatChartDimension dimension : dimensions){
+	    			dimension.provideDataInDataSet(range);
+	    		}
 	    		
 				d2 = (Calendar)d1.clone();
 				d1 = config.getHistoricScale().getPreviousStep(d2);
-				nbSuccess=0; nbFailures=0; nbUnstables=0; nbAborted=0; nbNotBuild=0;
-				nbSteps++;
+				tickCount++;
 	    	}
 	    	
 	    	// If no range found : stop the iteration !
-	    	if(nbSteps != config.getHistoricLength() && currentBuild != null){
-	    		nbSuccess += config.isSuccessShown()?currentBuild.getResult().getSuccessCount():0;
-	    		nbFailures += config.isFailuresShown()?currentBuild.getResult().getFailureCount():0;
-	    		nbUnstables += config.isUnstablesShown()?currentBuild.getResult().getUnstableCount():0;
-	    		nbAborted += config.isAbortedShown()?currentBuild.getResult().getAbortedCount():0;
-	    		nbNotBuild += config.isNotBuildShown()?currentBuild.getResult().getNotBuildCount():0;
+	    	if(tickCount != config.getHistoricLength() && currentBuild != null){
+	    		if(config.isJobResultEligible(currentBuild)){
+		    		for(AbstractBuildStatChartDimension dimension : dimensions){
+		    			dimension.saveDataForBuild(currentBuild);
+		    		}
+	    		}
 	    		
 	    		if(buildsIter.hasNext()){
 	    			currentBuild = buildsIter.next();
@@ -349,7 +340,7 @@ public class GlobalBuildStatsBusiness {
 	    	}
 		}
 		
-	    return dsb;
+	    return dimensions;
 	}
 	
     private static void sortJobBuildResultsByBuildDate(List<? extends JobBuildResult> c){
@@ -360,20 +351,6 @@ public class GlobalBuildStatsBusiness {
 		}));
     }
     
-    private List<JobBuildResult> createFilteredAndSortedBuildResults(BuildStatConfiguration config){
-    	List<JobBuildResult> filteredJobBuildResults = new ArrayList<JobBuildResult>();
-        for(JobBuildResult r : plugin.getJobBuildResults()){
-        	if(JobFilterFactory.createJobFilter(config.getJobFilter()).isJobApplicable(r.getJobName())){
-        		filteredJobBuildResults.add(r);
-        	}
-        }
-        
-        // Sorting on job results dates
-        sortJobBuildResultsByBuildDate(filteredJobBuildResults);
-        
-        return filteredJobBuildResults;
-    }
-    	
 	private static void addBuild(List<JobBuildResult> jobBuildResultsRead, AbstractBuild build){
 		jobBuildResultsRead.add(JobBuildResultFactory.INSTANCE.createJobBuildResult(build));
 	}
