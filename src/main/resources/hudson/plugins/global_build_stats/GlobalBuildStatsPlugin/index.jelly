@@ -666,22 +666,29 @@
 				<span id="#{buildStatId}_${historicScale}" style="display:none">${historicScale.unitLabel}</span>
 			  </j:forEach>
 		      <span class="validation-error-area" style="display:inline-block;"></span><br/>
-		      ${%Job filtering} : <input type="radio" id="#{buildStatId}_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="ALL" onchange="jobFilterTypeSelected('#{buildStatId}', this.value);" />${%ALL Jobs}
-		      <input type="radio" id="#{buildStatId}_jobFilteringType_REGEX" name="jobFilteringType" value="jobNameRegex" onchange="jobFilterTypeSelected('#{buildStatId}', this.value);" />
-		      ${%Job name regex} :
-		      <input type="text" id="#{buildStatId}_jobNameRegex" 
-		      		 disabled="true" name="jobNameRegex" size="10"
-		      		 onblur="$('#{buildStatId}_jobFilter').value='jobNameRegex('+this.value+')';" 
-		      />
-		      <input id="#{buildStatId}_jobFilter" type="hidden" name="jobFilter" value="#{jobFilter}" /><br/>
-		      ${%Statuses taken into account} :
-		      <input type="checkbox" value="true" id="#{buildStatId}_successShown" name="successShown" checked="checked" />${%Success}
-		      <input type="checkbox" value="true" id="#{buildStatId}_failuresShown" name="failuresShown" checked="checked" />${%Failures}
-		      <input type="checkbox" value="true" id="#{buildStatId}_unstablesShown" name="unstablesShown" checked="checked" />${%Unstables}
-		      <input type="checkbox" value="true" id="#{buildStatId}_abortedShown" name="abortedShown" checked="checked" />${%Aborted}
-		      <input type="checkbox" value="true" id="#{buildStatId}_notBuildsShown" name="notBuildsShown" />${%Not Build}<br/>
+		      ${%Filters} :
+		      <ul style="margin-top: 4px;">
+		      	<li>
+			      ${%Job filtering} : <input type="radio" id="#{buildStatId}_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="ALL" onchange="jobFilterTypeSelected('#{buildStatId}', this.value);" />${%ALL Jobs}
+			      <input type="radio" id="#{buildStatId}_jobFilteringType_REGEX" name="jobFilteringType" value="jobNameRegex" onchange="jobFilterTypeSelected('#{buildStatId}', this.value);" />
+			      ${%Job name regex} :
+			      <input type="text" id="#{buildStatId}_jobNameRegex" 
+			      		 disabled="true" name="jobNameRegex" size="10"
+			      		 onblur="$('#{buildStatId}_jobFilter').value='jobNameRegex('+this.value+')';" 
+			      />
+			      <input id="#{buildStatId}_jobFilter" type="hidden" name="jobFilter" value="#{jobFilter}" />
+		      	</li>
+		      	<li>
+			      ${%Statuses taken into account} :
+			      <input type="checkbox" value="true" id="#{buildStatId}_successShown" name="successShown" checked="checked" />${%Success}
+			      <input type="checkbox" value="true" id="#{buildStatId}_failuresShown" name="failuresShown" checked="checked" />${%Failures}
+			      <input type="checkbox" value="true" id="#{buildStatId}_unstablesShown" name="unstablesShown" checked="checked" />${%Unstables}
+			      <input type="checkbox" value="true" id="#{buildStatId}_abortedShown" name="abortedShown" checked="checked" />${%Aborted}
+			      <input type="checkbox" value="true" id="#{buildStatId}_notBuildsShown" name="notBuildsShown" />${%Not Build}
+		      	</li>
+		      </ul>
 		      ${%Elements displayed on chart} :
-		      <ul>
+		      <ul style="margin-top: 4px;">
 		      	<li>
 			      <input type="checkbox" value="true" id="#{buildStatId}_buildStatusesShown" name="buildStatusesShown" checked="checked" />
 			      ${%Build statuses with Y Axis type} :
