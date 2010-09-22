@@ -8,7 +8,7 @@ import hudson.util.FormValidation;
 public class GlobalBuildStatsValidator {
 
     public FormValidation checkJobFilter(String value){
-    	try{ FieldFilterFactory.createJobFilter(value); return FormValidation.ok(); }
+    	try{ FieldFilterFactory.createFieldFilter(value); return FormValidation.ok(); }
     	catch(Throwable t){ return FormValidation.error(Messages.Validation_Messages_JobFilter_Invalid()); }
     }
     
