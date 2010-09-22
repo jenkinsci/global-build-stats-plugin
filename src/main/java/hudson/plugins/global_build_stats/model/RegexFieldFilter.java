@@ -13,6 +13,14 @@ public class RegexFieldFilter implements FieldFilter {
 	}
 	
 	public boolean isFieldValueValid(String fieldValue) {
+		if(fieldPattern == null || "".equals(fieldPattern.pattern())){
+			return true;
+		}
+		
+		if(fieldValue == null){
+			return false;
+		}
+		
 		return fieldPattern.matcher(fieldValue).matches();
 	}
 
