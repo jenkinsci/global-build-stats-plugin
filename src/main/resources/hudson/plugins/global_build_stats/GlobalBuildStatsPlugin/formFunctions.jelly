@@ -10,12 +10,12 @@ function fieldFilterTypeSelected(selectedType, regexInputFieldId, filterHiddenIn
 	}
 }
 	
-function initializeRegexField(buildStatId, jobFilterRegex){
+function initializeRegexField(targetField, regex){
 	var extractingRegex = new RegExp("^"+FIELD_FILTER_REGEX+"\\((.*)\\)$", "g");
-	if(extractingRegex.test(jobFilterRegex)){
-		extractingRegex.exec(jobFilterRegex);
+	if(extractingRegex.test(regex)){
+		extractingRegex.exec(regex);
 		var regexToPut = RegExp.$1;
-		$(buildStatId+'_jobNameRegex').value = regexToPut;
+		$(targetField).value = regexToPut;
 	}
 }
 

@@ -259,19 +259,33 @@
 	      if(this.buildStatConf!=null && this.buildStatConf.yAxisChartType!= '') {
 	      	this.selectOption($(this.buildStatConfId+'_yAxisChartType'), this.buildStatConf.yAxisChartType); 
 	      }
-		  // Valeur par défaut de job filter
+	      
+		  // Job filter default value
 		  if($(this.buildStatConfId+'_jobFilter').value == ''){
-		  	$(this.buildStatConfId+'_jobFilter').value = 'ALL';
+		  	$(this.buildStatConfId+'_jobFilter').value = FIELD_FILTER_ALL;
 		  }
-		  
 		  if($(this.buildStatConfId+'_jobFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
 		  	  $(this.buildStatConfId+'_jobFilteringType_REGEX').checked = 'checked';
-		  	  initializeRegexField(this.buildStatConfId, this.buildStatConf.jobFilter);
+		  	  initializeRegexField(this.buildStatConfId+'_jobNameRegex', this.buildStatConf.jobFilter);
  		 	  $(this.buildStatConfId+'_jobFilteringType_REGEX').onchange();
 		  	  $(this.buildStatConfId+'_jobNameRegex').disabled = false;
 		  } else if($(this.buildStatConfId+'_jobFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
 		  	  $(this.buildStatConfId+'_jobFilteringType_ALL').checked = 'checked';
 		  	  $(this.buildStatConfId+'_jobFilteringType_ALL').onchange();
+		  }
+		  
+		  // Node filter default value
+		  if($(this.buildStatConfId+'_nodeFilter').value == ''){
+		  	$(this.buildStatConfId+'_nodeFilter').value = FIELD_FILTER_ALL;
+		  }
+		  if($(this.buildStatConfId+'_nodeFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
+		  	  $(this.buildStatConfId+'_nodeFilteringType_REGEX').checked = 'checked';
+		  	  initializeRegexField(this.buildStatConfId+'_nodeNameRegex', this.buildStatConf.nodeFilter);
+ 		 	  $(this.buildStatConfId+'_nodeFilteringType_REGEX').onchange();
+		  	  $(this.buildStatConfId+'_nodeNameRegex').disabled = false;
+		  } else if($(this.buildStatConfId+'_nodeFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
+		  	  $(this.buildStatConfId+'_nodeFilteringType_ALL').checked = 'checked';
+		  	  $(this.buildStatConfId+'_nodeFilteringType_ALL').onchange();
 		  }
 		  
 		  // Changing default values...
@@ -324,6 +338,7 @@
 				var scale = $(bsId+'_historicScale').value;
 				var length = $(bsId+'_historicLength').value;
 				var jobFilter = $(bsId+'_jobFilter').value;
+				var nodeFilter = $(bsId+'_nodeFilter').value;
 				var successShown = $(bsId+'_successShown').checked;
 				var failuresShown = $(bsId+'_failuresShown').checked;
 				var unstablesShown = $(bsId+'_unstablesShown').checked;
@@ -341,6 +356,7 @@
 				overviewContent += '&historicLength='+length;
 				overviewContent += '&historicScale='+scale;
 				overviewContent += '&jobFilter='+jobFilter;
+				overviewContent += '&nodeFilter='+nodeFilter;
 				overviewContent += '&successShown='+successShown;
 				overviewContent += '&failuresShown='+failuresShown;
 				overviewContent += '&unstablesShown='+unstablesShown;
@@ -682,6 +698,16 @@
 			      		 onblur="$('#{buildStatId}_jobFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
 			      />
 			      <input id="#{buildStatId}_jobFilter" type="hidden" name="jobFilter" value="#{jobFilter}" />
+			    </li>
+			    <li>
+			      ${%Node filtering} : <input type="radio" id="#{buildStatId}_nodeFilteringType_ALL" checked="checked" name="nodeFilteringType" value="${FIELD_FILTER_ALL}" onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_nodeNameRegex', '#{buildStatId}_nodeFilter');" />${%ALL Nodes}
+			      <input type="radio" id="#{buildStatId}_nodeFilteringType_REGEX" name="nodeFilteringType" value="${FIELD_FILTER_REGEX}" onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_nodeNameRegex', '#{buildStatId}_nodeFilter');" />
+			      ${%Node name regex} :
+			      <input type="text" id="#{buildStatId}_nodeNameRegex" 
+			      		 disabled="true" name="nodeNameRegex" size="10"
+			      		 onblur="$('#{buildStatId}_nodeFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
+			      />
+			      <input id="#{buildStatId}_nodeFilter" type="hidden" name="nodeFilter" value="#{nodeFilter}" />
 		      	</li>
 		      	<li>
 			      ${%Statuses taken into account} :
