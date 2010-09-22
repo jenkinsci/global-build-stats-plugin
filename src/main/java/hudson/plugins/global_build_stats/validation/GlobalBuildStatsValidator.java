@@ -1,6 +1,6 @@
 package hudson.plugins.global_build_stats.validation;
 
-import hudson.plugins.global_build_stats.JobFilterFactory;
+import hudson.plugins.global_build_stats.FieldFilterFactory;
 import hudson.plugins.global_build_stats.Messages;
 import hudson.plugins.global_build_stats.model.HistoricScale;
 import hudson.util.FormValidation;
@@ -8,7 +8,7 @@ import hudson.util.FormValidation;
 public class GlobalBuildStatsValidator {
 
     public FormValidation checkJobFilter(String value){
-    	try{ JobFilterFactory.createJobFilter(value); return FormValidation.ok(); }
+    	try{ FieldFilterFactory.createJobFilter(value); return FormValidation.ok(); }
     	catch(Throwable t){ return FormValidation.error(Messages.Validation_Messages_JobFilter_Invalid()); }
     }
     

@@ -1,7 +1,7 @@
 package hudson.plugins.global_build_stats.model;
 
-import hudson.plugins.global_build_stats.JobFilter;
-import hudson.plugins.global_build_stats.JobFilterFactory;
+import hudson.plugins.global_build_stats.FieldFilter;
+import hudson.plugins.global_build_stats.FieldFilterFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -34,18 +34,20 @@ public class BuildStatConfiguration implements Serializable {
 	private YAxisChartDimension[] dimensionsShown;
 	
 	// Filters on jobs
-	private String jobFilter = JobFilterFactory.ALL_JOBS_FILTER_PATTERN;
-	transient JobFilter calculatedJobFilter = null; // For calcul optimizations only
+	private String jobFilter = FieldFilterFactory.ALL_VALUES_FILTER_LABEL;
+	transient FieldFilter calculatedJobFilter = null; // For calcul optimizations only
+	private String nodeFilter = FieldFilterFactory.ALL_VALUES_FILTER_LABEL;
+	transient FieldFilter calculatedNodeFilter = null; // For calcul optimizations only
 	private short shownBuildResults;
 	
 	public BuildStatConfiguration(){
 	}
 	
 	public BuildStatConfiguration(String _id, String _buildStatTitle, int _buildStatWidth, int _buildStatHeight, 
-			int _historicLength, HistoricScale _historicScale, String _jobFilter, 
-			boolean successShown, boolean failuresShown, boolean unstablesShown, 
-			boolean abortedShown, boolean notBuildsShown, YAxisChartType yAxisChartType,
-			boolean buildCountsShown, boolean totalBuildTimeShown, boolean averageBuildTimeShown){
+			int _historicLength, HistoricScale _historicScale, String _jobFilter, String _nodeFilter,
+			boolean _successShown, boolean _failuresShown, boolean _unstablesShown, 
+			boolean _abortedShown, boolean _notBuildsShown, YAxisChartType _yAxisChartType,
+			boolean _buildCountsShown, boolean _totalBuildTimeShown, boolean _averageBuildTimeShown){
 		
 		this.id = _id;
 		this.buildStatTitle = _buildStatTitle;
@@ -55,27 +57,28 @@ public class BuildStatConfiguration implements Serializable {
 		this.historicScale = _historicScale;
 		
 		this.setJobFilter(_jobFilter);
+		this.setNodeFilter(_nodeFilter);
 		
 		this.shownBuildResults = 0;
-		this.shownBuildResults |= successShown?BuildResult.SUCCESS.code:0;
-		this.shownBuildResults |= failuresShown?BuildResult.FAILURE.code:0;
-		this.shownBuildResults |= unstablesShown?BuildResult.UNSTABLE.code:0;
-		this.shownBuildResults |= abortedShown?BuildResult.ABORTED.code:0;
-		this.shownBuildResults |= notBuildsShown?BuildResult.NOT_BUILD.code:0;
+		this.shownBuildResults |= _successShown?BuildResult.SUCCESS.code:0;
+		this.shownBuildResults |= _failuresShown?BuildResult.FAILURE.code:0;
+		this.shownBuildResults |= _unstablesShown?BuildResult.UNSTABLE.code:0;
+		this.shownBuildResults |= _abortedShown?BuildResult.ABORTED.code:0;
+		this.shownBuildResults |= _notBuildsShown?BuildResult.NOT_BUILD.code:0;
 		
-		this.yAxisChartType = yAxisChartType;
+		this.yAxisChartType = _yAxisChartType;
 		
 		List<YAxisChartDimension> dimensionsList = new ArrayList<YAxisChartDimension>();
-		if(buildCountsShown){ dimensionsList.add(YAxisChartDimension.BUILD_COUNTER); }
-		if(totalBuildTimeShown){ dimensionsList.add(YAxisChartDimension.BUILD_TOTAL_DURATION); }
-		if(averageBuildTimeShown){ dimensionsList.add(YAxisChartDimension.BUILD_AVERAGE_DURATION); }
+		if(_buildCountsShown){ dimensionsList.add(YAxisChartDimension.BUILD_COUNTER); }
+		if(_totalBuildTimeShown){ dimensionsList.add(YAxisChartDimension.BUILD_TOTAL_DURATION); }
+		if(_averageBuildTimeShown){ dimensionsList.add(YAxisChartDimension.BUILD_AVERAGE_DURATION); }
 		this.dimensionsShown = dimensionsList.toArray(new YAxisChartDimension[]{});
 	}
 
 	public boolean isJobResultEligible(JobBuildResult result){
 		boolean jobBuildEligible = true;
 
-		jobBuildEligible &= getCalculatedJobFilter().isJobApplicable(result.getJobName());
+		jobBuildEligible &= getCalculatedJobFilter().isFieldValueValid(result.getJobName());
 		jobBuildEligible &= isAbortedShown() || result.getResult().getAbortedCount()!=1;
 		jobBuildEligible &= isFailuresShown() || result.getResult().getFailureCount()!=1;
 		jobBuildEligible &= isNotBuildShown() || result.getResult().getNotBuildCount()!=1;
@@ -145,6 +148,11 @@ public class BuildStatConfiguration implements Serializable {
 	}
 
 	@Exported
+	public String getNodeFilter() {
+		return nodeFilter;
+	}
+
+	@Exported
 	public String getId() {
 		return id;
 	}
@@ -176,7 +184,12 @@ public class BuildStatConfiguration implements Serializable {
 
 	public void setJobFilter(String jobFilter) {
 		this.jobFilter = jobFilter;
-		this.calculatedJobFilter = JobFilterFactory.createJobFilter(jobFilter);
+		this.calculatedJobFilter = FieldFilterFactory.createJobFilter(jobFilter);
+	}
+
+	public void setNodeFilter(String nodeFilter) {
+		this.nodeFilter = nodeFilter;
+		this.calculatedNodeFilter = FieldFilterFactory.createJobFilter(nodeFilter);
 	}
 
 	public void setId(String id) {
@@ -200,11 +213,18 @@ public class BuildStatConfiguration implements Serializable {
 		this.dimensionsShown = dimensionsShown;
 	}
 	
-	protected JobFilter getCalculatedJobFilter(){
+	protected FieldFilter getCalculatedJobFilter(){
 		// When BuildStatConfiguration is XStream deserialized, the transient calculatedJobFilter field
 		// will be null !
-		if(calculatedJobFilter == null){ calculatedJobFilter = JobFilterFactory.createJobFilter(jobFilter); }
+		if(calculatedJobFilter == null){ calculatedJobFilter = FieldFilterFactory.createJobFilter(jobFilter); }
 		return this.calculatedJobFilter;
+	}
+	
+	protected FieldFilter getCalculatedNodeFilter(){
+		// When BuildStatConfiguration is XStream deserialized, the transient calculatedNodeFilter field
+		// will be null !
+		if(calculatedNodeFilter == null){ calculatedNodeFilter = FieldFilterFactory.createJobFilter(nodeFilter); }
+		return this.calculatedNodeFilter;
 	}
 	
 	@Exported

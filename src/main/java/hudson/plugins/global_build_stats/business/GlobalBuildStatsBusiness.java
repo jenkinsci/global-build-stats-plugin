@@ -7,8 +7,8 @@ import hudson.model.Hudson;
 import hudson.model.Job;
 import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
 import hudson.plugins.global_build_stats.JobBuildResultFactory;
-import hudson.plugins.global_build_stats.JobFilter;
-import hudson.plugins.global_build_stats.JobFilterFactory;
+import hudson.plugins.global_build_stats.FieldFilter;
+import hudson.plugins.global_build_stats.FieldFilterFactory;
 import hudson.plugins.global_build_stats.model.AbstractBuildStatChartDimension;
 import hudson.plugins.global_build_stats.model.AbstractBuildStatChartDimension.LegendItemData;
 import hudson.plugins.global_build_stats.model.BuildHistorySearchCriteria;
@@ -118,12 +118,12 @@ public class GlobalBuildStatsBusiness {
 	public List<JobBuildSearchResult> searchBuilds(BuildHistorySearchCriteria searchCriteria){
     	List<JobBuildSearchResult> filteredJobBuildResults = new ArrayList<JobBuildSearchResult>();
     	
-    	JobFilter jobFilter = JobFilterFactory.createJobFilter(searchCriteria.jobFilter);
+    	FieldFilter jobFilter = FieldFilterFactory.createJobFilter(searchCriteria.jobFilter);
         for(JobBuildResult r : plugin.getJobBuildResults()){
         	if(r.getBuildDate().getTimeInMillis() >= searchCriteria.start
         			&& r.getBuildDate().getTimeInMillis() < searchCriteria.end
         			&& jobResultStatusMatchesWith(r.getResult(), searchCriteria)
-        			&& jobFilter.isJobApplicable(r.getJobName())){
+        			&& jobFilter.isFieldValueValid(r.getJobName())){
         		boolean isJobAccessible = false;
         		boolean isBuildAccessible = false;
         		
