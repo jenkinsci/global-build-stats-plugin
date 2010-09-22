@@ -2,7 +2,7 @@ package hudson.plugins.global_build_stats.xstream.migration.v1;
 
 import java.util.ArrayList;
 
-import hudson.plugins.global_build_stats.JobFilterFactory;
+import hudson.plugins.global_build_stats.FieldFilterFactory;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
 import hudson.plugins.global_build_stats.model.ModelIdGenerator;
@@ -26,7 +26,7 @@ public class V0ToV1Migrator implements GlobalBuildStatsDataMigrator<V0GlobalBuil
 		for(BuildStatConfiguration cfg : pojo.buildStatConfigs){
 			// For some reasons, in v0, job filter was able to be empty... fixed this !
 			if(null==cfg.getJobFilter() || "".equals(cfg.getJobFilter())){
-				cfg.setJobFilter(JobFilterFactory.ALL_JOBS_FILTER_PATTERN);
+				cfg.setJobFilter(FieldFilterFactory.ALL_VALUES_FILTER_LABEL);
 			}
 			
 			// Providing buildStatConfiguration id
