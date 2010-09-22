@@ -14,8 +14,10 @@ import hudson.plugins.global_build_stats.xstream.migration.v2.V2XStreamReader;
 import hudson.plugins.global_build_stats.xstream.migration.v3.V2ToV3Migrator;
 import hudson.plugins.global_build_stats.xstream.migration.v3.V3XStreamReader;
 import hudson.plugins.global_build_stats.xstream.migration.v4.V3ToV4Migrator;
-import hudson.plugins.global_build_stats.xstream.migration.v4.V4GlobalBuildStatsPOJO;
 import hudson.plugins.global_build_stats.xstream.migration.v4.V4XStreamReader;
+import hudson.plugins.global_build_stats.xstream.migration.v5.V4ToV5Migrator;
+import hudson.plugins.global_build_stats.xstream.migration.v5.V5GlobalBuildStatsPOJO;
+import hudson.plugins.global_build_stats.xstream.migration.v5.V5XStreamReader;
 
 import java.util.logging.Logger;
 
@@ -59,7 +61,8 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 		new V1XStreamReader(),
 		new V2XStreamReader(),
 		new V3XStreamReader(),
-		new V4XStreamReader()
+		new V4XStreamReader(),
+		new V5XStreamReader()
 	};
 
 	/**
@@ -69,7 +72,8 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 		new V0ToV1Migrator(),
 		new V1ToV2Migrator(),
 		new V2ToV3Migrator(),
-		new V3ToV4Migrator()
+		new V3ToV4Migrator(),
+		new V4ToV5Migrator()
 	};
 
 	/**
@@ -163,9 +167,9 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 	}
 	
 	protected void populateGlobalBuildStatsPlugin(GlobalBuildStatsPlugin plugin, GlobalBuildStatsPOJO pojo){
-		// Latest POJO is v4
+		// Latest POJO is v5
 		// Update this line every time you add a new migrator !
-		V4GlobalBuildStatsPOJO versionedPojo = (V4GlobalBuildStatsPOJO)pojo;
+		V5GlobalBuildStatsPOJO versionedPojo = (V5GlobalBuildStatsPOJO)pojo;
 		
 		plugin.getBuildStatConfigs().clear();
 		plugin.getBuildStatConfigs().addAll(versionedPojo.buildStatConfigs);
