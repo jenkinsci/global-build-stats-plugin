@@ -1,6 +1,9 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
 <l:layout title="${%Global Build Stats}" permission="${it.requiredPermission}">
 
+	<j:invoke var="FIELD_FILTER_ALL" on="${it}" method="getFieldFilterALL" />
+	<j:invoke var="FIELD_FILTER_REGEX" on="${it}" method="getFieldFilterRegex" />
+
 	<l:header>
 		<!-- Including calendar yui 2.5.1 module ... -->
 		<!--CSS file (default YUI Sam Skin) -->
@@ -18,6 +21,10 @@
 .bd {padding:0;}
 		</style>
 		<script>var startDate = ${searchCriteria.start}; var endDate = ${searchCriteria.end};</script>
+		<script type="text/javascript">
+			FIELD_FILTER_ALL = "${FIELD_FILTER_ALL}";
+			FIELD_FILTER_REGEX = "${FIELD_FILTER_REGEX}";
+		</script>
 		<script><![CDATA[
 		  YAHOO.namespace("global.build.search.calendar");
 		  
@@ -128,12 +135,12 @@
 		   <div class="bd"><div id="endCalendar" style="border:none;padding:1em"></div></div> 
 		  </div>
 	      <span id="datesError" class="width-validation-error-area" style="display:inline-block;"></span><br/>
-	      ${%Job filtering} : <input type="radio" id="searchBuild_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="ALL" onchange="jobFilterTypeSelected('searchBuild', this.value);" />${%ALL Jobs}
-	      <input type="radio" id="searchBuild_jobFilteringType_REGEX" name="jobFilteringType" value="jobNameRegex" onchange="jobFilterTypeSelected('searchBuild', this.value);" />
+	      ${%Job filtering} : <input type="radio" id="searchBuild_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="${FIELD_FILTER_ALL}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_jobNameRegex', 'searchBuild_jobFilter');" />${%ALL Jobs}
+	      <input type="radio" id="searchBuild_jobFilteringType_REGEX" name="jobFilteringType" value="${FIELD_FILTER_REGEX}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_jobNameRegex', 'searchBuild_jobFilter');" />
 	      ${%Job name regex} :
 	      <input type="text" id="searchBuild_jobNameRegex" 
 	      		 disabled="true" name="jobNameRegex" size="10" 
-	      		 onblur="document.getElementById('searchBuild_jobFilter').value='jobNameRegex('+this.value+')';" 
+	      		 onblur="document.getElementById('searchBuild_jobFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
 	      />
 	      <!-- For an unknown reason, j:invokeStatic doesn't work here ! :( -->
 	      <j:invoke var="escapedJobFilter" on="${it}" method="escapeAntiSlashes">
@@ -141,12 +148,12 @@
 	      </j:invoke>
 	      <input id="searchBuild_jobFilter" type="hidden" name="jobFilter" value="${escapedJobFilter}" /><br/>
 		  <script type="text/javascript"><![CDATA[
-		  if(document.getElementById('searchBuild_jobFilter').value.indexOf('jobNameRegex') != -1){
+		  if(document.getElementById('searchBuild_jobFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
 		  	  document.getElementById('searchBuild_jobFilteringType_REGEX').checked = 'checked';
 		  	  initializeRegexField('searchBuild', '${escapedJobFilter}');
 		  	  document.getElementById('searchBuild_jobFilteringType_REGEX').onchange();
 		  	  document.getElementById('searchBuild_jobNameRegex').disabled = false;
-		  } else if(document.getElementById('searchBuild_jobFilter').value.indexOf('ALL') != -1){
+		  } else if(document.getElementById('searchBuild_jobFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
 		  	  document.getElementById('searchBuild_jobFilteringType_ALL').checked = 'checked';
 		  	  document.getElementById('searchBuild_jobFilteringType_ALL').change();
 		  }

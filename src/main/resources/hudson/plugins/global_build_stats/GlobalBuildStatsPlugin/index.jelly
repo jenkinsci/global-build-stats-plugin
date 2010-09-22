@@ -1,6 +1,9 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
 <l:layout title="${%Global Build Stats}" permission="${it.requiredPermission}">
 
+  <j:invoke var="FIELD_FILTER_ALL" on="${it}" method="getFieldFilterALL" />
+  <j:invoke var="FIELD_FILTER_REGEX" on="${it}" method="getFieldFilterRegex" />
+
   <l:side-panel>
     <l:tasks>
       <l:task icon="images/24x24/up.gif" href="${rootURL}/" title="${%Back to Dashboard}" />
@@ -261,12 +264,12 @@
 		  	$(this.buildStatConfId+'_jobFilter').value = 'ALL';
 		  }
 		  
-		  if($(this.buildStatConfId+'_jobFilter').value.indexOf('jobNameRegex') != -1){
+		  if($(this.buildStatConfId+'_jobFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
 		  	  $(this.buildStatConfId+'_jobFilteringType_REGEX').checked = 'checked';
 		  	  initializeRegexField(this.buildStatConfId, this.buildStatConf.jobFilter);
  		 	  $(this.buildStatConfId+'_jobFilteringType_REGEX').onchange();
 		  	  $(this.buildStatConfId+'_jobNameRegex').disabled = false;
-		  } else if($(this.buildStatConfId+'_jobFilter').value.indexOf('ALL') != -1){
+		  } else if($(this.buildStatConfId+'_jobFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
 		  	  $(this.buildStatConfId+'_jobFilteringType_ALL').checked = 'checked';
 		  	  $(this.buildStatConfId+'_jobFilteringType_ALL').onchange();
 		  }
@@ -571,6 +574,8 @@
 	<script type="text/javascript">
 		<j:forEach var="historicScale" items="${it.historicScales}" varStatus="status">
 		chartLengthUnits[${status.index}] = "${historicScale}";</j:forEach>
+		FIELD_FILTER_ALL = "${FIELD_FILTER_ALL}";
+		FIELD_FILTER_REGEX = "${FIELD_FILTER_REGEX}";
 	</script>
   </l:header>
 
@@ -669,12 +674,12 @@
 		      ${%Filters} :
 		      <ul style="margin-top: 4px;">
 		      	<li>
-			      ${%Job filtering} : <input type="radio" id="#{buildStatId}_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="ALL" onchange="jobFilterTypeSelected('#{buildStatId}', this.value);" />${%ALL Jobs}
-			      <input type="radio" id="#{buildStatId}_jobFilteringType_REGEX" name="jobFilteringType" value="jobNameRegex" onchange="jobFilterTypeSelected('#{buildStatId}', this.value);" />
+			      ${%Job filtering} : <input type="radio" id="#{buildStatId}_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="${FIELD_FILTER_ALL}" onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_jobNameRegex', '#{buildStatId}_jobFilter');" />${%ALL Jobs}
+			      <input type="radio" id="#{buildStatId}_jobFilteringType_REGEX" name="jobFilteringType" value="${FIELD_FILTER_REGEX}" onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_jobNameRegex', '#{buildStatId}_jobFilter');" />
 			      ${%Job name regex} :
 			      <input type="text" id="#{buildStatId}_jobNameRegex" 
 			      		 disabled="true" name="jobNameRegex" size="10"
-			      		 onblur="$('#{buildStatId}_jobFilter').value='jobNameRegex('+this.value+')';" 
+			      		 onblur="$('#{buildStatId}_jobFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
 			      />
 			      <input id="#{buildStatId}_jobFilter" type="hidden" name="jobFilter" value="#{jobFilter}" />
 		      	</li>

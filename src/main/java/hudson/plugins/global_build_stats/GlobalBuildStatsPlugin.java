@@ -392,6 +392,24 @@ public class GlobalBuildStatsPlugin extends Plugin {
 	public static String escapeAntiSlashes(String value){
 		return GlobalBuildStatsBusiness.escapeAntiSlashes(value);
 	}
+	
+	/**
+	 * For some unknown reasons, <j:getStatic> doesn't work due to a classloader problem (FieldFilterFactory doesn't seem
+	 * to be accessible in a static way from jelly script)
+	 * @return FieldFilterFactory.ALL_VALUES_FILTER_LABEL
+	 */
+	public static String getFieldFilterALL(){
+		return FieldFilterFactory.ALL_VALUES_FILTER_LABEL;
+	}
+	
+	/**
+	 * For some unknown reasons, <j:getStatic> doesn't work due to a classloader problem (FieldFilterFactory doesn't seem
+	 * to be accessible in a static way from jelly script)
+	 * @return FieldFilterFactory.REGEX_FIELD_FILTER_LABEL
+	 */
+	public static String getFieldFilterRegex(){
+		return FieldFilterFactory.REGEX_FIELD_FILTER_LABEL;
+	}
     
     private BuildStatConfiguration createBuildStatConfig(String id, StaplerRequest req){
     	// TODO: refactor this using StaplerRequest.bindParameters() with introspection !
@@ -403,6 +421,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     			Integer.parseInt(req.getParameter("historicLength")), 
     			HistoricScale.valueOf(req.getParameter("historicScale")),
     			req.getParameter("jobFilter"),
+    			req.getParameter("nodeFilter"),
     			Boolean.parseBoolean(req.getParameter("successShown")),
     			Boolean.parseBoolean(req.getParameter("failuresShown")),
     			Boolean.parseBoolean(req.getParameter("unstablesShown")),

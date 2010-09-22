@@ -1,21 +1,21 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
 <script type="text/javascript"><![CDATA[
-function jobFilterTypeSelected(buildStatId, selectedType){
-	if('ALL' == selectedType){
-		document.getElementById(buildStatId+'_jobNameRegex').disabled = true;
-		document.getElementById(buildStatId+'_jobFilter').value = 'ALL';
-	} else if('jobNameRegex' == selectedType){
-		document.getElementById(buildStatId+'_jobNameRegex').disabled = false;
-		document.getElementById(buildStatId+'_jobFilter').value = 'jobNameRegex('+document.getElementById(buildStatId+'_jobNameRegex').value+')';
+function fieldFilterTypeSelected(selectedType, regexInputFieldId, filterHiddenInputFieldId){
+	if(FIELD_FILTER_ALL == selectedType){
+		$(regexInputFieldId).disabled = true;
+		$(filterHiddenInputFieldId).value = FIELD_FILTER_ALL;
+	} else if(FIELD_FILTER_REGEX == selectedType){
+		$(regexInputFieldId).disabled = false;
+		$(filterHiddenInputFieldId).value = FIELD_FILTER_REGEX+'('+$(regexInputFieldId).value+')';
 	}
 }
 	
 function initializeRegexField(buildStatId, jobFilterRegex){
-	var extractingRegex = new RegExp("^jobNameRegex\\((.*)\\)$", "g");
+	var extractingRegex = new RegExp("^"+FIELD_FILTER_REGEX+"\\((.*)\\)$", "g");
 	if(extractingRegex.test(jobFilterRegex)){
 		extractingRegex.exec(jobFilterRegex);
 		var regexToPut = RegExp.$1;
-		document.getElementById(buildStatId+'_jobNameRegex').value = regexToPut;
+		$(buildStatId+'_jobNameRegex').value = regexToPut;
 	}
 }
 
@@ -72,6 +72,7 @@ var myHudsonRules = {
 };
 
 function generateErrorMessage(message){
+	// TODO: fix this "6d8c7ad0" absolute link !
 	return "<div class=\"error\"><img src=\"/static/6d8c7ad0/images/none.gif\" height=\"16\" width=\"1\">"+message+"</div>";
 }
 
