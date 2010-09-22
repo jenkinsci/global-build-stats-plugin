@@ -118,7 +118,7 @@ public class GlobalBuildStatsBusiness {
 	public List<JobBuildSearchResult> searchBuilds(BuildHistorySearchCriteria searchCriteria){
     	List<JobBuildSearchResult> filteredJobBuildResults = new ArrayList<JobBuildSearchResult>();
     	
-    	FieldFilter jobFilter = FieldFilterFactory.createJobFilter(searchCriteria.jobFilter);
+    	FieldFilter jobFilter = FieldFilterFactory.createFieldFilter(searchCriteria.jobFilter);
         for(JobBuildResult r : plugin.getJobBuildResults()){
         	if(r.getBuildDate().getTimeInMillis() >= searchCriteria.start
         			&& r.getBuildDate().getTimeInMillis() < searchCriteria.end

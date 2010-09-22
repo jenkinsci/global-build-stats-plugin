@@ -185,12 +185,12 @@ public class BuildStatConfiguration implements Serializable {
 
 	public void setJobFilter(String jobFilter) {
 		this.jobFilter = jobFilter;
-		this.calculatedJobFilter = FieldFilterFactory.createJobFilter(jobFilter);
+		this.calculatedJobFilter = FieldFilterFactory.createFieldFilter(jobFilter);
 	}
 
 	public void setNodeFilter(String nodeFilter) {
 		this.nodeFilter = nodeFilter;
-		this.calculatedNodeFilter = FieldFilterFactory.createJobFilter(nodeFilter);
+		this.calculatedNodeFilter = FieldFilterFactory.createFieldFilter(nodeFilter);
 	}
 
 	public void setId(String id) {
@@ -217,14 +217,14 @@ public class BuildStatConfiguration implements Serializable {
 	protected FieldFilter getCalculatedJobFilter(){
 		// When BuildStatConfiguration is XStream deserialized, the transient calculatedJobFilter field
 		// will be null !
-		if(calculatedJobFilter == null){ calculatedJobFilter = FieldFilterFactory.createJobFilter(jobFilter); }
+		if(calculatedJobFilter == null){ calculatedJobFilter = FieldFilterFactory.createFieldFilter(jobFilter); }
 		return this.calculatedJobFilter;
 	}
 	
 	protected FieldFilter getCalculatedNodeFilter(){
 		// When BuildStatConfiguration is XStream deserialized, the transient calculatedNodeFilter field
 		// will be null !
-		if(calculatedNodeFilter == null){ calculatedNodeFilter = FieldFilterFactory.createJobFilter(nodeFilter); }
+		if(calculatedNodeFilter == null){ calculatedNodeFilter = FieldFilterFactory.createFieldFilter(nodeFilter); }
 		return this.calculatedNodeFilter;
 	}
 	

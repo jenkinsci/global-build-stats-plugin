@@ -18,13 +18,13 @@ public class FieldFilterFactory {
 	private static final Pattern REGEX_FIELD_FILTER_PATTERN = Pattern.compile(REGEX_FIELD_FILTER_LABEL+"\\((.*)\\)");
 	private static final Pattern ALL_VALUES_FILTER_PATTERN = Pattern.compile(ALL_VALUES_FILTER_LABEL);
 	
-	public static FieldFilter createJobFilter(String jobFilter){
-		if(jobFilter == null || ALL_VALUES_FILTER_PATTERN.matcher(jobFilter).matches()){
+	public static FieldFilter createFieldFilter(String fieldFilter){
+		if(fieldFilter == null || ALL_VALUES_FILTER_PATTERN.matcher(fieldFilter).matches()){
 			return FieldFilter.ALL;
 		} else {
-			Matcher regexOnNameJobFilterMatcher = REGEX_FIELD_FILTER_PATTERN.matcher(jobFilter);
-			if(regexOnNameJobFilterMatcher.matches()){
-				return new RegexFieldFilter(regexOnNameJobFilterMatcher.group(1));
+			Matcher fieldFilterMatcher = REGEX_FIELD_FILTER_PATTERN.matcher(fieldFilter);
+			if(fieldFilterMatcher.matches()){
+				return new RegexFieldFilter(fieldFilterMatcher.group(1));
 			} else {
 				return FieldFilter.ALL;
 			}
