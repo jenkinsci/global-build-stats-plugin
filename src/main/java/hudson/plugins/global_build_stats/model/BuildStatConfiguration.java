@@ -79,6 +79,7 @@ public class BuildStatConfiguration implements Serializable {
 		boolean jobBuildEligible = true;
 
 		jobBuildEligible &= getCalculatedJobFilter().isFieldValueValid(result.getJobName());
+		jobBuildEligible &= getCalculatedNodeFilter().isFieldValueValid(result.getNodeName());
 		jobBuildEligible &= isAbortedShown() || result.getResult().getAbortedCount()!=1;
 		jobBuildEligible &= isFailuresShown() || result.getResult().getFailureCount()!=1;
 		jobBuildEligible &= isNotBuildShown() || result.getResult().getNotBuildCount()!=1;
