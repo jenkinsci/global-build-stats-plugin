@@ -150,12 +150,21 @@
 		  <script type="text/javascript"><![CDATA[
 		  if(document.getElementById('searchBuild_jobFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
 		  	  document.getElementById('searchBuild_jobFilteringType_REGEX').checked = 'checked';
-		  	  initializeRegexField('searchBuild', '${escapedJobFilter}');
+		  	  initializeRegexField('searchBuild_jobNameRegex', '${escapedJobFilter}');
 		  	  document.getElementById('searchBuild_jobFilteringType_REGEX').onchange();
 		  	  document.getElementById('searchBuild_jobNameRegex').disabled = false;
 		  } else if(document.getElementById('searchBuild_jobFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
 		  	  document.getElementById('searchBuild_jobFilteringType_ALL').checked = 'checked';
 		  	  document.getElementById('searchBuild_jobFilteringType_ALL').change();
+		  }
+		  if(document.getElementById('searchBuild_nodeFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
+		  	  document.getElementById('searchBuild_nodeFilteringType_REGEX').checked = 'checked';
+		  	  initializeRegexField('searchBuild_nodeNameRegex', '${escapedJobFilter}');
+		  	  document.getElementById('searchBuild_nodeFilteringType_REGEX').onchange();
+		  	  document.getElementById('searchBuild_nodeNameRegex').disabled = false;
+		  } else if(document.getElementById('searchBuild_nodeFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
+		  	  document.getElementById('searchBuild_nodeFilteringType_ALL').checked = 'checked';
+		  	  document.getElementById('searchBuild_nodeFilteringType_ALL').change();
 		  }
 		  ]]></script>
 	      ${%Statuses shown} :
@@ -217,6 +226,7 @@
 			  			<th>#</th>
 			  			<th>${%Date}</th>
 			  			<th>${%Duration}</th>
+			  			<th>${%Node name}</th>
 			        </tr>
 				    <j:forEach var="jobResult" items="${jobResults}">
 				    	<tr class="build-row">
@@ -254,8 +264,14 @@
 				    		</td>
 				    		<td class="pane">
 				    			<j:choose>
-				    				<j:when test="${jobResult.durationEmpty}"><em>${%Data not recorded}</em></j:when>
+				    				<j:when test="${jobResult.durationEmpty}"><em>${%Data not available}</em></j:when>
 				    				<j:otherwise>${jobResult.durationString}</j:otherwise>
+				    			</j:choose>
+				    		</td>
+				    		<td class="pane">
+				    			<j:choose>
+				    				<j:when test="${jobResult.nodeNameEmpty}"><em>${%Data not available}</em></j:when>
+				    				<j:otherwise>${jobResult.nodeName}</j:otherwise>
 				    			</j:choose>
 				    		</td>
 				    	</tr>
