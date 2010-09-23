@@ -3,6 +3,14 @@
 
 	<j:invoke var="FIELD_FILTER_ALL" on="${it}" method="getFieldFilterALL" />
 	<j:invoke var="FIELD_FILTER_REGEX" on="${it}" method="getFieldFilterRegex" />
+    <!-- For an unknown reason, j:invokeStatic doesn't work here ! :( -->
+    <j:invoke var="escapedJobFilter" on="${it}" method="escapeAntiSlashes">
+    	<j:arg type="java.lang.String" value="${searchCriteria.buildFilters.jobFilter}" />
+    </j:invoke>
+    <!-- For an unknown reason, j:invokeStatic doesn't work here ! :( -->
+    <j:invoke var="escapedNodeFilter" on="${it}" method="escapeAntiSlashes">
+    	<j:arg type="java.lang.String" value="${searchCriteria.buildFilters.nodeFilter}" />
+    </j:invoke>
 
 	<l:header>
 		<!-- Including calendar yui 2.5.1 module ... -->
@@ -24,6 +32,8 @@
 		<script type="text/javascript">
 			FIELD_FILTER_ALL = "${FIELD_FILTER_ALL}";
 			FIELD_FILTER_REGEX = "${FIELD_FILTER_REGEX}";
+	        ESCAPED_JOB_FILTER = "${escapedJobFilter}";
+	      	ESCAPED_NODE_FILTER = "${escapedNodeFilter}";
 		</script>
 		<script><![CDATA[
 		  YAHOO.namespace("global.build.search.calendar");
@@ -135,22 +145,76 @@
 		   <div class="bd"><div id="endCalendar" style="border:none;padding:1em"></div></div> 
 		  </div>
 	      <span id="datesError" class="width-validation-error-area" style="display:inline-block;"></span><br/>
-	      ${%Job filtering} : <input type="radio" id="searchBuild_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="${FIELD_FILTER_ALL}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_jobNameRegex', 'searchBuild_jobFilter');" />${%ALL Jobs}
-	      <input type="radio" id="searchBuild_jobFilteringType_REGEX" name="jobFilteringType" value="${FIELD_FILTER_REGEX}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_jobNameRegex', 'searchBuild_jobFilter');" />
-	      ${%Job name regex} :
-	      <input type="text" id="searchBuild_jobNameRegex" 
-	      		 disabled="true" name="jobNameRegex" size="10" 
-	      		 onblur="document.getElementById('searchBuild_jobFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
-	      />
-	      <!-- For an unknown reason, j:invokeStatic doesn't work here ! :( -->
-	      <j:invoke var="escapedJobFilter" on="${it}" method="escapeAntiSlashes">
-	      	<j:arg type="java.lang.String" value="${searchCriteria.jobFilter}" />
-	      </j:invoke>
-	      <input id="searchBuild_jobFilter" type="hidden" name="jobFilter" value="${escapedJobFilter}" /><br/>
+	      ${%Filters} :
+	      <ul style="margin-top: 4px;">
+	      	<li>
+		      ${%Job filtering} : <input type="radio" id="searchBuild_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="${FIELD_FILTER_ALL}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_jobNameRegex', 'searchBuild_jobFilter');" />${%ALL Jobs}
+		      <input type="radio" id="searchBuild_jobFilteringType_REGEX" name="jobFilteringType" value="${FIELD_FILTER_REGEX}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_jobNameRegex', 'searchBuild_jobFilter');" />
+		      ${%Job name regex} :
+		      <input type="text" id="searchBuild_jobNameRegex" 
+		      		 disabled="true" name="jobNameRegex" size="10"
+		      		 onblur="$('searchBuild_jobFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
+		      />
+		      <input id="searchBuild_jobFilter" type="hidden" name="jobFilter" value="${escapedJobFilter}" />
+		    </li>
+		    <li>
+		      ${%Node filtering} : <input type="radio" id="searchBuild_nodeFilteringType_ALL" checked="checked" name="nodeFilteringType" value="${FIELD_FILTER_ALL}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_nodeNameRegex', 'searchBuild_nodeFilter');" />${%ALL Nodes}
+		      <input type="radio" id="searchBuild_nodeFilteringType_REGEX" name="nodeFilteringType" value="${FIELD_FILTER_REGEX}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_nodeNameRegex', 'searchBuild_nodeFilter');" />
+		      ${%Node name regex} :
+		      <input type="text" id="searchBuild_nodeNameRegex" 
+		      		 disabled="true" name="nodeNameRegex" size="10"
+		      		 onblur="$('searchBuild_nodeFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
+		      />
+		      <input id="searchBuild_nodeFilter" type="hidden" name="nodeFilter" value="${escapedNodeFilter}" />
+	      	</li>
+	      	<li>
+		      ${%Statuses taken into account} :
+		      <j:choose>
+		      	<j:when test="${! searchCriteria.buildFilters.successShown}">
+			      <input type="checkbox" value="true" name="successShown" />${%Success}
+		      	</j:when>
+		      	<j:otherwise>
+			      <input type="checkbox" value="true" name="successShown" checked="checked" />${%Success}
+		      	</j:otherwise>
+		      </j:choose>
+		      <j:choose>
+		      	<j:when test="${! searchCriteria.buildFilters.failuresShown}">
+			      <input type="checkbox" value="true" name="failuresShown" />${%Failures}
+		      	</j:when>
+		      	<j:otherwise>
+		    	  <input type="checkbox" value="true" name="failuresShown" checked="checked" />${%Failures}
+		      	</j:otherwise>
+		      </j:choose>
+		      <j:choose>
+		      	<j:when test="${! searchCriteria.buildFilters.unstablesShown}">
+			      <input type="checkbox" value="true" name="unstablesShown" />${%Unstables}
+		      	</j:when>
+		      	<j:otherwise>
+		    	  <input type="checkbox" value="true" name="unstablesShown" checked="checked" />${%Unstables}
+		      	</j:otherwise>
+		      </j:choose>
+		      <j:choose>
+		      	<j:when test="${! searchCriteria.buildFilters.abortedShown}">
+		    	  <input type="checkbox" value="true" name="abortedShown" />${%Aborted}
+		      	</j:when>
+		      	<j:otherwise>
+			      <input type="checkbox" value="true" name="abortedShown" checked="checked" />${%Aborted}
+		      	</j:otherwise>
+		      </j:choose>
+		      <j:choose>
+		      	<j:when test="${searchCriteria.buildFilters.notBuildShown}">
+			      <input type="checkbox" value="true" name="notBuildShown" checked="checked" />${%Not Build}
+		      	</j:when>
+		      	<j:otherwise>
+		    	  <input type="checkbox" value="true" name="notBuildShown" />${%Not Build}
+		      	</j:otherwise>
+		      </j:choose>
+	      	</li>
+	      </ul>
 		  <script type="text/javascript"><![CDATA[
 		  if(document.getElementById('searchBuild_jobFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
 		  	  document.getElementById('searchBuild_jobFilteringType_REGEX').checked = 'checked';
-		  	  initializeRegexField('searchBuild_jobNameRegex', '${escapedJobFilter}');
+		  	  initializeRegexField('searchBuild_jobNameRegex', ESCAPED_JOB_FILTER);
 		  	  document.getElementById('searchBuild_jobFilteringType_REGEX').onchange();
 		  	  document.getElementById('searchBuild_jobNameRegex').disabled = false;
 		  } else if(document.getElementById('searchBuild_jobFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
@@ -159,7 +223,7 @@
 		  }
 		  if(document.getElementById('searchBuild_nodeFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
 		  	  document.getElementById('searchBuild_nodeFilteringType_REGEX').checked = 'checked';
-		  	  initializeRegexField('searchBuild_nodeNameRegex', '${escapedJobFilter}');
+		  	  initializeRegexField('searchBuild_nodeNameRegex', ESCAPED_NODE_FILTER);
 		  	  document.getElementById('searchBuild_nodeFilteringType_REGEX').onchange();
 		  	  document.getElementById('searchBuild_nodeNameRegex').disabled = false;
 		  } else if(document.getElementById('searchBuild_nodeFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
@@ -167,48 +231,6 @@
 		  	  document.getElementById('searchBuild_nodeFilteringType_ALL').change();
 		  }
 		  ]]></script>
-	      ${%Statuses shown} :
-	      <j:choose>
-	      	<j:when test="${! searchCriteria.successShown}">
-		      <input type="checkbox" value="true" name="successShown" />${%Success}
-	      	</j:when>
-	      	<j:otherwise>
-		      <input type="checkbox" value="true" name="successShown" checked="checked" />${%Success}
-	      	</j:otherwise>
-	      </j:choose>
-	      <j:choose>
-	      	<j:when test="${! searchCriteria.failuresShown}">
-		      <input type="checkbox" value="true" name="failuresShown" />${%Failures}
-	      	</j:when>
-	      	<j:otherwise>
-	    	  <input type="checkbox" value="true" name="failuresShown" checked="checked" />${%Failures}
-	      	</j:otherwise>
-	      </j:choose>
-	      <j:choose>
-	      	<j:when test="${! searchCriteria.unstablesShown}">
-		      <input type="checkbox" value="true" name="unstablesShown" />${%Unstables}
-	      	</j:when>
-	      	<j:otherwise>
-	    	  <input type="checkbox" value="true" name="unstablesShown" checked="checked" />${%Unstables}
-	      	</j:otherwise>
-	      </j:choose>
-	      <j:choose>
-	      	<j:when test="${! searchCriteria.abortedShown}">
-	    	  <input type="checkbox" value="true" name="abortedShown" />${%Aborted}
-	      	</j:when>
-	      	<j:otherwise>
-		      <input type="checkbox" value="true" name="abortedShown" checked="checked" />${%Aborted}
-	      	</j:otherwise>
-	      </j:choose>
-	      <j:choose>
-	      	<j:when test="${searchCriteria.notBuildShown}">
-		      <input type="checkbox" value="true" name="notBuildShown" checked="checked" />${%Not Build}
-	      	</j:when>
-	      	<j:otherwise>
-	    	  <input type="checkbox" value="true" name="notBuildShown" />${%Not Build}
-	      	</j:otherwise>
-	      </j:choose>
-	      <br/>
 	      <input type="submit" class="submit-button" value="${%Search}" name="Submit" />
 	    </form>
 	  	
