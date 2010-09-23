@@ -7,12 +7,9 @@ import hudson.model.Hudson;
 import hudson.model.Job;
 import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
 import hudson.plugins.global_build_stats.JobBuildResultFactory;
-import hudson.plugins.global_build_stats.FieldFilter;
-import hudson.plugins.global_build_stats.FieldFilterFactory;
 import hudson.plugins.global_build_stats.model.AbstractBuildStatChartDimension;
 import hudson.plugins.global_build_stats.model.AbstractBuildStatChartDimension.LegendItemData;
 import hudson.plugins.global_build_stats.model.BuildHistorySearchCriteria;
-import hudson.plugins.global_build_stats.model.BuildResult;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.DateRange;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
@@ -118,12 +115,8 @@ public class GlobalBuildStatsBusiness {
 	public List<JobBuildSearchResult> searchBuilds(BuildHistorySearchCriteria searchCriteria){
     	List<JobBuildSearchResult> filteredJobBuildResults = new ArrayList<JobBuildSearchResult>();
     	
-    	FieldFilter jobFilter = FieldFilterFactory.createFieldFilter(searchCriteria.jobFilter);
         for(JobBuildResult r : plugin.getJobBuildResults()){
-        	if(r.getBuildDate().getTimeInMillis() >= searchCriteria.start
-        			&& r.getBuildDate().getTimeInMillis() < searchCriteria.end
-        			&& jobResultStatusMatchesWith(r.getResult(), searchCriteria)
-        			&& jobFilter.isFieldValueValid(r.getJobName())){
+        	if(searchCriteria.isJobResultEligible(r)){
         		boolean isJobAccessible = false;
         		boolean isBuildAccessible = false;
         		
@@ -219,14 +212,6 @@ public class GlobalBuildStatsBusiness {
 			return null;
 		}
 	}
-    
-    protected static boolean jobResultStatusMatchesWith(BuildResult r, BuildHistorySearchCriteria c){
-    	return (BuildResult.ABORTED.equals(r) && c.abortedShown)
-					|| (BuildResult.FAILURE.equals(r) && c.failuresShown)
-					|| (BuildResult.NOT_BUILD.equals(r) && c.notBuildShown)
-					|| (BuildResult.SUCCESS.equals(r) && c.successShown)
-					|| (BuildResult.UNSTABLE.equals(r) && c.unstablesShown);
-    }
     
     private JFreeChart createChart(final BuildStatConfiguration config, List<AbstractBuildStatChartDimension> dimensions, String title) {
 
@@ -324,7 +309,7 @@ public class GlobalBuildStatsBusiness {
 	    	
 	    	// If no range found : stop the iteration !
 	    	if(tickCount != config.getHistoricLength() && currentBuild != null){
-	    		if(config.isJobResultEligible(currentBuild)){
+	    		if(config.getBuildFilters().isJobResultEligible(currentBuild)){
 		    		for(AbstractBuildStatChartDimension dimension : dimensions){
 		    			dimension.saveDataForBuild(currentBuild);
 		    		}

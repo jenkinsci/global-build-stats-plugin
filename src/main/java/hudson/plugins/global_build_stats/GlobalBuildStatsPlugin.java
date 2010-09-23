@@ -12,6 +12,7 @@ import hudson.model.listeners.RunListener;
 import hudson.plugins.global_build_stats.business.GlobalBuildStatsBusiness;
 import hudson.plugins.global_build_stats.model.AbstractBuildStatChartDimension;
 import hudson.plugins.global_build_stats.model.BuildHistorySearchCriteria;
+import hudson.plugins.global_build_stats.model.BuildSearchCriteria;
 import hudson.plugins.global_build_stats.model.BuildStatChartData;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.HistoricScale;
@@ -87,6 +88,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
 		// XStream compacting aliases...
 		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.JOB_BUILD_RESULT_CLASS_ALIAS, JobBuildResult.class);
 		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.BUILD_STAT_CONFIG_CLASS_ALIAS, BuildStatConfiguration.class);
+		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.BUILD_SEARCH_CRITERIA_CLASS_ALIAS, BuildSearchCriteria.class);
 		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.HISTORIC_SCALE_CLASS_ALIAS, HistoricScale.class);
 		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.YAXIS_CHART_TYPE_CLASS_ALIAS, YAxisChartType.class);
 		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.YAXIS_CHART_DIMENSION_CLASS_ALIAS, YAxisChartDimension.class);
@@ -96,11 +98,17 @@ public class GlobalBuildStatsPlugin extends Plugin {
 		Hudson.XSTREAM.aliasField("h", BuildStatConfiguration.class, "buildStatHeight");
 		Hudson.XSTREAM.aliasField("l", BuildStatConfiguration.class, "historicLength");
 		Hudson.XSTREAM.aliasField("s", BuildStatConfiguration.class, "historicScale");
-		Hudson.XSTREAM.aliasField("jf", BuildStatConfiguration.class, "jobFilter");
-		Hudson.XSTREAM.aliasField("sbr", BuildStatConfiguration.class, "shownBuildResults");
 		Hudson.XSTREAM.aliasField("yact", BuildStatConfiguration.class, "yAxisChartType");
 		Hudson.XSTREAM.aliasField("ds", BuildStatConfiguration.class, "dimensionsShown");
+		Hudson.XSTREAM.aliasField("f", BuildStatConfiguration.class, "buildFilters");
+		// Deprecated ! Just here for old formats
+		Hudson.XSTREAM.aliasField("jf", BuildStatConfiguration.class, "jobFilter");
+		Hudson.XSTREAM.aliasField("sbr", BuildStatConfiguration.class, "shownBuildResults");
 
+		Hudson.XSTREAM.aliasField("jf", BuildSearchCriteria.class, "jobFilter");
+		Hudson.XSTREAM.aliasField("nf", BuildSearchCriteria.class, "nodeFilter");
+		Hudson.XSTREAM.aliasField("sbr", BuildSearchCriteria.class, "shownBuildResults");
+		
 		Hudson.XSTREAM.aliasField("r", JobBuildResult.class, "result");
 		Hudson.XSTREAM.aliasField("n", JobBuildResult.class, "jobName");
 		Hudson.XSTREAM.aliasField("nb", JobBuildResult.class, "buildNumber");
@@ -302,7 +310,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
     	// Passing null id since this is a not persisted BuildStatConfiguration
-    	BuildStatConfiguration config = createBuildStatConfig(null, req);
+    	BuildStatConfiguration config = FromRequestObjectFactory.createBuildStatConfiguration(null, req);
     	JFreeChart chart = business.createChart(config);
     	
         ChartUtil.generateGraph(req, res, chart, config.getBuildStatWidth(), config.getBuildStatHeight());
@@ -317,7 +325,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     		config = business.searchBuildStatConfigById(buildStatId);
     	} else {
         	// Passing null id since this is a not persisted BuildStatConfiguration
-        	config = createBuildStatConfig(null, req);
+        	config = FromRequestObjectFactory.createBuildStatConfiguration(null, req);
     	}
     	JFreeChart chart = business.createChart(config);
     	
@@ -327,8 +335,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void doBuildHistory(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
-    	BuildHistorySearchCriteria searchCriteria = new BuildHistorySearchCriteria();
-    	req.bindParameters(searchCriteria);
+    	BuildHistorySearchCriteria searchCriteria = FromRequestObjectFactory.createBuildHistorySearchCriteria(req);
     	
     	List<JobBuildSearchResult> filteredJobBuildResults = business.searchBuilds(searchCriteria);
     	
@@ -342,7 +349,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	
     	boolean regenerateId = Boolean.valueOf(req.getParameter("regenerateId")).booleanValue();
     	
-    	BuildStatConfiguration config = createBuildStatConfig(req.getParameter("buildStatId"), req);
+    	BuildStatConfiguration config = FromRequestObjectFactory.createBuildStatConfiguration(req.getParameter("buildStatId"), req);
     	business.updateBuildStatConfiguration(req.getParameter("buildStatId"), config, regenerateId);
     	
     	String json = JSONObject.fromObject(config).toString();
@@ -352,7 +359,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void doAddBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
-    	BuildStatConfiguration config = createBuildStatConfig(ModelIdGenerator.INSTANCE.generateIdForClass(BuildStatConfiguration.class), req);
+    	BuildStatConfiguration config = FromRequestObjectFactory.createBuildStatConfiguration(ModelIdGenerator.INSTANCE.generateIdForClass(BuildStatConfiguration.class), req);
     	business.addBuildStatConfiguration(config);
     	
     	String json = JSONObject.fromObject(config).toString();
@@ -410,29 +417,6 @@ public class GlobalBuildStatsPlugin extends Plugin {
 	public static String getFieldFilterRegex(){
 		return FieldFilterFactory.REGEX_FIELD_FILTER_LABEL;
 	}
-    
-    private BuildStatConfiguration createBuildStatConfig(String id, StaplerRequest req){
-    	// TODO: refactor this using StaplerRequest.bindParameters() with introspection !
-    	return new BuildStatConfiguration(
-    			id,
-    			req.getParameter("title"), 
-    			Integer.parseInt(req.getParameter("buildStatWidth")),
-    			Integer.parseInt(req.getParameter("buildStatHeight")),
-    			Integer.parseInt(req.getParameter("historicLength")), 
-    			HistoricScale.valueOf(req.getParameter("historicScale")),
-    			req.getParameter("jobFilter"),
-    			req.getParameter("nodeFilter"),
-    			Boolean.parseBoolean(req.getParameter("successShown")),
-    			Boolean.parseBoolean(req.getParameter("failuresShown")),
-    			Boolean.parseBoolean(req.getParameter("unstablesShown")),
-    			Boolean.parseBoolean(req.getParameter("abortedShown")),
-    			Boolean.parseBoolean(req.getParameter("notBuildsShown")),
-    			YAxisChartType.valueOf(req.getParameter("yAxisChartType")),
-    			Boolean.parseBoolean(req.getParameter("buildStatusesShown")),
-    			Boolean.parseBoolean(req.getParameter("totalBuildTimeShown")),
-    			Boolean.parseBoolean(req.getParameter("averageBuildTimeShown"))
-    			);
-    }
     
 	public BuildStatConfiguration[] getBuildStatConfigsArrayed() {
 		return buildStatConfigs.toArray(new BuildStatConfiguration[]{});

@@ -95,15 +95,19 @@ public abstract class AbstractBuildStatChartDimension {
 	                boolean abortedShown=Messages.Build_Results_Statuses_ABORTED().equals(status);
 	                boolean notBuildShown=Messages.Build_Results_Statuses_NOT_BUILD().equals(status);
 	                
-	                return new StringBuilder()
-	                	.append("buildHistory?jobFilter=").append(config.getJobFilter())
+	                StringBuilder sb = new StringBuilder()
+	                	.append("buildHistory?jobFilter=").append(config.getBuildFilters().getJobFilter())
 	                	.append("&start=").append(range.getStart().getTimeInMillis())
 	                	.append("&end=").append(range.getEnd().getTimeInMillis())
 	                	.append("&successShown=").append(successShown)
 	                	.append("&failuresShown=").append(failuresShown)
 	                	.append("&unstablesShown=").append(unstablesShown)
 	                	.append("&abortedShown=").append(abortedShown)
-	                	.append("&notBuildShown=").append(notBuildShown).toString();
+	                	.append("&notBuildShown=").append(notBuildShown);
+	                if(config.getBuildFilters().getNodeFilter() != null){
+	                	sb.append("&nodeFilter=").append(config.getBuildFilters().getNodeFilter());
+	                }
+	                return sb.toString();
 	            }
 
 	/*          TODO: add tooltip  

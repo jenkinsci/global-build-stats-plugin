@@ -16,8 +16,10 @@ import hudson.plugins.global_build_stats.xstream.migration.v3.V3XStreamReader;
 import hudson.plugins.global_build_stats.xstream.migration.v4.V3ToV4Migrator;
 import hudson.plugins.global_build_stats.xstream.migration.v4.V4XStreamReader;
 import hudson.plugins.global_build_stats.xstream.migration.v5.V4ToV5Migrator;
-import hudson.plugins.global_build_stats.xstream.migration.v5.V5GlobalBuildStatsPOJO;
 import hudson.plugins.global_build_stats.xstream.migration.v5.V5XStreamReader;
+import hudson.plugins.global_build_stats.xstream.migration.v6.V5ToV6Migrator;
+import hudson.plugins.global_build_stats.xstream.migration.v6.V6GlobalBuildStatsPOJO;
+import hudson.plugins.global_build_stats.xstream.migration.v6.V6XStreamReader;
 
 import java.util.logging.Logger;
 
@@ -48,6 +50,7 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
     
     public static final String BUILD_STAT_CONFIG_CLASS_ALIAS = "bsc";
     public static final String JOB_BUILD_RESULT_CLASS_ALIAS = "jbr";
+    public static final String BUILD_SEARCH_CRITERIA_CLASS_ALIAS = "bscr";
     public static final String HISTORIC_SCALE_CLASS_ALIAS = "GBS_HS";
     public static final String YAXIS_CHART_TYPE_CLASS_ALIAS = "GBS_YACT";
     public static final String YAXIS_CHART_DIMENSION_CLASS_ALIAS = "GBS_YACD";
@@ -62,7 +65,8 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 		new V2XStreamReader(),
 		new V3XStreamReader(),
 		new V4XStreamReader(),
-		new V5XStreamReader()
+		new V5XStreamReader(),
+		new V6XStreamReader()
 	};
 
 	/**
@@ -73,7 +77,8 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 		new V1ToV2Migrator(),
 		new V2ToV3Migrator(),
 		new V3ToV4Migrator(),
-		new V4ToV5Migrator()
+		new V4ToV5Migrator(),
+		new V5ToV6Migrator()
 	};
 
 	/**
@@ -169,7 +174,7 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 	protected void populateGlobalBuildStatsPlugin(GlobalBuildStatsPlugin plugin, GlobalBuildStatsPOJO pojo){
 		// Latest POJO is v5
 		// Update this line every time you add a new migrator !
-		V5GlobalBuildStatsPOJO versionedPojo = (V5GlobalBuildStatsPOJO)pojo;
+		V6GlobalBuildStatsPOJO versionedPojo = (V6GlobalBuildStatsPOJO)pojo;
 		
 		plugin.getBuildStatConfigs().clear();
 		plugin.getBuildStatConfigs().addAll(versionedPojo.buildStatConfigs);

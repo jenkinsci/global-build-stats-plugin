@@ -266,7 +266,7 @@
 		  }
 		  if($(this.buildStatConfId+'_jobFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
 		  	  $(this.buildStatConfId+'_jobFilteringType_REGEX').checked = 'checked';
-		  	  initializeRegexField(this.buildStatConfId+'_jobNameRegex', this.buildStatConf.jobFilter);
+		  	  initializeRegexField(this.buildStatConfId+'_jobNameRegex', this.buildStatConf.buildFilters.jobFilter);
  		 	  $(this.buildStatConfId+'_jobFilteringType_REGEX').onchange();
 		  	  $(this.buildStatConfId+'_jobNameRegex').disabled = false;
 		  } else if($(this.buildStatConfId+'_jobFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
@@ -280,7 +280,7 @@
 		  }
 		  if($(this.buildStatConfId+'_nodeFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
 		  	  $(this.buildStatConfId+'_nodeFilteringType_REGEX').checked = 'checked';
-		  	  initializeRegexField(this.buildStatConfId+'_nodeNameRegex', this.buildStatConf.nodeFilter);
+		  	  initializeRegexField(this.buildStatConfId+'_nodeNameRegex', this.buildStatConf.buildFilters.nodeFilter);
  		 	  $(this.buildStatConfId+'_nodeFilteringType_REGEX').onchange();
 		  	  $(this.buildStatConfId+'_nodeNameRegex').disabled = false;
 		  } else if($(this.buildStatConfId+'_nodeFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
@@ -290,11 +290,11 @@
 		  
 		  // Changing default values...
 		  if(this.buildStatConf != null){
-			  if(this.buildStatConf.successShown == false) { $(this.buildStatConfId+'_successShown').checked = false; }
-			  if(this.buildStatConf.failuresShown == false) { $(this.buildStatConfId+'_failuresShown').checked = false; }
-			  if(this.buildStatConf.unstablesShown == false) { $(this.buildStatConfId+'_unstablesShown').checked = false; }
-			  if(this.buildStatConf.abortedShown == false) { $(this.buildStatConfId+'_abortedShown').checked = false; }
-			  if(this.buildStatConf.notBuildsShown == true) { $(this.buildStatConfId+'_notBuildsShown').checked = true; }
+			  if(this.buildStatConf.buildFilters.successShown == false) { $(this.buildStatConfId+'_successShown').checked = false; }
+			  if(this.buildStatConf.buildFilters.failuresShown == false) { $(this.buildStatConfId+'_failuresShown').checked = false; }
+			  if(this.buildStatConf.buildFilters.unstablesShown == false) { $(this.buildStatConfId+'_unstablesShown').checked = false; }
+			  if(this.buildStatConf.buildFilters.abortedShown == false) { $(this.buildStatConfId+'_abortedShown').checked = false; }
+			  if(this.buildStatConf.buildFilters.notBuildsShown == true) { $(this.buildStatConfId+'_notBuildsShown').checked = true; }
 			  if(this.buildStatConf.buildStatusesShown == false) { $(this.buildStatConfId+'_buildStatusesShown').checked = false; }
 			  if(this.buildStatConf.totalBuildTimeShown == true) { $(this.buildStatConfId+'_totalBuildTimeShown').checked = true; }
 			  if(this.buildStatConf.averageBuildTimeShown == true) { $(this.buildStatConfId+'_averageBuildTimeShown').checked = true; }
@@ -564,6 +564,8 @@
 		} else {
 			// Creating context for update
 			var currentContext = jsonConcat(buildStatConfiguration, {
+				jobFilter: buildStatConfiguration.buildFilters.jobFilter,
+				nodeFilter: buildStatConfiguration.buildFilters.nodeFilter,
 				rootURL: rootURL, 
 				formAction: "updateBuildStatConfiguration", 
 				buildStatId: getBuildStatConfigId(buildStatConfiguration.id),
