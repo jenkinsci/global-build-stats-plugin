@@ -755,7 +755,7 @@
 	<a name="Initialize" />
 	<strong>${%Data Initialization}</strong><br/>
     <em>
-      ${%Clic button below to initialize build statistics}<br/>
+      ${%Click button below to initialize build statistics}<br/>
       ${%Job results read will be merged with already recorded job results.}<br/>
     </em>
     <span id="initializeStatsMessage" style="color: rgb(52, 101, 0); display: none;">
