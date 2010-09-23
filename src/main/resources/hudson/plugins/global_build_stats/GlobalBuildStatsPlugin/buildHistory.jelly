@@ -252,7 +252,7 @@
 			        </tr>
 				    <j:forEach var="jobResult" items="${jobResults}">
 				    	<tr class="build-row">
-				    		<td class="pane">${jobResult.result}</td>
+				    		<td class="pane">${jobResult.result.label}</td>
 				    		<td class="pane">
 				    			<j:choose>
 				    				<j:when test="${jobResult.jobAccessible}">

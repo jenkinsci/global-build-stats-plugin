@@ -42,11 +42,11 @@ public abstract class AbstractBuildStatChartDimension {
 		List<LegendItemData> sortedLegendItemsLabels = new ArrayList<LegendItemData>();
 		
 		// Build statuses
-		sortedLegendItemsLabels.add(new LegendItemData(Messages.Build_Results_Statuses_NOT_BUILD(), new Color(85, 85, 85)));
-		sortedLegendItemsLabels.add(new LegendItemData(Messages.Build_Results_Statuses_ABORTED(), new Color(255, 85, 255)));
-		sortedLegendItemsLabels.add(new LegendItemData(Messages.Build_Results_Statuses_UNSTABLES(), new Color(255, 255, 85)));
-		sortedLegendItemsLabels.add(new LegendItemData(Messages.Build_Results_Statuses_FAILURES(), new Color(255, 85, 85)));
-		sortedLegendItemsLabels.add(new LegendItemData(Messages.Build_Results_Statuses_SUCCESS(), new Color(85, 85, 255)));
+		sortedLegendItemsLabels.add(new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_NOT_BUILD(), new Color(85, 85, 85)));
+		sortedLegendItemsLabels.add(new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_ABORTED(), new Color(255, 85, 255)));
+		sortedLegendItemsLabels.add(new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_UNSTABLES(), new Color(255, 255, 85)));
+		sortedLegendItemsLabels.add(new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_FAILURES(), new Color(255, 85, 85)));
+		sortedLegendItemsLabels.add(new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_SUCCESS(), new Color(85, 85, 255)));
 
 		// Build durations
 		sortedLegendItemsLabels.add(new LegendItemData(Messages.Build_Results_Total_Build_Time(), new Color(0, 0, 0)));
@@ -89,11 +89,11 @@ public abstract class AbstractBuildStatChartDimension {
 	                DateRange range = (DateRange) dataset.getColumnKey(column);
 	                String status = (String) dataset.getRowKey(row);
 	                
-	                boolean successShown=Messages.Build_Results_Statuses_SUCCESS().equals(status);
-	                boolean failuresShown=Messages.Build_Results_Statuses_FAILURES().equals(status);
-	                boolean unstablesShown=Messages.Build_Results_Statuses_UNSTABLES().equals(status);
-	                boolean abortedShown=Messages.Build_Results_Statuses_ABORTED().equals(status);
-	                boolean notBuildShown=Messages.Build_Results_Statuses_NOT_BUILD().equals(status);
+	                boolean successShown=Messages.Build_Results_Item_Legend_Statuses_SUCCESS().equals(status);
+	                boolean failuresShown=Messages.Build_Results_Item_Legend_Statuses_FAILURES().equals(status);
+	                boolean unstablesShown=Messages.Build_Results_Item_Legend_Statuses_UNSTABLES().equals(status);
+	                boolean abortedShown=Messages.Build_Results_Item_Legend_Statuses_ABORTED().equals(status);
+	                boolean notBuildShown=Messages.Build_Results_Item_Legend_Statuses_NOT_BUILD().equals(status);
 	                
 	                StringBuilder sb = new StringBuilder()
 	                	.append("buildHistory?jobFilter=").append(config.getBuildFilters().getJobFilter())
