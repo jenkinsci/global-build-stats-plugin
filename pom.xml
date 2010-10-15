@@ -12,6 +12,7 @@
   <name>Hudson global-build-stats plugin</name>
   <packaging>hpi</packaging>
   <url>http://wiki.hudson-ci.org/display/HUDSON/Global+Build+Stats+Plugin</url>
+  <description>Global build stats plugin will allow to gather and display global build result statistics. It is a useful tool allowing to display global hudson build trend over time.</description>
   
   <developers>
     <developer>
