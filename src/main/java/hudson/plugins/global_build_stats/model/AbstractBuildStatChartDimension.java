@@ -107,6 +107,9 @@ public abstract class AbstractBuildStatChartDimension {
 	                if(config.getBuildFilters().getNodeFilter() != null){
 	                	sb.append("&nodeFilter=").append(config.getBuildFilters().getNodeFilter());
 	                }
+	                if(config.getBuildFilters().getLauncherFilter() != null){
+	                	sb.append("&launcherFilter=").append(config.getBuildFilters().getLauncherFilter());
+	                }
 	                return sb.toString();
 	            }
 
