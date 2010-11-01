@@ -5,21 +5,14 @@ import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
 import hudson.plugins.global_build_stats.xstream.migration.GlobalBuildStatsDataMigrator;
 import hudson.plugins.global_build_stats.xstream.migration.GlobalBuildStatsPOJO;
-import hudson.plugins.global_build_stats.xstream.migration.GlobalBuildStatsXStreamReader;
-import hudson.plugins.global_build_stats.xstream.migration.v0.V0XStreamReader;
+import hudson.plugins.global_build_stats.xstream.migration.v0.InitialMigrator;
 import hudson.plugins.global_build_stats.xstream.migration.v1.V0ToV1Migrator;
-import hudson.plugins.global_build_stats.xstream.migration.v1.V1XStreamReader;
 import hudson.plugins.global_build_stats.xstream.migration.v2.V1ToV2Migrator;
-import hudson.plugins.global_build_stats.xstream.migration.v2.V2XStreamReader;
 import hudson.plugins.global_build_stats.xstream.migration.v3.V2ToV3Migrator;
-import hudson.plugins.global_build_stats.xstream.migration.v3.V3XStreamReader;
 import hudson.plugins.global_build_stats.xstream.migration.v4.V3ToV4Migrator;
-import hudson.plugins.global_build_stats.xstream.migration.v4.V4XStreamReader;
 import hudson.plugins.global_build_stats.xstream.migration.v5.V4ToV5Migrator;
-import hudson.plugins.global_build_stats.xstream.migration.v5.V5XStreamReader;
 import hudson.plugins.global_build_stats.xstream.migration.v6.V5ToV6Migrator;
-import hudson.plugins.global_build_stats.xstream.migration.v6.V6GlobalBuildStatsPOJO;
-import hudson.plugins.global_build_stats.xstream.migration.v6.V6XStreamReader;
+import hudson.plugins.global_build_stats.xstream.migration.v7.V6ToV7Migrator;
 
 import java.util.logging.Logger;
 
@@ -37,11 +30,10 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
  * - Inside this package, copy/paste every classes located in hudson.plugins.global_build_stats.xstream.migration.v[X-1]
  * - Rename every *V[X-1]* POJOs to *V[X]* POJO
  * - Eventually, change attributes in V[X]GlobalBuildStatsPOJO (for example, if additionnal attribute has appeared)
- * - If parsing algorithm has changed, update V[X]XstreamReader with the new algorithm (if, for example, new root elements
- * has appeared in XStream file)
- * - Update GlobalBuildStatsXStreamConverter.populateGlobalBuildStatsPlugin() and cast pojo parameter to last
- * V[X]GlobalBuildStatsPOJO
- * - Update GlobalBuildStatsXStreamConverter.READERS and GlobalBuildStatsXStreamConverter.MIGRATORS with new provided classes
+ * - Provide implementation for V[X]Migrator.migrate() algorithm
+ * - If parsing algorithm has changed, update V[X]Migrator.readGlobalBuildStatsPOJO with the new algorithm (if, for example, new root 
+ * elements has appeared in XStream file)
+ * - Update GlobalBuildStatsXStreamConverter.MIGRATORS with new provided class
  * @author fcamblor
  */
 public class GlobalBuildStatsXStreamConverter implements Converter {
@@ -56,29 +48,17 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
     public static final String YAXIS_CHART_DIMENSION_CLASS_ALIAS = "GBS_YACD";
 
 	/**
-	 * List of XStream readers for previous XStream representations of
-	 * GlobalBuildStatsPlugin
-	 */
-	private static final GlobalBuildStatsXStreamReader[] READERS = new GlobalBuildStatsXStreamReader[]{
-		new V0XStreamReader(),
-		new V1XStreamReader(),
-		new V2XStreamReader(),
-		new V3XStreamReader(),
-		new V4XStreamReader(),
-		new V5XStreamReader(),
-		new V6XStreamReader()
-	};
-
-	/**
 	 * Migrators for old versions of GlobalBuildStatsPlugin data representations
 	 */
 	private static final GlobalBuildStatsDataMigrator[] MIGRATORS = new GlobalBuildStatsDataMigrator[]{
+		new InitialMigrator(),
 		new V0ToV1Migrator(),
 		new V1ToV2Migrator(),
 		new V2ToV3Migrator(),
 		new V3ToV4Migrator(),
 		new V4ToV5Migrator(),
-		new V5ToV6Migrator()
+		new V5ToV6Migrator(),
+		new V6ToV7Migrator()
 	};
 
 	/**
@@ -124,7 +104,7 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 	 * data representation in XStream
 	 */
 	private static int getCurrentGlobalBuildStatsVersionNumber(){
-		return MIGRATORS.length;
+		return MIGRATORS.length-1;
 	}
 
 	/**
@@ -136,10 +116,10 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 		
 		GlobalBuildStatsPlugin plugin;
 		if(context.currentObject() == null || !(context.currentObject() instanceof GlobalBuildStatsPlugin)){
-			// Retrieving already instantiated GlobalBuildStats plugin into current context ..
+			// This should never happen to get here
 			plugin = new GlobalBuildStatsPlugin();
 		} else {
-			// This should never happen to get here
+			// Retrieving already instantiated GlobalBuildStats plugin into current context ..
 			plugin = (GlobalBuildStatsPlugin)context.currentObject();
 		}
 
@@ -158,10 +138,11 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 		}
 		
 		// Calling version's reader to read data representation
-		GlobalBuildStatsPOJO pojo = READERS[versionNumber].readGlobalBuildStatsPOJO(reader, context);
+		GlobalBuildStatsPOJO pojo = MIGRATORS[versionNumber].readGlobalBuildStatsPOJO(reader, context);
 		
 		// Migrating old data into up-to-date data
-		for(int i=versionNumber; i<getCurrentGlobalBuildStatsVersionNumber(); i++){
+		// Added "+1" because we take into consideration InitialMigrator
+		for(int i=versionNumber+1; i<getCurrentGlobalBuildStatsVersionNumber()+1; i++){
 			pojo = MIGRATORS[i].migrate(pojo);
 		}
 		
@@ -172,14 +153,10 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 	}
 	
 	protected void populateGlobalBuildStatsPlugin(GlobalBuildStatsPlugin plugin, GlobalBuildStatsPOJO pojo){
-		// Latest POJO is v5
-		// Update this line every time you add a new migrator !
-		V6GlobalBuildStatsPOJO versionedPojo = (V6GlobalBuildStatsPOJO)pojo;
-		
 		plugin.getBuildStatConfigs().clear();
-		plugin.getBuildStatConfigs().addAll(versionedPojo.buildStatConfigs);
+		plugin.getBuildStatConfigs().addAll(pojo.getBuildStatConfigs());
 		
 		plugin.getJobBuildResults().clear();
-		plugin.getJobBuildResults().addAll(versionedPojo.jobBuildResults);
+		plugin.getJobBuildResults().addAll(pojo.getJobBuildResults());
 	}
 }

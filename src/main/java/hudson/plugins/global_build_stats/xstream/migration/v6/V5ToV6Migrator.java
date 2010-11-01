@@ -2,26 +2,30 @@ package hudson.plugins.global_build_stats.xstream.migration.v6;
 
 import hudson.plugins.global_build_stats.model.BuildSearchCriteria;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
-import hudson.plugins.global_build_stats.model.JobBuildResult;
-import hudson.plugins.global_build_stats.xstream.migration.GlobalBuildStatsDataMigrator;
+import hudson.plugins.global_build_stats.xstream.migration.AbstractMigrator;
 import hudson.plugins.global_build_stats.xstream.migration.v5.V5GlobalBuildStatsPOJO;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * V6 Evolutions :
  * - Creation of BuildStatConfiguration.buildFilters and move of jobFilter, nodeFilter and shownBuildResults into this encapsulated class
  * @author fcamblor
  */
-public class V5ToV6Migrator implements GlobalBuildStatsDataMigrator<V5GlobalBuildStatsPOJO, V6GlobalBuildStatsPOJO> {
+public class V5ToV6Migrator extends AbstractMigrator<V5GlobalBuildStatsPOJO, V6GlobalBuildStatsPOJO> {
 
-	public V6GlobalBuildStatsPOJO migrate(V5GlobalBuildStatsPOJO pojo) {
-		V6GlobalBuildStatsPOJO migratedPojo = new V6GlobalBuildStatsPOJO();
+	@Override
+	protected V6GlobalBuildStatsPOJO createMigratedPojo() {
+		return new V6GlobalBuildStatsPOJO();
+	}
+	
+	@Override
+	protected List<BuildStatConfiguration> migrateBuildStatConfigs(
+			List<BuildStatConfiguration> buildStatConfigs) {
 		
-		migratedPojo.buildStatConfigs = new ArrayList<BuildStatConfiguration>();
-		migratedPojo.jobBuildResults = new ArrayList<JobBuildResult>();
-		
-		for(BuildStatConfiguration cfg : pojo.buildStatConfigs){
+		ArrayList<BuildStatConfiguration> migratedBuildStatConfigs = new ArrayList<BuildStatConfiguration>();
+		for(BuildStatConfiguration cfg : buildStatConfigs){
 			// Migrating old data into new BuildSearchCriteria which will be persisted !
 			BuildSearchCriteria criteria = new BuildSearchCriteria(
 					cfg.getJobFilter(), 
@@ -34,11 +38,8 @@ public class V5ToV6Migrator implements GlobalBuildStatsDataMigrator<V5GlobalBuil
 			
 			cfg.setBuildFilters(criteria);
 			
-			migratedPojo.buildStatConfigs.add(cfg);
+			migratedBuildStatConfigs.add(cfg);
 		}
-		migratedPojo.jobBuildResults.addAll(pojo.jobBuildResults);
-		
-		return migratedPojo;
+		return migratedBuildStatConfigs;
 	}
-
 }

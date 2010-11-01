@@ -1,35 +1,36 @@
 package hudson.plugins.global_build_stats.xstream.migration.v4;
 
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
-import hudson.plugins.global_build_stats.model.JobBuildResult;
 import hudson.plugins.global_build_stats.model.YAxisChartDimension;
-import hudson.plugins.global_build_stats.xstream.migration.GlobalBuildStatsDataMigrator;
+import hudson.plugins.global_build_stats.xstream.migration.AbstractMigrator;
 import hudson.plugins.global_build_stats.xstream.migration.v3.V3GlobalBuildStatsPOJO;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * V4 Evolutions :
  * - BuildStatConfiguration.dimensionsShown attribute added
  * @author fcamblor
  */
-public class V3ToV4Migrator implements GlobalBuildStatsDataMigrator<V3GlobalBuildStatsPOJO, V4GlobalBuildStatsPOJO> {
+public class V3ToV4Migrator extends AbstractMigrator<V3GlobalBuildStatsPOJO, V4GlobalBuildStatsPOJO> {
 
-	public V4GlobalBuildStatsPOJO migrate(V3GlobalBuildStatsPOJO pojo) {
-		V4GlobalBuildStatsPOJO migratedPojo = new V4GlobalBuildStatsPOJO();
+	@Override
+	protected V4GlobalBuildStatsPOJO createMigratedPojo() {
+		return new V4GlobalBuildStatsPOJO();
+	}
+	
+	@Override
+	protected List<BuildStatConfiguration> migrateBuildStatConfigs(
+			List<BuildStatConfiguration> buildStatConfigs) {
 		
-		migratedPojo.buildStatConfigs = new ArrayList<BuildStatConfiguration>();
-		migratedPojo.jobBuildResults = new ArrayList<JobBuildResult>();
-		
-		for(BuildStatConfiguration cfg : pojo.buildStatConfigs){
+		ArrayList<BuildStatConfiguration> migratedBuildStatConfigs = new ArrayList<BuildStatConfiguration>();
+		for(BuildStatConfiguration cfg : buildStatConfigs){
 			// By default, we were only displaying count dimension (and not average/total build duration)
 			cfg.setDimensionsShown(new YAxisChartDimension[]{ YAxisChartDimension.BUILD_COUNTER });
 			
-			migratedPojo.buildStatConfigs.add(cfg);
+			migratedBuildStatConfigs.add(cfg);
 		}
-		migratedPojo.jobBuildResults.addAll(pojo.jobBuildResults);
-		
-		return migratedPojo;
+		return migratedBuildStatConfigs;
 	}
-
 }
