@@ -7,6 +7,9 @@ function fieldFilterTypeSelected(selectedType, regexInputFieldId, filterHiddenIn
 	} else if(FIELD_FILTER_REGEX == selectedType){
 		$(regexInputFieldId).disabled = false;
 		$(filterHiddenInputFieldId).value = FIELD_FILTER_REGEX+'('+$(regexInputFieldId).value+')';
+	} else if(selectedType.indexOf(FIELD_FILTER_REGEX) != -1){
+		$(regexInputFieldId).disabled = true;
+		$(filterHiddenInputFieldId).value = selectedType;
 	}
 }
 	

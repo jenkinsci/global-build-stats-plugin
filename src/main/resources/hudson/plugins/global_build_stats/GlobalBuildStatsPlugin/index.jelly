@@ -3,6 +3,8 @@
 
   <j:invoke var="FIELD_FILTER_ALL" on="${it}" method="getFieldFilterALL" />
   <j:invoke var="FIELD_FILTER_REGEX" on="${it}" method="getFieldFilterRegex" />
+  <j:set var="LAUNCHER_SYSTEM_REGEX" value="${FIELD_FILTER_REGEX}(^SYSTEM$$)"/>
+  <j:set var="NODE_MASTER_REGEX" value="${FIELD_FILTER_REGEX}(^master$$)"/>
 
   <l:side-panel>
     <l:tasks>
@@ -278,7 +280,11 @@
 		  if($(this.buildStatConfId+'_nodeFilter').value == ''){
 		  	$(this.buildStatConfId+'_nodeFilter').value = FIELD_FILTER_ALL;
 		  }
-		  if($(this.buildStatConfId+'_nodeFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
+		  if($(this.buildStatConfId+'_nodeFilter').value.indexOf(NODE_MASTER_REGEX) != -1){
+		  	  $(this.buildStatConfId+'_nodeFilteringType_REGEXMASTER').checked = 'checked';
+ 		 	  $(this.buildStatConfId+'_nodeFilteringType_REGEXMASTER').onchange();
+		  	  $(this.buildStatConfId+'_nodeNameRegex').disabled = true;
+		  } else if($(this.buildStatConfId+'_nodeFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
 		  	  $(this.buildStatConfId+'_nodeFilteringType_REGEX').checked = 'checked';
 		  	  initializeRegexField(this.buildStatConfId+'_nodeNameRegex', this.buildStatConf.buildFilters.nodeFilter);
  		 	  $(this.buildStatConfId+'_nodeFilteringType_REGEX').onchange();
@@ -286,6 +292,24 @@
 		  } else if($(this.buildStatConfId+'_nodeFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
 		  	  $(this.buildStatConfId+'_nodeFilteringType_ALL').checked = 'checked';
 		  	  $(this.buildStatConfId+'_nodeFilteringType_ALL').onchange();
+		  }
+		  
+		  // Launcher filter default value
+		  if($(this.buildStatConfId+'_launcherFilter').value == ''){
+		  	$(this.buildStatConfId+'_launcherFilter').value = FIELD_FILTER_ALL;
+		  }
+		  if($(this.buildStatConfId+'_launcherFilter').value.indexOf(LAUNCHER_SYSTEM_REGEX) != -1){
+		  	  $(this.buildStatConfId+'_launcherFilteringType_REGEXSYSTEM').checked = 'checked';
+ 		 	  $(this.buildStatConfId+'_launcherFilteringType_REGEXSYSTEM').onchange();
+		  	  $(this.buildStatConfId+'_launcherNameRegex').disabled = true;
+		  } else if($(this.buildStatConfId+'_launcherFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
+		  	  $(this.buildStatConfId+'_launcherFilteringType_REGEX').checked = 'checked';
+		  	  initializeRegexField(this.buildStatConfId+'_launcherNameRegex', this.buildStatConf.buildFilters.launcherFilter);
+ 		 	  $(this.buildStatConfId+'_launcherFilteringType_REGEX').onchange();
+		  	  $(this.buildStatConfId+'_launcherNameRegex').disabled = false;
+		  } else if($(this.buildStatConfId+'_launcherFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
+		  	  $(this.buildStatConfId+'_launcherFilteringType_ALL').checked = 'checked';
+		  	  $(this.buildStatConfId+'_launcherFilteringType_ALL').onchange();
 		  }
 		  
 		  // Changing default values...
@@ -339,6 +363,7 @@
 				var length = $(bsId+'_historicLength').value;
 				var jobFilter = $(bsId+'_jobFilter').value;
 				var nodeFilter = $(bsId+'_nodeFilter').value;
+				var launcherFilter = $(bsId+'_launcherFilter').value;
 				var successShown = $(bsId+'_successShown').checked;
 				var failuresShown = $(bsId+'_failuresShown').checked;
 				var unstablesShown = $(bsId+'_unstablesShown').checked;
@@ -357,6 +382,7 @@
 				overviewContent += '&historicScale='+scale;
 				overviewContent += '&jobFilter='+jobFilter;
 				overviewContent += '&nodeFilter='+nodeFilter;
+				overviewContent += '&launcherFilter='+launcherFilter;
 				overviewContent += '&successShown='+successShown;
 				overviewContent += '&failuresShown='+failuresShown;
 				overviewContent += '&unstablesShown='+unstablesShown;
@@ -403,7 +429,7 @@
 		    }
 			YAHOO.global.build.stat.configuration.modalPopup =  
 		        new YAHOO.widget.Panel("buildStatConfigForm",   
-		            { width:"720px",
+		            { width:"830px",
 		              fixedcenter:true,  
 		              close:false,  
 		              draggable:false,  
@@ -566,6 +592,7 @@
 			var currentContext = jsonConcat(buildStatConfiguration, {
 				jobFilter: buildStatConfiguration.buildFilters.jobFilter,
 				nodeFilter: buildStatConfiguration.buildFilters.nodeFilter,
+				launcherFilter: buildStatConfiguration.buildFilters.launcherFilter,
 				rootURL: rootURL, 
 				formAction: "updateBuildStatConfiguration", 
 				buildStatId: getBuildStatConfigId(buildStatConfiguration.id),
@@ -594,6 +621,8 @@
 		chartLengthUnits[${status.index}] = "${historicScale}";</j:forEach>
 		FIELD_FILTER_ALL = "${FIELD_FILTER_ALL}";
 		FIELD_FILTER_REGEX = "${FIELD_FILTER_REGEX}";
+		LAUNCHER_SYSTEM_REGEX = "${LAUNCHER_SYSTEM_REGEX}";
+		NODE_MASTER_REGEX = "${NODE_MASTER_REGEX}";
 	</script>
   </l:header>
 
@@ -703,6 +732,8 @@
 			    </li>
 			    <li>
 			      ${%Node filtering} : <input type="radio" id="#{buildStatId}_nodeFilteringType_ALL" checked="checked" name="nodeFilteringType" value="${FIELD_FILTER_ALL}" onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_nodeNameRegex', '#{buildStatId}_nodeFilter');" />${%ALL Nodes}
+			      <input type="radio" id="#{buildStatId}_nodeFilteringType_REGEXMASTER" name="nodeFilteringType" value="${NODE_MASTER_REGEX}" onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_nodeNameRegex', '#{buildStatId}_nodeFilter');" />
+			      ${%Master only}
 			      <input type="radio" id="#{buildStatId}_nodeFilteringType_REGEX" name="nodeFilteringType" value="${FIELD_FILTER_REGEX}" onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_nodeNameRegex', '#{buildStatId}_nodeFilter');" />
 			      ${%Node name regex} :
 			      <input type="text" id="#{buildStatId}_nodeNameRegex" 
@@ -710,6 +741,18 @@
 			      		 onblur="$('#{buildStatId}_nodeFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
 			      />
 			      <input id="#{buildStatId}_nodeFilter" type="hidden" name="nodeFilter" value="#{nodeFilter}" />
+		      	</li>
+			    <li>
+			      ${%Launcher filtering} : <input type="radio" id="#{buildStatId}_launcherFilteringType_ALL" checked="checked" name="launcherFilteringType" value="${FIELD_FILTER_ALL}" onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_launcherNameRegex', '#{buildStatId}_launcherFilter');" />${%ALL Users}
+			      <input type="radio" id="#{buildStatId}_launcherFilteringType_REGEXSYSTEM" name="launcherFilteringType" value="${LAUNCHER_SYSTEM_REGEX}" onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_launcherNameRegex', '#{buildStatId}_launcherFilter');" />
+			      ${%System only}
+			      <input type="radio" id="#{buildStatId}_launcherFilteringType_REGEX" name="launcherFilteringType" value="${FIELD_FILTER_REGEX}" onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_launcherNameRegex', '#{buildStatId}_launcherFilter');" />
+			      ${%Username regex} :
+			      <input type="text" id="#{buildStatId}_launcherNameRegex" 
+			      		 disabled="true" name="launcherNameRegex" size="10"
+			      		 onblur="$('#{buildStatId}_launcherFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
+			      />
+			      <input id="#{buildStatId}_launcherFilter" type="hidden" name="launcherFilter" value="#{launcherFilter}" />
 		      	</li>
 		      	<li>
 			      ${%Statuses taken into account} :
