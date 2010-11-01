@@ -14,6 +14,7 @@ public class JobBuildResult implements Serializable {
 	private static final long serialVersionUID = -4697202185011561179L;
 	public static long EMPTY_DURATION = -1;
 	public static final String EMPTY_NODE_NAME = null;
+	public static final String EMPTY_USER_NAME = null;
 	public static final String MASTER_NODE_NAME = "master";
 	
 	private BuildResult result;
@@ -22,21 +23,25 @@ public class JobBuildResult implements Serializable {
 	private Calendar buildDate;
 	private long duration = -1;
 	private String nodeName;
+	private String userName = null;
 	
-	public JobBuildResult(BuildResult _result, String _jobName, int _buildNumber, Calendar _buildDate, long duration, String nodeName){
+	public JobBuildResult(BuildResult _result, String _jobName, int _buildNumber, 
+						  Calendar _buildDate, long duration, String nodeName, String _userName){
 		this.result = _result;
 		this.jobName = _jobName;
 		this.buildNumber = _buildNumber;
 		this.buildDate = (Calendar)_buildDate.clone();
 		this.duration = duration;
 		setNodeName(nodeName);
+		this.userName = _userName;
 	}
 
 	@Override
 	public String toString() {
 		return new StringBuilder("jobName=").append(jobName).append(", buildNumber=").append(buildNumber)
 						.append(", result=").append(result).append(", buildDate=").append(buildDate)
-						.append(", duration=").append(duration).append(", nodeName=").append(nodeName).toString();
+						.append(", duration=").append(duration).append(", nodeName=").append(nodeName)
+						.append(", userName=").append(userName).toString();
 	}
 	
 	public BuildResult getResult() {
@@ -71,6 +76,10 @@ public class JobBuildResult implements Serializable {
 		return EMPTY_DURATION == duration;
 	}
 	
+	public boolean isUserNameEmpty(){
+		return EMPTY_USER_NAME == userName;
+	}
+	
 	public boolean isNodeNameEmpty(){
 		return nodeName == EMPTY_NODE_NAME;
 	}
@@ -98,5 +107,13 @@ public class JobBuildResult implements Serializable {
 		} else {
 			this.nodeName = nodeName;
 		}
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 }

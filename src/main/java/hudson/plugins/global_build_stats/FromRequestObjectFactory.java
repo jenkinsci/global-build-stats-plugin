@@ -37,6 +37,7 @@ public class FromRequestObjectFactory {
 	public static BuildSearchCriteria createBuildSearchCriteria(StaplerRequest req){
 		BuildSearchCriteria criteria = new BuildSearchCriteria(req.getParameter("jobFilter"), 
 				req.getParameter("nodeFilter"), 
+				req.getParameter("launcherFilter"),
 				Boolean.parseBoolean(req.getParameter("successShown")),
     			Boolean.parseBoolean(req.getParameter("failuresShown")),
     			Boolean.parseBoolean(req.getParameter("unstablesShown")),

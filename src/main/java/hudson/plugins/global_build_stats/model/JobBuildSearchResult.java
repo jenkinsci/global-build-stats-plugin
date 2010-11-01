@@ -14,7 +14,8 @@ public class JobBuildSearchResult extends JobBuildResult {
 	private boolean buildAccessible;
 	
 	public JobBuildSearchResult(JobBuildResult decoree, boolean isJobAccessible, boolean isBuildAccessible){
-		super(decoree.getResult(), decoree.getJobName(), decoree.getBuildNumber(), decoree.getBuildDate(), decoree.getDuration(), decoree.getNodeName());
+		super(decoree.getResult(), decoree.getJobName(), decoree.getBuildNumber(), decoree.getBuildDate(), 
+			  decoree.getDuration(), decoree.getNodeName(), decoree.getUserName());
 		this.jobAccessible = isJobAccessible;
 		this.buildAccessible = isBuildAccessible;
 	}

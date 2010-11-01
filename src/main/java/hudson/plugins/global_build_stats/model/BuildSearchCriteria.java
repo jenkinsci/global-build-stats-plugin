@@ -13,14 +13,27 @@ public class BuildSearchCriteria {
 	transient FieldFilter calculatedJobFilter = null; // For calcul optimizations only
 	private String nodeFilter = FieldFilterFactory.ALL_VALUES_FILTER_LABEL;
 	transient FieldFilter calculatedNodeFilter = null; // For calcul optimizations only
+	private String launcherFilter = FieldFilterFactory.ALL_VALUES_FILTER_LABEL;
+	transient FieldFilter calculatedLauncherFilter = null; // For calcul optimizations only
 	private short shownBuildResults;
 
+	@Deprecated
 	public BuildSearchCriteria(String _jobFilter, String _nodeFilter,
+			boolean _successShown, boolean _failuresShown, boolean _unstablesShown, 
+			boolean _abortedShown, boolean _notBuildsShown){
+		
+		this(_jobFilter, _nodeFilter, FieldFilterFactory.ALL_VALUES_FILTER_LABEL,
+			 _successShown, _failuresShown, _unstablesShown,
+			 _abortedShown, _notBuildsShown);
+	}
+	
+	public BuildSearchCriteria(String _jobFilter, String _nodeFilter, String _launcherFilter,
 			boolean _successShown, boolean _failuresShown, boolean _unstablesShown, 
 			boolean _abortedShown, boolean _notBuildsShown){
 		
 		this.setJobFilter(_jobFilter);
 		this.setNodeFilter(_nodeFilter);
+		this.setLauncherFilter(_launcherFilter);
 		
 		this.shownBuildResults = 0;
 		this.shownBuildResults |= _successShown?BuildResult.SUCCESS.code:0;
@@ -35,6 +48,7 @@ public class BuildSearchCriteria {
 
 		jobBuildEligible &= getCalculatedJobFilter().isFieldValueValid(result.getJobName());
 		jobBuildEligible &= getCalculatedNodeFilter().isFieldValueValid(result.getNodeName());
+		jobBuildEligible &= getCalculatedLauncherFilter().isFieldValueValid(result.getUserName());
 		jobBuildEligible &= isAbortedShown() || result.getResult().getAbortedCount()!=1;
 		jobBuildEligible &= isFailuresShown() || result.getResult().getFailureCount()!=1;
 		jobBuildEligible &= isNotBuildShown() || result.getResult().getNotBuildCount()!=1;
@@ -54,6 +68,11 @@ public class BuildSearchCriteria {
 		this.calculatedNodeFilter = FieldFilterFactory.createFieldFilter(nodeFilter);
 	}
 
+	public void setLauncherFilter(String launcherFilter) {
+		this.launcherFilter = launcherFilter;
+		this.calculatedLauncherFilter = FieldFilterFactory.createFieldFilter(launcherFilter);
+	}
+	
 	protected FieldFilter getCalculatedJobFilter(){
 		// When BuildStatConfiguration is XStream deserialized, the transient calculatedJobFilter field
 		// will be null !
@@ -66,6 +85,13 @@ public class BuildSearchCriteria {
 		// will be null !
 		if(calculatedNodeFilter == null){ calculatedNodeFilter = FieldFilterFactory.createFieldFilter(nodeFilter); }
 		return this.calculatedNodeFilter;
+	}
+	
+	protected FieldFilter getCalculatedLauncherFilter(){
+		// When BuildStatConfiguration is XStream deserialized, the transient calculatedLauncherFilter field
+		// will be null !
+		if(calculatedLauncherFilter == null){ calculatedLauncherFilter = FieldFilterFactory.createFieldFilter(launcherFilter); }
+		return this.calculatedLauncherFilter;
 	}
 	
 	@Exported
@@ -103,6 +129,11 @@ public class BuildSearchCriteria {
 		return nodeFilter;
 	}
 
+	@Exported
+	public String getLauncherFilter() {
+		return launcherFilter;
+	}
+	
 	public void setShownBuildResults(short shownBuildResults) {
 		this.shownBuildResults = shownBuildResults;
 	}
