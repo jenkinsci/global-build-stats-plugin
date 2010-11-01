@@ -3,6 +3,8 @@
 
 	<j:invoke var="FIELD_FILTER_ALL" on="${it}" method="getFieldFilterALL" />
 	<j:invoke var="FIELD_FILTER_REGEX" on="${it}" method="getFieldFilterRegex" />
+	<j:set var="LAUNCHER_SYSTEM_REGEX" value="${FIELD_FILTER_REGEX}(^SYSTEM$$)"/>
+	<j:set var="NODE_MASTER_REGEX" value="${FIELD_FILTER_REGEX}(^master$$)"/>
     <!-- For an unknown reason, j:invokeStatic doesn't work here ! :( -->
     <j:invoke var="escapedJobFilter" on="${it}" method="escapeAntiSlashes">
     	<j:arg type="java.lang.String" value="${searchCriteria.buildFilters.jobFilter}" />
@@ -10,6 +12,10 @@
     <!-- For an unknown reason, j:invokeStatic doesn't work here ! :( -->
     <j:invoke var="escapedNodeFilter" on="${it}" method="escapeAntiSlashes">
     	<j:arg type="java.lang.String" value="${searchCriteria.buildFilters.nodeFilter}" />
+    </j:invoke>
+    <!-- For an unknown reason, j:invokeStatic doesn't work here ! :( -->
+    <j:invoke var="escapedLauncherFilter" on="${it}" method="escapeAntiSlashes">
+    	<j:arg type="java.lang.String" value="${searchCriteria.buildFilters.launcherFilter}" />
     </j:invoke>
 
 	<l:header>
@@ -32,8 +38,11 @@
 		<script type="text/javascript">
 			FIELD_FILTER_ALL = "${FIELD_FILTER_ALL}";
 			FIELD_FILTER_REGEX = "${FIELD_FILTER_REGEX}";
+			LAUNCHER_SYSTEM_REGEX = "${LAUNCHER_SYSTEM_REGEX}";
+			NODE_MASTER_REGEX = "${NODE_MASTER_REGEX}";
 	        ESCAPED_JOB_FILTER = "${escapedJobFilter}";
 	      	ESCAPED_NODE_FILTER = "${escapedNodeFilter}";
+	      	ESCAPED_LAUNCHER_FILTER = "${escapedLauncherFilter}";
 		</script>
 		<script><![CDATA[
 		  YAHOO.namespace("global.build.search.calendar");
@@ -159,6 +168,8 @@
 		    </li>
 		    <li>
 		      ${%Node filtering} : <input type="radio" id="searchBuild_nodeFilteringType_ALL" checked="checked" name="nodeFilteringType" value="${FIELD_FILTER_ALL}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_nodeNameRegex', 'searchBuild_nodeFilter');" />${%ALL Nodes}
+		      <input type="radio" id="searchBuild_nodeFilteringType_REGEXMASTER" name="nodeFilteringType" value="${NODE_MASTER_REGEX}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_nodeNameRegex', 'searchBuild_nodeFilter');" />
+		      ${%Master only} :
 		      <input type="radio" id="searchBuild_nodeFilteringType_REGEX" name="nodeFilteringType" value="${FIELD_FILTER_REGEX}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_nodeNameRegex', 'searchBuild_nodeFilter');" />
 		      ${%Node name regex} :
 		      <input type="text" id="searchBuild_nodeNameRegex" 
@@ -166,6 +177,18 @@
 		      		 onblur="$('searchBuild_nodeFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
 		      />
 		      <input id="searchBuild_nodeFilter" type="hidden" name="nodeFilter" value="${escapedNodeFilter}" />
+	      	</li>
+		    <li>
+		      ${%Launcher filtering} : <input type="radio" id="searchBuild_launcherFilteringType_ALL" checked="checked" name="launcherFilteringType" value="${FIELD_FILTER_ALL}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_launcherNameRegex', 'searchBuild_launcherFilter');" />${%ALL Users}
+		      <input type="radio" id="searchBuild_launcherFilteringType_REGEXSYSTEM" name="launcherFilteringType" value="${LAUNCHER_SYSTEM_REGEX}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_launcherNameRegex', 'searchBuild_launcherFilter');" />
+		      ${%System only} :
+		      <input type="radio" id="searchBuild_launcherFilteringType_REGEX" name="launcherFilteringType" value="${FIELD_FILTER_REGEX}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_launcherNameRegex', 'searchBuild_launcherFilter');" />
+		      ${%Username regex} :
+		      <input type="text" id="searchBuild_launcherNameRegex" 
+		      		 disabled="true" name="launcherNameRegex" size="10"
+		      		 onblur="$('searchBuild_launcherFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
+		      />
+		      <input id="searchBuild_launcherFilter" type="hidden" name="launcherFilter" value="${escapedLauncherFilter}" />
 	      	</li>
 	      	<li>
 		      ${%Statuses taken into account} :
@@ -212,23 +235,40 @@
 	      	</li>
 	      </ul>
 		  <script type="text/javascript"><![CDATA[
-		  if(document.getElementById('searchBuild_jobFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
-		  	  document.getElementById('searchBuild_jobFilteringType_REGEX').checked = 'checked';
+		  if($('searchBuild_jobFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
+		  	  $('searchBuild_jobFilteringType_REGEX').checked = 'checked';
 		  	  initializeRegexField('searchBuild_jobNameRegex', ESCAPED_JOB_FILTER);
-		  	  document.getElementById('searchBuild_jobFilteringType_REGEX').onchange();
-		  	  document.getElementById('searchBuild_jobNameRegex').disabled = false;
+		  	  $('searchBuild_jobFilteringType_REGEX').onchange();
+		  	  $('searchBuild_jobNameRegex').disabled = false;
 		  } else if(document.getElementById('searchBuild_jobFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
-		  	  document.getElementById('searchBuild_jobFilteringType_ALL').checked = 'checked';
-		  	  document.getElementById('searchBuild_jobFilteringType_ALL').change();
+		  	  $('searchBuild_jobFilteringType_ALL').checked = 'checked';
+		  	  $('searchBuild_jobFilteringType_ALL').onchange();
 		  }
-		  if(document.getElementById('searchBuild_nodeFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
-		  	  document.getElementById('searchBuild_nodeFilteringType_REGEX').checked = 'checked';
+		  if($('searchBuild_nodeFilter').value.indexOf(NODE_MASTER_REGEX) != -1){
+		  	  $('searchBuild_nodeFilteringType_REGEXMASTER').checked = 'checked';
+ 		 	  $('searchBuild_nodeFilteringType_REGEXMASTER').onchange();
+		  	  $('searchBuild_nodeNameRegex').disabled = true;
+		  } else if($('searchBuild_nodeFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
+		  	  $('searchBuild_nodeFilteringType_REGEX').checked = 'checked';
 		  	  initializeRegexField('searchBuild_nodeNameRegex', ESCAPED_NODE_FILTER);
-		  	  document.getElementById('searchBuild_nodeFilteringType_REGEX').onchange();
-		  	  document.getElementById('searchBuild_nodeNameRegex').disabled = false;
-		  } else if(document.getElementById('searchBuild_nodeFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
-		  	  document.getElementById('searchBuild_nodeFilteringType_ALL').checked = 'checked';
-		  	  document.getElementById('searchBuild_nodeFilteringType_ALL').change();
+ 		 	  $('searchBuild_nodeFilteringType_REGEX').onchange();
+		  	  $('searchBuild_nodeNameRegex').disabled = false;
+		  } else if($('searchBuild_nodeFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
+		  	  $('searchBuild_nodeFilteringType_ALL').checked = 'checked';
+		  	  $('searchBuild_nodeFilteringType_ALL').onchange();
+		  }
+		  if($('searchBuild_launcherFilter').value.indexOf(LAUNCHER_SYSTEM_REGEX) != -1){
+		  	  $('searchBuild_launcherFilteringType_REGEXSYSTEM').checked = 'checked';
+ 		 	  $('searchBuild_launcherFilteringType_REGEXSYSTEM').onchange();
+		  	  $('searchBuild_launcherNameRegex').disabled = true;
+		  } else if($('searchBuild_launcherFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
+		  	  $('searchBuild_launcherFilteringType_REGEX').checked = 'checked';
+		  	  initializeRegexField('searchBuild_launcherNameRegex', ESCAPED_LAUNCHER_FILTER);
+ 		 	  $('searchBuild_launcherFilteringType_REGEX').onchange();
+		  	  $('searchBuild_launcherNameRegex').disabled = false;
+		  } else if($('searchBuild_launcherFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
+		  	  $('searchBuild_launcherFilteringType_ALL').checked = 'checked';
+		  	  $('searchBuild_launcherFilteringType_ALL').onchange();
 		  }
 		  ]]></script>
 	      <input type="submit" class="submit-button" value="${%Search}" name="Submit" />
@@ -249,6 +289,7 @@
 			  			<th>${%Date}</th>
 			  			<th>${%Duration}</th>
 			  			<th>${%Node name}</th>
+			  			<th>${%Launched by}</th>
 			        </tr>
 				    <j:forEach var="jobResult" items="${jobResults}">
 				    	<tr class="build-row">
@@ -294,6 +335,12 @@
 				    			<j:choose>
 				    				<j:when test="${jobResult.nodeNameEmpty}"><em>${%Data not available}</em></j:when>
 				    				<j:otherwise>${jobResult.nodeName}</j:otherwise>
+				    			</j:choose>
+				    		</td>
+				    		<td class="pane">
+				    			<j:choose>
+				    				<j:when test="${jobResult.userNameEmpty}"><em>${%Data not available}</em></j:when>
+				    				<j:otherwise>${jobResult.userName}</j:otherwise>
 				    			</j:choose>
 				    		</td>
 				    	</tr>
