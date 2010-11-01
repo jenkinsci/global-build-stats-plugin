@@ -107,6 +107,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
 
 		Hudson.XSTREAM.aliasField("jf", BuildSearchCriteria.class, "jobFilter");
 		Hudson.XSTREAM.aliasField("nf", BuildSearchCriteria.class, "nodeFilter");
+		Hudson.XSTREAM.aliasField("lf", BuildSearchCriteria.class, "launcherFilter");
 		Hudson.XSTREAM.aliasField("sbr", BuildSearchCriteria.class, "shownBuildResults");
 		
 		Hudson.XSTREAM.aliasField("r", JobBuildResult.class, "result");
@@ -115,6 +116,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
 		Hudson.XSTREAM.aliasField("d", JobBuildResult.class, "buildDate");
 		Hudson.XSTREAM.aliasField("du", JobBuildResult.class, "duration");
 		Hudson.XSTREAM.aliasField("nn", JobBuildResult.class, "nodeName");
+		Hudson.XSTREAM.aliasField("un", JobBuildResult.class, "userName");
 	}
 	
     /**
@@ -417,7 +419,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
 	public static String getFieldFilterRegex(){
 		return FieldFilterFactory.REGEX_FIELD_FILTER_LABEL;
 	}
-    
+	
 	public BuildStatConfiguration[] getBuildStatConfigsArrayed() {
 		return buildStatConfigs.toArray(new BuildStatConfiguration[]{});
 	}
