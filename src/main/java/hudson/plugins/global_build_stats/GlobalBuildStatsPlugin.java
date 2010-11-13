@@ -177,9 +177,18 @@ public class GlobalBuildStatsPlugin extends Plugin {
     		super.onLoaded();
     		
     		try {
-				Hudson.getInstance().getPlugin(GlobalBuildStatsPlugin.class).load();
+    			getInstance().load();
 			} catch (IOException e) {
 				LOGGER.log(Level.SEVERE, e.getMessage(), e);
+			}
+			
+			// If job results are empty, let's perform an initialization !
+			if(getInstance().jobBuildResults==null || getInstance().jobBuildResults.size() == 0){
+		    	try {
+					getPluginBusiness().recordBuildInfos();
+				} catch (IOException e) {
+					LOGGER.log(Level.SEVERE, e.getMessage(), e);
+				}
 			}
     	}
     	
@@ -232,7 +241,11 @@ public class GlobalBuildStatsPlugin extends Plugin {
     private static GlobalBuildStatsBusiness getPluginBusiness(){
 		// Retrieving global build stats plugin & adding build result to the registered build
 		// result
-    	return Hudson.getInstance().getPlugin(GlobalBuildStatsPlugin.class).business;
+    	return getInstance().business;
+    }
+    
+    public static GlobalBuildStatsPlugin getInstance(){
+    	return Hudson.getInstance().getPlugin(GlobalBuildStatsPlugin.class);
     }
     
     // Form validations
