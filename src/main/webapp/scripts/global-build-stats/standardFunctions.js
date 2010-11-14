@@ -1,5 +1,3 @@
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
-<script type="text/javascript"><![CDATA[
 function fieldFilterTypeSelected(selectedType, regexInputFieldId, filterHiddenInputFieldId){
 	if(FIELD_FILTER_ALL == selectedType){
 		$(regexInputFieldId).disabled = true;
@@ -81,5 +79,3 @@ function generateErrorMessage(message){
 
 Behaviour.register(Object.extend(hudsonRules, myHudsonRules));
 Behaviour.apply();
-]]></script>
-</j:jelly>
