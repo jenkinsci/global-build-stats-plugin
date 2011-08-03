@@ -1,10 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.jvnet.hudson.plugins</groupId>
+    <groupId>org.jenkins-ci.plugins</groupId>
     <artifactId>plugin</artifactId>
-    <version>1.339</version><!-- which version of Hudson is this plugin built against? -->
-    <relativePath>../pom.xml</relativePath>
+    <version>1.398</version><!-- which version of Hudson is this plugin built against? -->
   </parent>
 
   <artifactId>global-build-stats</artifactId>
@@ -37,32 +36,6 @@
     </pluginRepository>
   </pluginRepositories>
   
-  <build>
-	<pluginManagement>
-		<plugins>
-			<!-- TODO: to remove when migrating to parent pom >= 1.387 -->
-			<plugin>
-				<artifactId>maven-release-plugin</artifactId>
-				<!-- To have pushChanges parameter available -->
-				<version>2.1</version>
-				<configuration>
-					<goals>deploy</goals>
-					<localCheckout>true</localCheckout>
-					<pushChanges>false</pushChanges>
-				</configuration>
-			</plugin>
-		</plugins>
-	</pluginManagement>
-  </build>
-
-  <!-- TODO: to remove when migrating to parent pom >= 1.395 -->
-  <distributionManagement>
-    <repository>
-      <id>maven.jenkins-ci.org</id>
-      <url>http://maven.jenkins-ci.org:8081/content/repositories/releases/</url>
-    </repository>
-  </distributionManagement>
-
   <scm>
     <connection>scm:git:git://github.com/jenkinsci/global-build-stats-plugin.git</connection>
     <developerConnection>scm:git:git@github.com:jenkinsci/global-build-stats-plugin.git</developerConnection>
