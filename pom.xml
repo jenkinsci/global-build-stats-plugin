@@ -40,13 +40,32 @@
   <build>
 	<pluginManagement>
 		<plugins>
+			<!-- TODO: to remove when migrating to parent pom >= 1.387 -->
 			<plugin>
 				<artifactId>maven-release-plugin</artifactId>
+				<!-- To have pushChanges parameter available -->
+				<version>2.1</version>
 				<configuration>
-					<tagBase>https://svn.dev.java.net/svn/hudson/tags/global-build-stats/</tagBase>
+					<goals>deploy</goals>
+					<localCheckout>true</localCheckout>
+					<pushChanges>false</pushChanges>
 				</configuration>
 			</plugin>
 		</plugins>
 	</pluginManagement>
   </build>
+
+  <!-- TODO: to remove when migrating to parent pom >= 1.395 -->
+  <distributionManagement>
+    <repository>
+      <id>maven.jenkins-ci.org</id>
+      <url>http://maven.jenkins-ci.org:8081/content/repositories/releases/</url>
+    </repository>
+  </distributionManagement>
+
+  <scm>
+    <connection>scm:git:git://github.com/jenkinsci/global-build-stats-plugin.git</connection>
+    <developerConnection>scm:git:git@github.com:jenkinsci/global-build-stats-plugin.git</developerConnection>
+    <url>https://github.com/jenkinsci/global-build-stats-plugin</url>
+  </scm>
 </project>
