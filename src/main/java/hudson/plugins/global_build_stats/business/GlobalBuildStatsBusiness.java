@@ -1,15 +1,16 @@
 package hudson.plugins.global_build_stats.business;
 
-import hudson.model.TopLevelItem;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Hudson;
 import hudson.model.Job;
+import hudson.model.TopLevelItem;
 import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
 import hudson.plugins.global_build_stats.JobBuildResultFactory;
 import hudson.plugins.global_build_stats.model.AbstractBuildStatChartDimension;
 import hudson.plugins.global_build_stats.model.AbstractBuildStatChartDimension.LegendItemData;
 import hudson.plugins.global_build_stats.model.BuildHistorySearchCriteria;
+import hudson.plugins.global_build_stats.model.BuildResult;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.DateRange;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
@@ -29,6 +30,7 @@ import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -44,7 +46,9 @@ import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
 
 public class GlobalBuildStatsBusiness {
-	
+
+    private static final Logger LOGGER = Logger.getLogger(GlobalBuildStatsBusiness.class.getName());
+
 	private GlobalBuildStatsPlugin plugin;
 	
 	public GlobalBuildStatsBusiness(GlobalBuildStatsPlugin _plugin){
@@ -59,10 +63,33 @@ public class GlobalBuildStatsBusiness {
     		try {
 				plugin.save();
 			} catch (IOException e) {
-				
+                LOGGER.warning("Failed to save plugin date");
 			}
 		}
 	}
+
+    public void onJobDeleted(AbstractBuild build) {
+        int buildNumber = build.getNumber();
+        String jobName = build.getProject().getName();
+        BuildResult buildResult = JobBuildResultFactory.INSTANCE.createBuildResult( build.getResult() );
+
+        // Synchronizing plugin instance every time we modify persisted informations on it
+        synchronized (plugin) {
+            Iterator<JobBuildResult> results = plugin.getJobBuildResults().iterator();
+            while(results.hasNext()) {
+                if (results.next().is(buildNumber, jobName, buildResult)) {
+                    results.remove();
+                    break;
+                }
+            }
+
+    		try {
+				plugin.save();
+			} catch (IOException e) {
+                LOGGER.warning("Failed to save plugin date");
+		    }
+        }
+    }
 	
 	public BuildStatConfiguration searchBuildStatConfigById(String buildStatId){
 		int index = searchBuildStatConfigIndexById(buildStatId);

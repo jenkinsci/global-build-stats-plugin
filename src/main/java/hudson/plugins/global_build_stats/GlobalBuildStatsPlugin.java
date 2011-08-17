@@ -236,6 +236,11 @@ public class GlobalBuildStatsPlugin extends Plugin {
     		
     		getPluginBusiness().onJobCompleted(r);
     	}
+
+        @Override
+        public void onDeleted(AbstractBuild r) {
+            getPluginBusiness().onJobDeleted(r);
+        }
     }
     
     private static GlobalBuildStatsBusiness getPluginBusiness(){
