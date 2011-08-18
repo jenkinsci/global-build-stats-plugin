@@ -87,11 +87,11 @@ public class GlobalBuildStatsPluginSaver {
      */
     public void updatePlugin(BeforeSavePluginCallback callback){
         callback.changePluginStateBeforeSavingIt(this.queuedResultsToAdd, this.queuedResultsToRemove, this.buildStatConfigs);
-        LOGGER.log(Level.INFO, "Global build stats state update queued !");
+        LOGGER.log(Level.FINER, "Global build stats state update queued !");
 
         writer.submit(new Runnable(){
             public void run(){
-                LOGGER.log(Level.INFO, "Processing GBS update queue ...");
+                LOGGER.log(Level.FINER, "Processing GBS update queue ...");
                 // atomically move all the queued stuff into a local list
                 List<JobBuildResult> resultsToAdd;
                 synchronized (queuedResultsToAdd) {
@@ -114,7 +114,7 @@ public class GlobalBuildStatsPluginSaver {
 
                 // this happens if other runnables have written bits in a bulk
                 if (resultsToAdd.isEmpty() && resultsToRemove.isEmpty() && configsState.equals(plugin.getBuildStatConfigs())){
-                    LOGGER.log(Level.INFO, "No change detected in update queue !");
+                    LOGGER.log(Level.FINER, "No change detected in update queue !");
                     return;
                 }
 
@@ -126,12 +126,9 @@ public class GlobalBuildStatsPluginSaver {
                     plugin.getBuildStatConfigs().addAll(configsState);
 
                     plugin.save();
-                    LOGGER.log(Level.INFO, "Changes applied and file saved !");
-                    Thread.sleep(30000);
+                    LOGGER.log(Level.FINER, "Changes applied and file saved !");
                 } catch (IOException e) {
                     LOGGER.log(Level.WARNING, "Failed to persist global build stat records", e);
-                } catch (InterruptedException e) {
-                    throw new IllegalStateException(e);
                 }
             }
         });
