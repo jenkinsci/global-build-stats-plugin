@@ -238,7 +238,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	}
     }
     
-    private static GlobalBuildStatsBusiness getPluginBusiness(){
+    public static GlobalBuildStatsBusiness getPluginBusiness() {
 		// Retrieving global build stats plugin & adding build result to the registered build
 		// result
     	return getInstance().business;

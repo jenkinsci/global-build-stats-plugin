@@ -16,6 +16,7 @@ import hudson.plugins.global_build_stats.model.JobBuildResult;
 import hudson.plugins.global_build_stats.model.JobBuildSearchResult;
 import hudson.plugins.global_build_stats.model.ModelIdGenerator;
 import hudson.plugins.global_build_stats.model.YAxisChartDimension;
+import hudson.util.DaemonThreadFactory;
 import hudson.util.DataSetBuilder;
 import hudson.util.ShiftedCategoryAxis;
 
@@ -29,6 +30,10 @@ import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -45,23 +50,62 @@ import org.jfree.ui.RectangleInsets;
 
 public class GlobalBuildStatsBusiness {
 	
-	private GlobalBuildStatsPlugin plugin;
+	private final GlobalBuildStatsPlugin plugin;
+
+    /**
+     * Hand-off queue from the event callback of {@link #onJobCompleted(AbstractBuild)}
+     * to the thread that's adding the records. Access needs to be synchronized.
+     */
+    private final List<JobBuildResult> queuedResults = Collections.synchronizedList(new ArrayList<JobBuildResult>());
+
+    /**
+     * See {@link #onJobCompleted(AbstractBuild)}. Use of a size 1 thread pool frees us from worring about
+     * accidental thread death.
+     */
+    /*package*/ final ExecutorService writer = Executors.newFixedThreadPool(1,new DaemonThreadFactory());
 	
 	public GlobalBuildStatsBusiness(GlobalBuildStatsPlugin _plugin){
 		this.plugin = _plugin;
 	}
 
-	public void onJobCompleted(AbstractBuild job){
-		// Synchronizing plugin instance every time we modify persisted informations on it
-		synchronized (plugin) {
-    		GlobalBuildStatsBusiness.addBuild(plugin.getJobBuildResults(), job);
-    		
-    		try {
-				plugin.save();
-			} catch (IOException e) {
-				
-			}
-		}
+    /**
+     * Records the result of a build.
+     * <p>
+     * As the number of builds grow, the time it takes to execute "plugin.save()" become
+     * non-trivial, up to the order of minutes or more. So to prevent this from blocking executor threads
+     * that execute this callback, we use {@linkplain #writer a separate thread} to asynchronously persist
+     * them to the disk.
+     * <p>
+     * We also employ {@linkplain #queuedResults yet another queue} to queue up {@link JobBuildResult}s
+     * so that we can write many of them in one {@code plugin.save()}.
+     */
+	public void onJobCompleted(AbstractBuild build) {
+        queuedResults.add(JobBuildResultFactory.INSTANCE.createJobBuildResult(build));
+
+        writer.submit(new Runnable() {
+            public void run() {
+                List<JobBuildResult> r;
+                // atomically move all the queued stuff into a local list
+                synchronized (queuedResults) {
+                    r = new ArrayList<JobBuildResult>(queuedResults);
+                    queuedResults.clear();
+                }
+
+                // this happens if other runnables have written bits in a bulk
+                if (r.isEmpty())    return;
+
+                // Synchronizing plugin instance every time we modify persisted information on it
+                synchronized (plugin) {
+                    plugin.getJobBuildResults().addAll(r);
+
+                    try {
+                        plugin.save();
+                    } catch (IOException e) {
+                        LOGGER.log(Level.WARNING, "Failed to persist global build stat records", e);
+                    }
+                }
+            }
+        });
 	}
 	
 	public BuildStatConfiguration searchBuildStatConfigById(String buildStatId){
@@ -360,4 +404,6 @@ public class GlobalBuildStatsBusiness {
 		
 		return mergedJobResultsList;
 	}
+
+    private static final Logger LOGGER = Logger.getLogger(GlobalBuildStatsBusiness.class.getName());
 }
