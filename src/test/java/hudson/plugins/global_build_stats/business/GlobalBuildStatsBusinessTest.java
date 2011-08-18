@@ -39,7 +39,7 @@ public class GlobalBuildStatsBusinessTest extends HudsonTestCase {
                 builds.add(p.scheduleBuild2(0));
             }
             // this simulates a lengthy plugin.save() and cause the grouping writes.
-            business.writer.submit(new Runnable() {
+            business.pluginSaver.writer.submit(new Runnable() {
                 public void run() {
                     try {
                         Thread.sleep(3000);
@@ -55,7 +55,7 @@ public class GlobalBuildStatsBusinessTest extends HudsonTestCase {
         }
 
         // make sure we flush all the pending writes
-        business.writer.submit(new Runnable() {
+        business.pluginSaver.writer.submit(new Runnable() {
             public void run() {
             }
         }).get();

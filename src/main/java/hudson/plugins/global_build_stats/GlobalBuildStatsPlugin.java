@@ -120,7 +120,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
 	}
 	
     /**
-     * Expose {@link GlobalBuildStats} to the remote API :
+     * Expose {@link GlobalBuildStatsPlugin} to the remote API :
      * - Either all build stat configuration data
      * - OR (if buildStatConfigId http parameter is given) chart data
      */
@@ -175,13 +175,15 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	@Override
     	public void onLoaded() {
     		super.onLoaded();
-    		
+
     		try {
     			getInstance().load();
 			} catch (IOException e) {
 				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-			}
-			
+            }
+
+            getPluginBusiness().synchronizePluginSaver();
+
 			// If job results are empty, let's perform an initialization !
 			if(getInstance().jobBuildResults==null || getInstance().jobBuildResults.size() == 0){
 		    	try {
@@ -456,9 +458,5 @@ public class GlobalBuildStatsPlugin extends Plugin {
 
 	public List<JobBuildResult> getJobBuildResults() {
 		return jobBuildResults;
-	}
-
-	public void setJobBuildResults(List<JobBuildResult> jobBuildResults) {
-		this.jobBuildResults = jobBuildResults;
 	}
 }

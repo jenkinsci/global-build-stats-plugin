@@ -1,5 +1,6 @@
 package hudson.plugins.global_build_stats.business;
 
+import com.google.common.collect.Lists;
 import hudson.model.TopLevelItem;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
@@ -16,6 +17,7 @@ import hudson.plugins.global_build_stats.model.JobBuildResult;
 import hudson.plugins.global_build_stats.model.JobBuildSearchResult;
 import hudson.plugins.global_build_stats.model.ModelIdGenerator;
 import hudson.plugins.global_build_stats.model.YAxisChartDimension;
+import hudson.plugins.global_build_stats.util.CollectionsUtil;
 import hudson.util.DaemonThreadFactory;
 import hudson.util.DataSetBuilder;
 import hudson.util.ShiftedCategoryAxis;
@@ -23,13 +25,7 @@ import hudson.util.ShiftedCategoryAxis;
 import java.awt.Color;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -49,61 +45,23 @@ import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
 
 public class GlobalBuildStatsBusiness {
-	
-	private final GlobalBuildStatsPlugin plugin;
 
-    /**
-     * Hand-off queue from the event callback of {@link #onJobCompleted(AbstractBuild)}
-     * to the thread that's adding the records. Access needs to be synchronized.
-     */
-    private final List<JobBuildResult> queuedResults = Collections.synchronizedList(new ArrayList<JobBuildResult>());
+    /* package */ final GlobalBuildStatsPluginSaver pluginSaver;
 
-    /**
-     * See {@link #onJobCompleted(AbstractBuild)}. Use of a size 1 thread pool frees us from worring about
-     * accidental thread death.
-     */
-    /*package*/ final ExecutorService writer = Executors.newFixedThreadPool(1,new DaemonThreadFactory());
-	
 	public GlobalBuildStatsBusiness(GlobalBuildStatsPlugin _plugin){
-		this.plugin = _plugin;
+        this.pluginSaver = new GlobalBuildStatsPluginSaver(_plugin);
 	}
 
     /**
      * Records the result of a build.
-     * <p>
-     * As the number of builds grow, the time it takes to execute "plugin.save()" become
-     * non-trivial, up to the order of minutes or more. So to prevent this from blocking executor threads
-     * that execute this callback, we use {@linkplain #writer a separate thread} to asynchronously persist
-     * them to the disk.
-     * <p>
-     * We also employ {@linkplain #queuedResults yet another queue} to queue up {@link JobBuildResult}s
-     * so that we can write many of them in one {@code plugin.save()}.
      */
-	public void onJobCompleted(AbstractBuild build) {
-        queuedResults.add(JobBuildResultFactory.INSTANCE.createJobBuildResult(build));
+	public void onJobCompleted(final AbstractBuild build) {
+        this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
+            public void changePluginStateBeforeSavingIt(List<JobBuildResult> resultsToAdd,
+                                                        List<JobBuildResult> resultsToRemove,
+                                                        List<BuildStatConfiguration> buildStatConfigs) {
 
-        writer.submit(new Runnable() {
-            public void run() {
-                List<JobBuildResult> r;
-                // atomically move all the queued stuff into a local list
-                synchronized (queuedResults) {
-                    r = new ArrayList<JobBuildResult>(queuedResults);
-                    queuedResults.clear();
-                }
-
-                // this happens if other runnables have written bits in a bulk
-                if (r.isEmpty())    return;
-
-                // Synchronizing plugin instance every time we modify persisted information on it
-                synchronized (plugin) {
-                    plugin.getJobBuildResults().addAll(r);
-
-                    try {
-                        plugin.save();
-                    } catch (IOException e) {
-                        LOGGER.log(Level.WARNING, "Failed to persist global build stat records", e);
-                    }
-                }
+                resultsToAdd.add(JobBuildResultFactory.INSTANCE.createJobBuildResult(build));
             }
         });
 	}
@@ -111,7 +69,7 @@ public class GlobalBuildStatsBusiness {
 	public BuildStatConfiguration searchBuildStatConfigById(String buildStatId){
 		int index = searchBuildStatConfigIndexById(buildStatId);
 		if(index != -1){
-			return plugin.getBuildStatConfigs().get(index);
+            return this.pluginSaver.getBuildStatConfigs().get(index);
 		} else {
 			return null;
 		}
@@ -119,14 +77,14 @@ public class GlobalBuildStatsBusiness {
 	
 	private int searchBuildStatConfigIndexById(String id){
 		int idx = 0;
-		for(BuildStatConfiguration c : plugin.getBuildStatConfigs()){
+		for(BuildStatConfiguration c : pluginSaver.getBuildStatConfigs()){
 			if(id.equals(c.getId())){
 				break;
 			}
 			idx++;
 		}
 		
-		if(idx == plugin.getBuildStatConfigs().size()){
+		if(idx == this.pluginSaver.getBuildStatConfigs().size()){
 			idx = -1;
 		}
 		
@@ -134,21 +92,24 @@ public class GlobalBuildStatsBusiness {
 	}
 	
 	public void recordBuildInfos() throws IOException {
-        List<JobBuildResult> jobBuildResultsRead = new ArrayList<JobBuildResult>();
-        
-		// Synchronizing plugin instance every time we modify persisted informations on it
-        synchronized (plugin) {
-            //TODO fix MatrixProject and use getAllJobs()
-            for (TopLevelItem item : Hudson.getInstance().getItems()) {
-                if (item instanceof AbstractProject) {
-                	addBuildsFrom(jobBuildResultsRead, (AbstractProject) item);
-                }
-            }
-            
-            plugin.setJobBuildResults(mergeJobBuildResults(plugin.getJobBuildResults(), jobBuildResultsRead));
 
-        	plugin.save();
-		}
+        this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
+            public void changePluginStateBeforeSavingIt(List<JobBuildResult> resultsToAdd,
+                                                        List<JobBuildResult> resultsToRemove,
+                                                        List<BuildStatConfiguration> buildStatConfigs) {
+
+                List<JobBuildResult> jobBuildResultsRead = new ArrayList<JobBuildResult>();
+
+                //TODO fix MatrixProject and use getAllJobs()
+                for (TopLevelItem item : Hudson.getInstance().getItems()) {
+                    if (item instanceof AbstractProject) {
+                        addBuildsFrom(jobBuildResultsRead, (AbstractProject) item);
+                    }
+                }
+
+                resultsToAdd = CollectionsUtil.<JobBuildResult>minus(jobBuildResultsRead, pluginSaver.getJobBuildResults());
+            }
+        });
 	}
 	
 	public JFreeChart createChart(BuildStatConfiguration config){
@@ -159,7 +120,7 @@ public class GlobalBuildStatsBusiness {
 	public List<JobBuildSearchResult> searchBuilds(BuildHistorySearchCriteria searchCriteria){
     	List<JobBuildSearchResult> filteredJobBuildResults = new ArrayList<JobBuildSearchResult>();
     	
-        for(JobBuildResult r : plugin.getJobBuildResults()){
+        for(JobBuildResult r : this.pluginSaver.getJobBuildResults()){
         	if(searchCriteria.isJobResultEligible(r)){
         		boolean isJobAccessible = false;
         		boolean isBuildAccessible = false;
@@ -185,68 +146,102 @@ public class GlobalBuildStatsBusiness {
         return filteredJobBuildResults;
 	}
 
-	public void updateBuildStatConfiguration(String oldBuildStatId, BuildStatConfiguration config, boolean regenerateId) throws IOException {
-		// Synchronizing plugin instance every time we modify persisted informations on it
-    	synchronized(plugin){
-        	if(regenerateId){
-        		String newBuildStatId = ModelIdGenerator.INSTANCE.generateIdForClass(BuildStatConfiguration.class);
-        		config.setId(newBuildStatId);
-        	}
-        	
-    		int buildStatIndex = searchBuildStatConfigIndexById(oldBuildStatId);
-	    	plugin.getBuildStatConfigs().set(buildStatIndex, config);
-	    	plugin.save();
-	    	
-	    	if(regenerateId){
-	    		ModelIdGenerator.INSTANCE.unregisterIdForClass(BuildStatConfiguration.class, oldBuildStatId);
-	    	}
-    	}
+    // TODO: remove ioexception ???
+	public void updateBuildStatConfiguration(final String oldBuildStatId,
+                                             final BuildStatConfiguration config,
+                                             final boolean regenerateId) throws IOException {
+
+        this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
+            public void changePluginStateBeforeSavingIt(List<JobBuildResult> resultsToAdd,
+                                                        List<JobBuildResult> resultsToRemove,
+                                                        List<BuildStatConfiguration> buildStatConfigs) {
+
+                if(regenerateId){
+                    String newBuildStatId = ModelIdGenerator.INSTANCE.generateIdForClass(BuildStatConfiguration.class);
+                    config.setId(newBuildStatId);
+                }
+
+                int buildStatIndex = searchBuildStatConfigIndexById(oldBuildStatId);
+
+                buildStatConfigs.addAll(pluginSaver.getBuildStatConfigs());
+                buildStatConfigs.set(buildStatIndex, config);
+            }
+
+            @Override
+            public void afterPluginSaved(){
+                if(regenerateId){
+                    ModelIdGenerator.INSTANCE.unregisterIdForClass(BuildStatConfiguration.class, oldBuildStatId);
+                }
+            }
+        });
+	}
+
+	public void addBuildStatConfiguration(final BuildStatConfiguration config) throws IOException {
+        this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
+
+            @Override
+            public void changePluginStateBeforeSavingIt(List<JobBuildResult> resultsToAdd,
+                                                        List<JobBuildResult> resultsToRemove,
+                                                        List<BuildStatConfiguration> buildStatConfigs) {
+                buildStatConfigs.add(config);
+            }
+        });
 	}
 	
-	public void addBuildStatConfiguration(BuildStatConfiguration config) throws IOException {
-		// Synchronizing plugin instance every time we modify persisted informations on it
-    	synchronized(plugin){
-	    	plugin.getBuildStatConfigs().add(config);
-	    	plugin.save();
-    	}
+	public void deleteBuildStatConfiguration(final String buildStatId) throws IOException {
+        this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
+
+            @Override
+            public void changePluginStateBeforeSavingIt(List<JobBuildResult> resultsToAdd,
+                                                        List<JobBuildResult> resultsToRemove,
+                                                        List<BuildStatConfiguration> buildStatConfigs) {
+
+                int index = searchBuildStatConfigIndexById(buildStatId);
+                buildStatConfigs.remove(index);
+            }
+        });
 	}
 	
-	public void deleteBuildStatConfiguration(String buildStatId) throws IOException {
-    	synchronized(plugin){
-    		int index = searchBuildStatConfigIndexById(buildStatId);
-    		plugin.getBuildStatConfigs().remove(index);
-    		plugin.save();
-    	}
+	public void moveUpConf(final String buildStatId) throws IOException {
+        this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
+
+            @Override
+            public void changePluginStateBeforeSavingIt(List<JobBuildResult> resultsToAdd,
+                                                        List<JobBuildResult> resultsToRemove,
+                                                        List<BuildStatConfiguration> buildStatConfigs) {
+
+                int index = searchBuildStatConfigIndexById(buildStatId);
+                if(index <= 0){
+                    throw new IllegalArgumentException("Can't move up first build stat configuration !");
+                }
+
+                BuildStatConfiguration b = buildStatConfigs.get(index);
+                // Swapping build confs
+                buildStatConfigs.set(index, buildStatConfigs.get(index-1));
+                buildStatConfigs.set(index-1, b);
+            }
+        });
 	}
 	
-	public void moveUpConf(String buildStatId) throws IOException {
-		// Synchronizing plugin instance every time we modify persisted informations on it
-		int index = searchBuildStatConfigIndexById(buildStatId);
-		if(index <= 0){
-			throw new IllegalArgumentException("Can't move up first build stat configuration !");
-		}
-    	synchronized(plugin){
-	    	BuildStatConfiguration b = plugin.getBuildStatConfigs().get(index);
-	    	// Swapping build confs
-	    	plugin.getBuildStatConfigs().set(index, plugin.getBuildStatConfigs().get(index-1));
-	    	plugin.getBuildStatConfigs().set(index-1, b);
-	    	plugin.save();
-    	}
-	}
-	
-	public void moveDownConf(String buildStatId) throws IOException {
-		// Synchronizing plugin instance every time we modify persisted informations on it
-		int index = searchBuildStatConfigIndexById(buildStatId);
-		if(index >= plugin.getBuildStatConfigs().size()-1){
-			throw new IllegalArgumentException("Can't move down last build stat configuration !");
-		}
-    	synchronized(plugin){
-	    	BuildStatConfiguration b = plugin.getBuildStatConfigs().get(index);
-	    	// Swapping build confs
-	    	plugin.getBuildStatConfigs().set(index, plugin.getBuildStatConfigs().get(index+1));
-	    	plugin.getBuildStatConfigs().set(index+1, b);
-	    	plugin.save();
-    	}
+	public void moveDownConf(final String buildStatId) throws IOException {
+        this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
+
+            @Override
+            public void changePluginStateBeforeSavingIt(List<JobBuildResult> resultsToAdd,
+                                                        List<JobBuildResult> resultsToRemove,
+                                                        List<BuildStatConfiguration> buildStatConfigs) {
+
+                int index = searchBuildStatConfigIndexById(buildStatId);
+                if(index >= buildStatConfigs.size()-1){
+                    throw new IllegalArgumentException("Can't move down last build stat configuration !");
+                }
+
+                BuildStatConfiguration b = buildStatConfigs.get(index);
+                // Swapping build confs
+                buildStatConfigs.set(index, buildStatConfigs.get(index+1));
+                buildStatConfigs.set(index+1, b);
+            }
+        });
 	}
 	
 	public static String escapeAntiSlashes(String value){
@@ -328,7 +323,7 @@ public class GlobalBuildStatsBusiness {
     		dimensions.add(dimensionShown.createBuildStatChartDimension(config, new DataSetBuilder<String, DateRange>()));
     	}
     	
-    	List<JobBuildResult> sortedJobResults = new ArrayList<JobBuildResult>(plugin.getJobBuildResults());
+    	List<JobBuildResult> sortedJobResults = new ArrayList<JobBuildResult>(this.pluginSaver.getJobBuildResults());
     	sortJobBuildResultsByBuildDate(sortedJobResults);
 	    
 		Calendar d2 = new GregorianCalendar();
@@ -406,4 +401,8 @@ public class GlobalBuildStatsBusiness {
 	}
 
     private static final Logger LOGGER = Logger.getLogger(GlobalBuildStatsBusiness.class.getName());
+
+    public void synchronizePluginSaver() {
+        this.pluginSaver.synchronizeWithPlugin();
+    }
 }
