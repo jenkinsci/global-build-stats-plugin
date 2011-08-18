@@ -118,7 +118,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
 		Hudson.XSTREAM.aliasField("nn", JobBuildResult.class, "nodeName");
 		Hudson.XSTREAM.aliasField("un", JobBuildResult.class, "userName");
 	}
-	
+
     /**
      * Expose {@link GlobalBuildStatsPlugin} to the remote API :
      * - Either all build stat configuration data
@@ -127,7 +127,14 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public Api getApi() {
     	return new GlobalBuildStatsApi(this);
     }
-    
+
+    /**
+     * Highered visibility of load method
+     */
+    public void load() throws IOException {
+        super.load();
+    }
+
     /**
      * Hack allowing to either generate plugin informations (build stat configurations) OR
      * generate chart data for a given buildStatConfigId request parameter
@@ -176,22 +183,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	public void onLoaded() {
     		super.onLoaded();
 
-    		try {
-    			getInstance().load();
-			} catch (IOException e) {
-				LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            }
-
-            getPluginBusiness().synchronizePluginSaver();
-
-			// If job results are empty, let's perform an initialization !
-			if(getInstance().jobBuildResults==null || getInstance().jobBuildResults.size() == 0){
-		    	try {
-					getPluginBusiness().recordBuildInfos();
-				} catch (IOException e) {
-					LOGGER.log(Level.SEVERE, e.getMessage(), e);
-				}
-			}
+            getPluginBusiness().reloadPlugin();
     	}
     	
     	// TODO: check if a node has been renamed and, if so, replace old name by new name in

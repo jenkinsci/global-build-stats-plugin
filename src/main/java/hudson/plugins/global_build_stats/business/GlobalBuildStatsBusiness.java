@@ -46,6 +46,8 @@ import org.jfree.ui.RectangleInsets;
 
 public class GlobalBuildStatsBusiness {
 
+    private static final Logger LOGGER = Logger.getLogger(GlobalBuildStatsBusiness.class.getName());
+
     /* package */ final GlobalBuildStatsPluginSaver pluginSaver;
 
 	public GlobalBuildStatsBusiness(GlobalBuildStatsPlugin _plugin){
@@ -400,9 +402,16 @@ public class GlobalBuildStatsBusiness {
 		return mergedJobResultsList;
 	}
 
-    private static final Logger LOGGER = Logger.getLogger(GlobalBuildStatsBusiness.class.getName());
+    public void reloadPlugin() {
+        this.pluginSaver.reloadPlugin();
 
-    public void synchronizePluginSaver() {
-        this.pluginSaver.synchronizeWithPlugin();
+        // If job results are empty, let's perform an initialization !
+        if(this.pluginSaver.getJobBuildResults()==null || this.pluginSaver.getJobBuildResults().size() == 0){
+            try {
+                this.recordBuildInfos();
+            } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+            }
+        }
     }
 }

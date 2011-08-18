@@ -77,6 +77,16 @@ public class GlobalBuildStatsPluginSaver {
         this.buildStatConfigs.addAll(plugin.getBuildStatConfigs());
     }
 
+    public void reloadPlugin() {
+        try {
+            this.plugin.load();
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+
+        this.synchronizeWithPlugin();
+    }
+
     /**
      * Single entry point to persist information on GlobalBuildStatsPlugin
      * As the number of builds grow, the time it takes to execute "plugin.save()" become
