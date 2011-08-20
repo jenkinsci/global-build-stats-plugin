@@ -1,10 +1,8 @@
 package hudson.plugins.global_build_stats.xstream.migration.v3;
 
 import hudson.model.AbstractBuild;
-import hudson.model.Hudson;
-import hudson.model.Job;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
-import hudson.plugins.global_build_stats.xstream.migration.AbstractMigrator;
+import hudson.plugins.global_build_stats.xstream.migration.PreV8AbstractMigrator;
 import hudson.plugins.global_build_stats.xstream.migration.v2.V2GlobalBuildStatsPOJO;
 
 import java.util.ArrayList;
@@ -15,7 +13,7 @@ import java.util.List;
  * - JobBuildResult.duration and JobBuildResult.nodeName attributes added
  * @author fcamblor
  */
-public class V2ToV3Migrator extends AbstractMigrator<V2GlobalBuildStatsPOJO, V3GlobalBuildStatsPOJO> {
+public class V2ToV3Migrator extends PreV8AbstractMigrator<V2GlobalBuildStatsPOJO, V3GlobalBuildStatsPOJO> {
 
 	@Override
 	protected V3GlobalBuildStatsPOJO createMigratedPojo() {

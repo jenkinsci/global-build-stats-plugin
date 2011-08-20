@@ -2,7 +2,7 @@ package hudson.plugins.global_build_stats.xstream.migration.v2;
 
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.YAxisChartType;
-import hudson.plugins.global_build_stats.xstream.migration.AbstractMigrator;
+import hudson.plugins.global_build_stats.xstream.migration.PreV8AbstractMigrator;
 import hudson.plugins.global_build_stats.xstream.migration.v1.V1GlobalBuildStatsPOJO;
 
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import java.util.List;
  * - BuildStatConfiguration.yAxisChartType attribute added
  * @author fcamblor
  */
-public class V1ToV2Migrator extends AbstractMigrator<V1GlobalBuildStatsPOJO, V2GlobalBuildStatsPOJO> {
+public class V1ToV2Migrator extends PreV8AbstractMigrator<V1GlobalBuildStatsPOJO, V2GlobalBuildStatsPOJO> {
 
 	@Override
 	protected V2GlobalBuildStatsPOJO createMigratedPojo() {

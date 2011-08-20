@@ -2,7 +2,7 @@ package hudson.plugins.global_build_stats.xstream.migration.v6;
 
 import hudson.plugins.global_build_stats.model.BuildSearchCriteria;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
-import hudson.plugins.global_build_stats.xstream.migration.AbstractMigrator;
+import hudson.plugins.global_build_stats.xstream.migration.PreV8AbstractMigrator;
 import hudson.plugins.global_build_stats.xstream.migration.v5.V5GlobalBuildStatsPOJO;
 
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import java.util.List;
  * - Creation of BuildStatConfiguration.buildFilters and move of jobFilter, nodeFilter and shownBuildResults into this encapsulated class
  * @author fcamblor
  */
-public class V5ToV6Migrator extends AbstractMigrator<V5GlobalBuildStatsPOJO, V6GlobalBuildStatsPOJO> {
+public class V5ToV6Migrator extends PreV8AbstractMigrator<V5GlobalBuildStatsPOJO, V6GlobalBuildStatsPOJO> {
 
 	@Override
 	protected V6GlobalBuildStatsPOJO createMigratedPojo() {

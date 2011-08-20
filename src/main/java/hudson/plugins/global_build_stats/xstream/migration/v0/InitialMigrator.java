@@ -1,6 +1,6 @@
 package hudson.plugins.global_build_stats.xstream.migration.v0;
 
-import hudson.plugins.global_build_stats.xstream.migration.AbstractMigrator;
+import hudson.plugins.global_build_stats.xstream.migration.PreV8AbstractMigrator;
 
 /**
  * V1 Evolutions :
@@ -8,7 +8,7 @@ import hudson.plugins.global_build_stats.xstream.migration.AbstractMigrator;
  * - BuildStatConfiguration id added
  * @author fcamblor
  */
-public class InitialMigrator extends AbstractMigrator<V0GlobalBuildStatsPOJO, V0GlobalBuildStatsPOJO> {
+public class InitialMigrator extends PreV8AbstractMigrator<V0GlobalBuildStatsPOJO, V0GlobalBuildStatsPOJO> {
 
 	@Override
 	protected V0GlobalBuildStatsPOJO createMigratedPojo() {

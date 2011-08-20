@@ -3,7 +3,7 @@ package hudson.plugins.global_build_stats.xstream.migration.v1;
 import hudson.plugins.global_build_stats.FieldFilterFactory;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.ModelIdGenerator;
-import hudson.plugins.global_build_stats.xstream.migration.AbstractMigrator;
+import hudson.plugins.global_build_stats.xstream.migration.PreV8AbstractMigrator;
 import hudson.plugins.global_build_stats.xstream.migration.v0.V0GlobalBuildStatsPOJO;
 
 import java.util.ArrayList;
@@ -15,7 +15,7 @@ import java.util.List;
  * - BuildStatConfiguration id added
  * @author fcamblor
  */
-public class V0ToV1Migrator extends AbstractMigrator<V0GlobalBuildStatsPOJO, V1GlobalBuildStatsPOJO> {
+public class V0ToV1Migrator extends PreV8AbstractMigrator<V0GlobalBuildStatsPOJO, V1GlobalBuildStatsPOJO> {
 
 	@Override
 	protected V1GlobalBuildStatsPOJO createMigratedPojo() {

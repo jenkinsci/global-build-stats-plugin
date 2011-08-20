@@ -6,7 +6,7 @@ import hudson.plugins.global_build_stats.JobBuildResultFactory;
 import hudson.plugins.global_build_stats.model.BuildSearchCriteria;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
-import hudson.plugins.global_build_stats.xstream.migration.AbstractMigrator;
+import hudson.plugins.global_build_stats.xstream.migration.PreV8AbstractMigrator;
 import hudson.plugins.global_build_stats.xstream.migration.v6.V6GlobalBuildStatsPOJO;
 
 import java.util.ArrayList;
@@ -17,7 +17,7 @@ import java.util.List;
  * - Provided username having launched the build in JobBuildResult
  * @author fcamblor
  */
-public class V6ToV7Migrator extends AbstractMigrator<V6GlobalBuildStatsPOJO, V7GlobalBuildStatsPOJO> {
+public class V6ToV7Migrator extends PreV8AbstractMigrator<V6GlobalBuildStatsPOJO, V7GlobalBuildStatsPOJO> {
 
 	@Override
 	protected V7GlobalBuildStatsPOJO createMigratedPojo() {

@@ -2,7 +2,7 @@ package hudson.plugins.global_build_stats.xstream.migration.v5;
 
 import hudson.plugins.global_build_stats.FieldFilterFactory;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
-import hudson.plugins.global_build_stats.xstream.migration.AbstractMigrator;
+import hudson.plugins.global_build_stats.xstream.migration.PreV8AbstractMigrator;
 import hudson.plugins.global_build_stats.xstream.migration.v4.V4GlobalBuildStatsPOJO;
 
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.List;
  * - BuildStatConfiguration.jobFilter values refactored ("jobNameRegex" => "fieldRegex")
  * @author fcamblor
  */
-public class V4ToV5Migrator extends AbstractMigrator<V4GlobalBuildStatsPOJO, V5GlobalBuildStatsPOJO> {
+public class V4ToV5Migrator extends PreV8AbstractMigrator<V4GlobalBuildStatsPOJO, V5GlobalBuildStatsPOJO> {
 
 	@Override
 	protected V5GlobalBuildStatsPOJO createMigratedPojo() {
