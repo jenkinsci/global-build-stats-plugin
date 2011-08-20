@@ -2,6 +2,7 @@ package hudson.plugins.global_build_stats.model;
 
 import java.io.Serializable;
 import java.util.Calendar;
+import java.util.Comparator;
 
 /**
  * Data persisted in the end of every build
@@ -116,4 +117,11 @@ public class JobBuildResult implements Serializable {
 	public void setUserName(String userName) {
 		this.userName = userName;
 	}
+
+    public static class TimedComparator implements Comparator<JobBuildResult>{
+
+        public int compare(JobBuildResult jbr1, JobBuildResult jbr2) {
+            return jbr1.buildDate.compareTo(jbr2.buildDate);
+        }
+    }
 }
