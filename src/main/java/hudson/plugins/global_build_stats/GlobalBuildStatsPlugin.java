@@ -79,46 +79,6 @@ public class GlobalBuildStatsPlugin extends Plugin {
 	 */
 	transient private final GlobalBuildStatsValidator validator = new GlobalBuildStatsValidator();
 	
-	@Override
-	public void start() throws Exception {
-		super.start();
-		
-		Hudson.XSTREAM.registerConverter(new GlobalBuildStatsXStreamConverter());
-		
-		// XStream compacting aliases...
-		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.JOB_BUILD_RESULT_CLASS_ALIAS, JobBuildResult.class);
-		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.BUILD_STAT_CONFIG_CLASS_ALIAS, BuildStatConfiguration.class);
-		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.BUILD_SEARCH_CRITERIA_CLASS_ALIAS, BuildSearchCriteria.class);
-		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.HISTORIC_SCALE_CLASS_ALIAS, HistoricScale.class);
-		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.YAXIS_CHART_TYPE_CLASS_ALIAS, YAxisChartType.class);
-		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.YAXIS_CHART_DIMENSION_CLASS_ALIAS, YAxisChartDimension.class);
-		
-		Hudson.XSTREAM.aliasField("t", BuildStatConfiguration.class, "buildStatTitle");
-		Hudson.XSTREAM.aliasField("w", BuildStatConfiguration.class, "buildStatWidth");
-		Hudson.XSTREAM.aliasField("h", BuildStatConfiguration.class, "buildStatHeight");
-		Hudson.XSTREAM.aliasField("l", BuildStatConfiguration.class, "historicLength");
-		Hudson.XSTREAM.aliasField("s", BuildStatConfiguration.class, "historicScale");
-		Hudson.XSTREAM.aliasField("yact", BuildStatConfiguration.class, "yAxisChartType");
-		Hudson.XSTREAM.aliasField("ds", BuildStatConfiguration.class, "dimensionsShown");
-		Hudson.XSTREAM.aliasField("f", BuildStatConfiguration.class, "buildFilters");
-		// Deprecated ! Just here for old formats
-		Hudson.XSTREAM.aliasField("jf", BuildStatConfiguration.class, "jobFilter");
-		Hudson.XSTREAM.aliasField("sbr", BuildStatConfiguration.class, "shownBuildResults");
-
-		Hudson.XSTREAM.aliasField("jf", BuildSearchCriteria.class, "jobFilter");
-		Hudson.XSTREAM.aliasField("nf", BuildSearchCriteria.class, "nodeFilter");
-		Hudson.XSTREAM.aliasField("lf", BuildSearchCriteria.class, "launcherFilter");
-		Hudson.XSTREAM.aliasField("sbr", BuildSearchCriteria.class, "shownBuildResults");
-		
-		Hudson.XSTREAM.aliasField("r", JobBuildResult.class, "result");
-		Hudson.XSTREAM.aliasField("n", JobBuildResult.class, "jobName");
-		Hudson.XSTREAM.aliasField("nb", JobBuildResult.class, "buildNumber");
-		Hudson.XSTREAM.aliasField("d", JobBuildResult.class, "buildDate");
-		Hudson.XSTREAM.aliasField("du", JobBuildResult.class, "duration");
-		Hudson.XSTREAM.aliasField("nn", JobBuildResult.class, "nodeName");
-		Hudson.XSTREAM.aliasField("un", JobBuildResult.class, "userName");
-	}
-
     /**
      * Expose {@link GlobalBuildStatsPlugin} to the remote API :
      * - Either all build stat configuration data
