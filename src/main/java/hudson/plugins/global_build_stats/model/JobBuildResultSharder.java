@@ -4,6 +4,7 @@ import com.google.common.io.Files;
 import hudson.model.Hudson;
 import hudson.plugins.global_build_stats.util.CollectionsUtil;
 import hudson.plugins.global_build_stats.xstream.GlobalBuildStatsXStreamConverter;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -104,7 +105,7 @@ public class JobBuildResultSharder {
         File jobResultsRoot = getJobResultFolder();
         if(!jobResultsRoot.exists()){
             try {
-                Files.createParentDirs(jobResultsRoot);
+                FileUtils.forceMkdir(jobResultsRoot);
             } catch (IOException e) {
                 throw new IllegalStateException("Can't create job results root directory : "+jobResultsRoot.getAbsolutePath(), e);
             }
@@ -175,7 +176,7 @@ public class JobBuildResultSharder {
         // Sharding job build results depending on their year+month
         Map<String, List<JobBuildResult>> byMonthJobResults = new HashMap<String, List<JobBuildResult>>();
         for(JobBuildResult r: results){
-            String targetFilename = JOB_RESULT_FILENAME_SDF.format(r.getBuildDate());
+            String targetFilename = JOB_RESULT_FILENAME_SDF.format( r.getBuildDate().getTime() );
             if(!byMonthJobResults.containsKey(targetFilename)){
                 byMonthJobResults.put(targetFilename, new ArrayList<JobBuildResult>());
             }
