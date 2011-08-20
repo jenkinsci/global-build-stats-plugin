@@ -10,19 +10,8 @@ import hudson.model.Hudson;
 import hudson.model.listeners.ItemListener;
 import hudson.model.listeners.RunListener;
 import hudson.plugins.global_build_stats.business.GlobalBuildStatsBusiness;
-import hudson.plugins.global_build_stats.model.AbstractBuildStatChartDimension;
-import hudson.plugins.global_build_stats.model.BuildHistorySearchCriteria;
-import hudson.plugins.global_build_stats.model.BuildSearchCriteria;
-import hudson.plugins.global_build_stats.model.BuildStatChartData;
-import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
-import hudson.plugins.global_build_stats.model.HistoricScale;
-import hudson.plugins.global_build_stats.model.JobBuildResult;
-import hudson.plugins.global_build_stats.model.JobBuildSearchResult;
-import hudson.plugins.global_build_stats.model.ModelIdGenerator;
-import hudson.plugins.global_build_stats.model.YAxisChartDimension;
-import hudson.plugins.global_build_stats.model.YAxisChartType;
+import hudson.plugins.global_build_stats.model.*;
 import hudson.plugins.global_build_stats.validation.GlobalBuildStatsValidator;
-import hudson.plugins.global_build_stats.xstream.GlobalBuildStatsXStreamConverter;
 import hudson.security.Permission;
 import hudson.util.ChartUtil;
 import hudson.util.FormValidation;
@@ -30,7 +19,6 @@ import hudson.util.FormValidation;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
@@ -56,12 +44,21 @@ import org.kohsuke.stapler.export.Flavor;
 public class GlobalBuildStatsPlugin extends Plugin {
 
     private static final Logger LOGGER = Logger.getLogger(GlobalBuildStatsPlugin.class.getName());
-    
+
+    /**
+     * List of aggregated job build results
+     * This list will grow over time, but will be monthly sharded in different files to keep
+     * save() time constant
+     */
+    private JobBuildResultSharder jobBuildResultsSharder = new JobBuildResultSharder();
+
 	/**
 	 * List of aggregated job build results
 	 * This list will grow over time
+     * @deprecated Use jobBuildResultsSharder instead of jobBuildResults (since v8 file format)
 	 */
-	private List<JobBuildResult> jobBuildResults = new ArrayList<JobBuildResult>();
+    @Deprecated
+	transient private List<JobBuildResult> jobBuildResults = new ArrayList<JobBuildResult>();
 	
 	/**
 	 * List of persisted build statistics configurations used on the
@@ -201,7 +198,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public static GlobalBuildStatsPlugin getInstance(){
     	return Hudson.getInstance().getPlugin(GlobalBuildStatsPlugin.class);
     }
-    
+
     // Form validations
     
     public FormValidation doCheckJobFilter(@QueryParameter String value){
@@ -408,7 +405,18 @@ public class GlobalBuildStatsPlugin extends Plugin {
 		return YAxisChartType.values();
 	}
 
+    /**
+     * @return An unmodifiable list of job build results
+     */
 	public List<JobBuildResult> getJobBuildResults() {
-		return jobBuildResults;
+        return this.jobBuildResultsSharder.getJobBuildResults();
 	}
+
+    public JobBuildResultSharder getJobBuildResultsSharder() {
+        return jobBuildResultsSharder;
+    }
+
+    public void reloadJobBuildResults(List<JobBuildResult> results) {
+        this.jobBuildResultsSharder = new JobBuildResultSharder(this.jobBuildResultsSharder, results);
+    }
 }

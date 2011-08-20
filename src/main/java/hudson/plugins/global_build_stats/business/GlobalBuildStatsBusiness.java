@@ -49,8 +49,10 @@ public class GlobalBuildStatsBusiness {
     private static final Logger LOGGER = Logger.getLogger(GlobalBuildStatsBusiness.class.getName());
 
     /* package */ final GlobalBuildStatsPluginSaver pluginSaver;
+    /* package */ final GlobalBuildStatsPlugin plugin;
 
 	public GlobalBuildStatsBusiness(GlobalBuildStatsPlugin _plugin){
+        this.plugin = _plugin;
         this.pluginSaver = new GlobalBuildStatsPluginSaver(_plugin);
 	}
 
@@ -59,11 +61,9 @@ public class GlobalBuildStatsBusiness {
      */
 	public void onJobCompleted(final AbstractBuild build) {
         this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
-            public void changePluginStateBeforeSavingIt(List<JobBuildResult> resultsToAdd,
-                                                        List<JobBuildResult> resultsToRemove,
-                                                        List<BuildStatConfiguration> buildStatConfigs) {
+            public void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin) {
 
-                resultsToAdd.add(JobBuildResultFactory.INSTANCE.createJobBuildResult(build));
+                plugin.getJobBuildResultsSharder().queueResultToAdd(JobBuildResultFactory.INSTANCE.createJobBuildResult(build));
             }
         });
 	}
@@ -71,7 +71,7 @@ public class GlobalBuildStatsBusiness {
 	public BuildStatConfiguration searchBuildStatConfigById(String buildStatId){
 		int index = searchBuildStatConfigIndexById(buildStatId);
 		if(index != -1){
-            return this.pluginSaver.getBuildStatConfigs().get(index);
+            return this.plugin.getBuildStatConfigs().get(index);
 		} else {
 			return null;
 		}
@@ -79,14 +79,14 @@ public class GlobalBuildStatsBusiness {
 	
 	private int searchBuildStatConfigIndexById(String id){
 		int idx = 0;
-		for(BuildStatConfiguration c : pluginSaver.getBuildStatConfigs()){
+		for(BuildStatConfiguration c : plugin.getBuildStatConfigs()){
 			if(id.equals(c.getId())){
 				break;
 			}
 			idx++;
 		}
 		
-		if(idx == this.pluginSaver.getBuildStatConfigs().size()){
+		if(idx == this.plugin.getBuildStatConfigs().size()){
 			idx = -1;
 		}
 		
@@ -96,9 +96,7 @@ public class GlobalBuildStatsBusiness {
 	public void recordBuildInfos() throws IOException {
 
         this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
-            public void changePluginStateBeforeSavingIt(List<JobBuildResult> resultsToAdd,
-                                                        List<JobBuildResult> resultsToRemove,
-                                                        List<BuildStatConfiguration> buildStatConfigs) {
+            public void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin) {
 
                 List<JobBuildResult> jobBuildResultsRead = new ArrayList<JobBuildResult>();
 
@@ -109,7 +107,8 @@ public class GlobalBuildStatsBusiness {
                     }
                 }
 
-                resultsToAdd = CollectionsUtil.<JobBuildResult>minus(jobBuildResultsRead, pluginSaver.getJobBuildResults());
+                plugin.getJobBuildResultsSharder().queueResultsToAdd(
+                        CollectionsUtil.<JobBuildResult>minus(jobBuildResultsRead, plugin.getJobBuildResults()));
             }
         });
 	}
@@ -122,7 +121,7 @@ public class GlobalBuildStatsBusiness {
 	public List<JobBuildSearchResult> searchBuilds(BuildHistorySearchCriteria searchCriteria){
     	List<JobBuildSearchResult> filteredJobBuildResults = new ArrayList<JobBuildSearchResult>();
     	
-        for(JobBuildResult r : this.pluginSaver.getJobBuildResults()){
+        for(JobBuildResult r : this.plugin.getJobBuildResults()){
         	if(searchCriteria.isJobResultEligible(r)){
         		boolean isJobAccessible = false;
         		boolean isBuildAccessible = false;
@@ -154,9 +153,7 @@ public class GlobalBuildStatsBusiness {
                                              final boolean regenerateId) throws IOException {
 
         this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
-            public void changePluginStateBeforeSavingIt(List<JobBuildResult> resultsToAdd,
-                                                        List<JobBuildResult> resultsToRemove,
-                                                        List<BuildStatConfiguration> buildStatConfigs) {
+            public void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin) {
 
                 if(regenerateId){
                     String newBuildStatId = ModelIdGenerator.INSTANCE.generateIdForClass(BuildStatConfiguration.class);
@@ -165,8 +162,8 @@ public class GlobalBuildStatsBusiness {
 
                 int buildStatIndex = searchBuildStatConfigIndexById(oldBuildStatId);
 
-                buildStatConfigs.addAll(pluginSaver.getBuildStatConfigs());
-                buildStatConfigs.set(buildStatIndex, config);
+                plugin.getBuildStatConfigs().addAll(plugin.getBuildStatConfigs());
+                plugin.getBuildStatConfigs().set(buildStatIndex, config);
             }
 
             @Override
@@ -182,10 +179,8 @@ public class GlobalBuildStatsBusiness {
         this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
 
             @Override
-            public void changePluginStateBeforeSavingIt(List<JobBuildResult> resultsToAdd,
-                                                        List<JobBuildResult> resultsToRemove,
-                                                        List<BuildStatConfiguration> buildStatConfigs) {
-                buildStatConfigs.add(config);
+            public void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin) {
+                plugin.getBuildStatConfigs().add(config);
             }
         });
 	}
@@ -194,12 +189,10 @@ public class GlobalBuildStatsBusiness {
         this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
 
             @Override
-            public void changePluginStateBeforeSavingIt(List<JobBuildResult> resultsToAdd,
-                                                        List<JobBuildResult> resultsToRemove,
-                                                        List<BuildStatConfiguration> buildStatConfigs) {
+            public void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin) {
 
                 int index = searchBuildStatConfigIndexById(buildStatId);
-                buildStatConfigs.remove(index);
+                plugin.getBuildStatConfigs().remove(index);
             }
         });
 	}
@@ -208,19 +201,17 @@ public class GlobalBuildStatsBusiness {
         this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
 
             @Override
-            public void changePluginStateBeforeSavingIt(List<JobBuildResult> resultsToAdd,
-                                                        List<JobBuildResult> resultsToRemove,
-                                                        List<BuildStatConfiguration> buildStatConfigs) {
+            public void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin) {
 
                 int index = searchBuildStatConfigIndexById(buildStatId);
                 if(index <= 0){
                     throw new IllegalArgumentException("Can't move up first build stat configuration !");
                 }
 
-                BuildStatConfiguration b = buildStatConfigs.get(index);
+                BuildStatConfiguration b = plugin.getBuildStatConfigs().get(index);
                 // Swapping build confs
-                buildStatConfigs.set(index, buildStatConfigs.get(index-1));
-                buildStatConfigs.set(index-1, b);
+                plugin.getBuildStatConfigs().set(index, plugin.getBuildStatConfigs().get(index-1));
+                plugin.getBuildStatConfigs().set(index-1, b);
             }
         });
 	}
@@ -229,19 +220,17 @@ public class GlobalBuildStatsBusiness {
         this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
 
             @Override
-            public void changePluginStateBeforeSavingIt(List<JobBuildResult> resultsToAdd,
-                                                        List<JobBuildResult> resultsToRemove,
-                                                        List<BuildStatConfiguration> buildStatConfigs) {
+            public void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin) {
 
                 int index = searchBuildStatConfigIndexById(buildStatId);
-                if(index >= buildStatConfigs.size()-1){
+                if(index >= plugin.getBuildStatConfigs().size()-1){
                     throw new IllegalArgumentException("Can't move down last build stat configuration !");
                 }
 
-                BuildStatConfiguration b = buildStatConfigs.get(index);
+                BuildStatConfiguration b = plugin.getBuildStatConfigs().get(index);
                 // Swapping build confs
-                buildStatConfigs.set(index, buildStatConfigs.get(index+1));
-                buildStatConfigs.set(index+1, b);
+                plugin.getBuildStatConfigs().set(index, plugin.getBuildStatConfigs().get(index+1));
+                plugin.getBuildStatConfigs().set(index+1, b);
             }
         });
 	}
@@ -325,7 +314,7 @@ public class GlobalBuildStatsBusiness {
     		dimensions.add(dimensionShown.createBuildStatChartDimension(config, new DataSetBuilder<String, DateRange>()));
     	}
     	
-    	List<JobBuildResult> sortedJobResults = new ArrayList<JobBuildResult>(this.pluginSaver.getJobBuildResults());
+    	List<JobBuildResult> sortedJobResults = new ArrayList<JobBuildResult>(this.plugin.getJobBuildResults());
     	sortJobBuildResultsByBuildDate(sortedJobResults);
 	    
 		Calendar d2 = new GregorianCalendar();
@@ -406,7 +395,7 @@ public class GlobalBuildStatsBusiness {
         this.pluginSaver.reloadPlugin();
 
         // If job results are empty, let's perform an initialization !
-        if(this.pluginSaver.getJobBuildResults()==null || this.pluginSaver.getJobBuildResults().size() == 0){
+        if(this.plugin.getJobBuildResults()==null || this.plugin.getJobBuildResults().size() == 0){
             try {
                 this.recordBuildInfos();
             } catch (IOException e) {
