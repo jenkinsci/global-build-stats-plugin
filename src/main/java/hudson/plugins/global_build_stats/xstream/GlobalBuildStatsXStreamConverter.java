@@ -1,5 +1,8 @@
 package hudson.plugins.global_build_stats.xstream;
 
+import com.google.common.io.Files;
+import com.thoughtworks.xstream.XStream;
+import hudson.model.Hudson;
 import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
@@ -14,6 +17,14 @@ import hudson.plugins.global_build_stats.xstream.migration.v5.V4ToV5Migrator;
 import hudson.plugins.global_build_stats.xstream.migration.v6.V5ToV6Migrator;
 import hudson.plugins.global_build_stats.xstream.migration.v7.V6ToV7Migrator;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import com.thoughtworks.xstream.converters.Converter;
@@ -21,6 +32,7 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import hudson.plugins.global_build_stats.xstream.migration.v8.V7ToV8Migrator;
 
 /**
  * XStream converter for GlobalBuildStatsPlugin XStream data
@@ -47,6 +59,7 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
     public static final String YAXIS_CHART_TYPE_CLASS_ALIAS = "GBS_YACT";
     public static final String YAXIS_CHART_DIMENSION_CLASS_ALIAS = "GBS_YACD";
 
+
 	/**
 	 * Migrators for old versions of GlobalBuildStatsPlugin data representations
 	 */
@@ -58,7 +71,8 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 		new V3ToV4Migrator(),
 		new V4ToV5Migrator(),
 		new V5ToV6Migrator(),
-		new V6ToV7Migrator()
+		new V6ToV7Migrator(),
+        new V7ToV8Migrator()
 	};
 
 	/**
@@ -77,16 +91,9 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 		writer.addAttribute("version", String.valueOf(getCurrentGlobalBuildStatsVersionNumber()));
 		
 		// Serializing job build results
-		writer.startNode("jobBuildResults");
-		if(plugin.getJobBuildResults() != null){
-			for(JobBuildResult r: plugin.getJobBuildResults()){
-				writer.startNode(BUILD_STAT_CONFIG_CLASS_ALIAS);
-				context.convertAnother(r);
-				writer.endNode();
-			}
-		}
-		writer.endNode();
-		
+        // Since "v8", this evolved by sharding job build results in separate files
+        plugin.getJobBuildResultsSharder().applyQueuedResultsInFiles();
+
 		// Serializing build stat configurations
 		writer.startNode("buildStatConfigs");
 		if(plugin.getBuildStatConfigs() != null){
@@ -155,8 +162,7 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 	protected void populateGlobalBuildStatsPlugin(GlobalBuildStatsPlugin plugin, GlobalBuildStatsPOJO pojo){
 		plugin.getBuildStatConfigs().clear();
 		plugin.getBuildStatConfigs().addAll(pojo.getBuildStatConfigs());
-		
-		plugin.getJobBuildResults().clear();
-		plugin.getJobBuildResults().addAll(pojo.getJobBuildResults());
+
+        plugin.reloadJobBuildResults(pojo.getJobBuildResults());
 	}
 }

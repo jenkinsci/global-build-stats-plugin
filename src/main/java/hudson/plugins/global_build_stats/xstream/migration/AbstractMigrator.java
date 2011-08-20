@@ -1,5 +1,7 @@
 package hudson.plugins.global_build_stats.xstream.migration;
 
+import com.google.common.io.Files;
+import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import hudson.model.AbstractBuild;
@@ -7,11 +9,19 @@ import hudson.model.Hudson;
 import hudson.model.Job;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
+import hudson.plugins.global_build_stats.model.JobBuildResultSharder;
 import hudson.plugins.global_build_stats.model.ModelIdGenerator;
+import hudson.plugins.global_build_stats.xstream.GlobalBuildStatsXStreamConverter;
 import hudson.plugins.global_build_stats.xstream.migration.GlobalBuildStatsDataMigrator;
 import hudson.plugins.global_build_stats.xstream.migration.GlobalBuildStatsPOJO;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public abstract class AbstractMigrator<TFROM extends GlobalBuildStatsPOJO, TTO extends GlobalBuildStatsPOJO> implements GlobalBuildStatsDataMigrator<TFROM, TTO> {
@@ -29,19 +39,10 @@ public abstract class AbstractMigrator<TFROM extends GlobalBuildStatsPOJO, TTO e
 			HierarchicalStreamReader reader, UnmarshallingContext context) {
 		
 		TTO pojo = createMigratedPojo();
-		
-		reader.moveDown();
-		List<JobBuildResult> jobBuildResults = new ArrayList<JobBuildResult>();
-		while(reader.hasMoreChildren()){
-			reader.moveDown();
-			
-			JobBuildResult jbr = (JobBuildResult)context.convertAnother(pojo, JobBuildResult.class);
-			jobBuildResults.add(jbr);
-			
-			reader.moveUp();
-		}
-		reader.moveUp();
-		
+
+        // Since v8, reading JobBuildResults evolved : it is sharded in monthly files
+        List<JobBuildResult> jobBuildResults = JobBuildResultSharder.load();
+
 		reader.moveDown();
 		List<BuildStatConfiguration> buildStatConfigs = new ArrayList<BuildStatConfiguration>();
 		while(reader.hasMoreChildren()){
