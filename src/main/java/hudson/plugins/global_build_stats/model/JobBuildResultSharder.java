@@ -6,9 +6,7 @@ import hudson.plugins.global_build_stats.util.CollectionsUtil;
 import hudson.plugins.global_build_stats.xstream.GlobalBuildStatsXStreamConverter;
 import org.apache.commons.io.FileUtils;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
@@ -138,8 +136,15 @@ public class JobBuildResultSharder {
         File jobResultsRoot = getJobResultFolder();
         if(jobResultsRoot.exists()){
             for(File f: jobResultsRoot.listFiles()){
-                List<JobBuildResult> jobResultsInFile = (List<JobBuildResult>)Hudson.XSTREAM.fromXML(f.getAbsolutePath());
-                jobBuildResults.addAll(jobResultsInFile);
+                try {
+                    FileReader fr = new FileReader(f);
+                    List<JobBuildResult> jobResultsInFile = (List<JobBuildResult>)Hudson.XSTREAM.fromXML(fr);
+                    jobBuildResults.addAll(jobResultsInFile);
+                    fr.close();
+                } catch (IOException e) {
+                    LOGGER.log(Level.SEVERE, "Unable to read job results in "+f.getAbsolutePath(), e);
+                    throw new IllegalStateException("Unable to read job results in "+f.getAbsolutePath(), e);
+                }
             }
         }
         Collections.sort(jobBuildResults, new JobBuildResult.TimedComparator());
