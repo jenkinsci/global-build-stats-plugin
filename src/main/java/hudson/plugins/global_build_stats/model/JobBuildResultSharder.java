@@ -1,9 +1,7 @@
 package hudson.plugins.global_build_stats.model;
 
-import com.google.common.io.Files;
 import hudson.model.Hudson;
 import hudson.plugins.global_build_stats.util.CollectionsUtil;
-import hudson.plugins.global_build_stats.xstream.GlobalBuildStatsXStreamConverter;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
@@ -147,7 +145,7 @@ public class JobBuildResultSharder {
                 }
             }
         }
-        Collections.sort(jobBuildResults, new JobBuildResult.TimedComparator());
+        Collections.sort(jobBuildResults, new JobBuildResult.AntiChronologicalComparator());
         return jobBuildResults;
     }
 

@@ -118,10 +118,14 @@ public class JobBuildResult implements Serializable {
 		this.userName = userName;
 	}
 
-    public static class TimedComparator implements Comparator<JobBuildResult>{
-
+    public static class ChronologicalComparator implements Comparator<JobBuildResult>{
         public int compare(JobBuildResult jbr1, JobBuildResult jbr2) {
             return jbr1.buildDate.compareTo(jbr2.buildDate);
+        }
+    }
+    public static class AntiChronologicalComparator extends ChronologicalComparator {
+        public int compare(JobBuildResult jbr1, JobBuildResult jbr2){
+            return super.compare(jbr1, jbr2)*-1;
         }
     }
 }

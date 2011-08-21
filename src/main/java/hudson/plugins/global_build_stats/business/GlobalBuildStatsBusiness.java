@@ -1,6 +1,5 @@
 package hudson.plugins.global_build_stats.business;
 
-import com.google.common.collect.Lists;
 import hudson.model.TopLevelItem;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
@@ -18,7 +17,6 @@ import hudson.plugins.global_build_stats.model.JobBuildSearchResult;
 import hudson.plugins.global_build_stats.model.ModelIdGenerator;
 import hudson.plugins.global_build_stats.model.YAxisChartDimension;
 import hudson.plugins.global_build_stats.util.CollectionsUtil;
-import hudson.util.DaemonThreadFactory;
 import hudson.util.DataSetBuilder;
 import hudson.util.ShiftedCategoryAxis;
 
@@ -26,8 +24,6 @@ import java.awt.Color;
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -142,7 +138,7 @@ public class GlobalBuildStatsBusiness {
         }
         
         // Sorting on job results dates
-        Collections.sort(filteredJobBuildResults, new JobBuildResult.TimedComparator());
+        Collections.sort(filteredJobBuildResults, new JobBuildResult.AntiChronologicalComparator());
 
         return filteredJobBuildResults;
 	}
@@ -315,7 +311,7 @@ public class GlobalBuildStatsBusiness {
     	}
     	
     	List<JobBuildResult> sortedJobResults = new ArrayList<JobBuildResult>(this.plugin.getJobBuildResults());
-        Collections.sort(sortedJobResults, new JobBuildResult.TimedComparator());
+        Collections.sort(sortedJobResults, new JobBuildResult.AntiChronologicalComparator());
 
 		Calendar d2 = new GregorianCalendar();
 		Calendar d1 = config.getHistoricScale().getPreviousStep(d2);
