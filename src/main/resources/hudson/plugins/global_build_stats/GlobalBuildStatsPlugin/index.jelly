@@ -218,7 +218,7 @@
 	<strong>${%Statistics}</strong><br/>
 	<div id="buildStatConfigsContainer">
 	<j:if test="${empty(it.buildStatConfigsArrayed)}">
-		<em>${%No statistics for now on ...}</em>
+		<em>${%No chart configured for the moment ...} <a href="#" onclick="new BuildStatConfigForm(null).displayBuildStatConfigForm();">${%Create a new chart configuration}</a></em>
 	</j:if>
 	</div>
 	
