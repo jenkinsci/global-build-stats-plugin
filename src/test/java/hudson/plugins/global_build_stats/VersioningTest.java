@@ -1,8 +1,6 @@
 package hudson.plugins.global_build_stats;
 
 import org.codehaus.plexus.util.FileUtils;
-import org.junit.runner.Description;
-import org.junit.runner.notification.RunNotifier;
 import org.jvnet.hudson.test.HudsonTestCase;
 import org.jvnet.hudson.test.recipes.Recipe;
 import org.springframework.core.io.ClassPathResource;
@@ -18,6 +16,8 @@ public class VersioningTest extends HudsonTestCase {
 
     private static final Pattern VERSION_EXTRACTION_PATTERN = Pattern.compile("^testMigrationFrom(.+)$");
 
+    private GlobalBuildStatsPlugin plugin;
+
     @Override
     public void setUp() throws Exception {
         final String testName = this.getName();
@@ -29,19 +29,20 @@ public class VersioningTest extends HudsonTestCase {
                     throw new IllegalStateException("Every test method should be named testMigrationFromXXX !");
                 } else {
                     String versionUnderTest = m.group(1);
-                    File testDirectoryRoot = new ClassPathResource("versioning/"+versionUnderTest.toLowerCase()).getFile();
+                    ClassPathResource testDirectoryRoot = new ClassPathResource("versioning/"+versionUnderTest.toLowerCase());
                     if(!testDirectoryRoot.exists()){
-                        throw new IllegalArgumentException("Directory versioning/"+versionUnderTest+" not found in classpath !");
+                        throw new IllegalStateException("Directory versioning/"+versionUnderTest+" not found in classpath !");
                     }
-                    FileUtils.copyDirectory(testDirectoryRoot, home);
+                    FileUtils.copyDirectoryStructure(testDirectoryRoot.getFile(), home);
                 }
             }
         });
         super.setUp();
+
+        plugin = GlobalBuildStatsPlugin.getInstance();
     }
 
     public void testMigrationFromV7() throws Exception {
-        GlobalBuildStatsPlugin plugin = GlobalBuildStatsPlugin.getInstance();
         assertEquals(4, plugin.getBuildStatConfigs().size());
         assertEquals(23, plugin.getJobBuildResults().size());
     }
