@@ -142,7 +142,7 @@ public class GlobalBuildStatsBusiness {
         }
         
         // Sorting on job results dates
-        sortJobBuildResultsByBuildDate(filteredJobBuildResults);
+        Collections.sort(filteredJobBuildResults, new JobBuildResult.TimedComparator());
 
         return filteredJobBuildResults;
 	}
@@ -315,7 +315,7 @@ public class GlobalBuildStatsBusiness {
     	}
     	
     	List<JobBuildResult> sortedJobResults = new ArrayList<JobBuildResult>(this.plugin.getJobBuildResults());
-    	sortJobBuildResultsByBuildDate(sortedJobResults);
+        Collections.sort(sortedJobResults, new JobBuildResult.TimedComparator());
 
 		Calendar d2 = new GregorianCalendar();
 		Calendar d1 = config.getHistoricScale().getPreviousStep(d2);
@@ -362,14 +362,6 @@ public class GlobalBuildStatsBusiness {
 	    return dimensions;
 	}
 	
-    private static void sortJobBuildResultsByBuildDate(List<? extends JobBuildResult> c){
-        Collections.sort(c, Collections.reverseOrder(new Comparator<JobBuildResult>() {
-        	public int compare(JobBuildResult o1, JobBuildResult o2) {
-        		return o1.getBuildDate().compareTo(o2.getBuildDate());
-        	}
-		}));
-    }
-
 	private static void addBuild(List<JobBuildResult> jobBuildResultsRead, AbstractBuild build){
 		jobBuildResultsRead.add(JobBuildResultFactory.INSTANCE.createJobBuildResult(build));
 	}
