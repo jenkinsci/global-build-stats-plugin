@@ -11,6 +11,7 @@ import hudson.model.listeners.ItemListener;
 import hudson.model.listeners.RunListener;
 import hudson.plugins.global_build_stats.business.GlobalBuildStatsBusiness;
 import hudson.plugins.global_build_stats.model.*;
+import hudson.plugins.global_build_stats.rententionstrategies.RetentionStragegy;
 import hudson.plugins.global_build_stats.validation.GlobalBuildStatsValidator;
 import hudson.security.Permission;
 import hudson.util.ChartUtil;
@@ -65,6 +66,11 @@ public class GlobalBuildStatsPlugin extends Plugin {
 	 * global build stats screen
 	 */
 	private List<BuildStatConfiguration> buildStatConfigs = new ArrayList<BuildStatConfiguration>();
+
+    /**
+     * List of retention strategies applied on job results
+     */
+    private List<RetentionStragegy> retentionStrategies = new ArrayList<RetentionStragegy>();
 	
 	/**
 	 * Business layer for global build stats
@@ -355,6 +361,12 @@ public class GlobalBuildStatsPlugin extends Plugin {
 
     	res.getWriter().write("{ status : 'ok' }");
     }
+
+    public void doUpdateRetentionStrategies(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+        Hudson.getInstance().checkPermission(getRequiredPermission());
+
+        res.getWriter().write("{ status : 'ok' }");
+    }
     
     /**
      * Method must stay here since, for an unknown reason, in buildHistory.jelly,
@@ -418,5 +430,13 @@ public class GlobalBuildStatsPlugin extends Plugin {
 
     public void reloadJobBuildResults(List<JobBuildResult> results) {
         this.jobBuildResultsSharder = new JobBuildResultSharder(this.jobBuildResultsSharder, results);
+    }
+
+    public List<RetentionStragegy> getRetentionStrategies(){
+        return RetentionStragegy.values();
+    }
+
+    public boolean isStrategySelected(String strategyId){
+        return retentionStrategies.contains(RetentionStragegy.valueOf(strategyId));
     }
 }
