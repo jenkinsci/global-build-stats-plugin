@@ -89,13 +89,18 @@ public class JobBuildResult implements Serializable {
 	public boolean equals(Object obj) {
 		if(obj instanceof JobBuildResult){
 			JobBuildResult r = (JobBuildResult)obj;
-			return r.buildNumber == this.buildNumber && r.jobName.equals(this.jobName)
-				// In general, "not build" results implies a job result with same jobName & buildNumber but error | failure status
-				&& r.result.equals(this.result);
+            return is(r.buildNumber, r.jobName, r.result);
 		}
-		
+
 		return false;
 	}
+
+    public boolean is(int buildNumber, String jobName, BuildResult result){
+        return buildNumber == this.buildNumber && jobName.equals(this.jobName)
+				// In general, "not build" results implies a job result with same jobName &
+				// buildNumber but error | failure status
+				&& result.equals(this.result);
+    }
 
 	public void setDuration(long duration) {
 		this.duration = duration;
