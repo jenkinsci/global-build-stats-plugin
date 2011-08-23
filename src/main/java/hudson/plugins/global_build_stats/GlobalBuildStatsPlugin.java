@@ -343,7 +343,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	
     	business.deleteBuildStatConfiguration(req.getParameter("buildStatId"));
     	
-    	res.getWriter().write("{ status : 'ok' }");
+        respondAjaxOk(res);
     }
     
     public void doMoveUpConf(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
@@ -351,7 +351,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	
     	business.moveUpConf(req.getParameter("buildStatId"));
     	
-    	res.getWriter().write("{ status : 'ok' }");
+        respondAjaxOk(res);
     }
     
     public void doMoveDownConf(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
@@ -359,7 +359,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	
     	business.moveDownConf(req.getParameter("buildStatId"));
 
-    	res.getWriter().write("{ status : 'ok' }");
+        respondAjaxOk(res);
     }
 
     public void doUpdateRetentionStrategies(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
@@ -376,6 +376,10 @@ public class GlobalBuildStatsPlugin extends Plugin {
 
         business.updateRetentionStrategies(selectedStrategies);
 
+        respondAjaxOk(res);
+    }
+
+    protected static void respondAjaxOk(StaplerResponse res) throws IOException {
         res.getWriter().write("{ status : 'ok' }");
     }
     
