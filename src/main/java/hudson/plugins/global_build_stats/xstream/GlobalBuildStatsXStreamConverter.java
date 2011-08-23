@@ -6,6 +6,7 @@ import hudson.model.Hudson;
 import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
+import hudson.plugins.global_build_stats.rententionstrategies.RetentionStragegy;
 import hudson.plugins.global_build_stats.xstream.migration.GlobalBuildStatsDataMigrator;
 import hudson.plugins.global_build_stats.xstream.migration.GlobalBuildStatsPOJO;
 import hudson.plugins.global_build_stats.xstream.migration.v0.InitialMigrator;
@@ -33,6 +34,7 @@ import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import hudson.plugins.global_build_stats.xstream.migration.v8.V7ToV8Migrator;
+import hudson.plugins.global_build_stats.xstream.migration.v9.V8ToV9Migrator;
 
 /**
  * XStream converter for GlobalBuildStatsPlugin XStream data
@@ -54,6 +56,7 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
     
     public static final String BUILD_STAT_CONFIG_CLASS_ALIAS = "bsc";
     public static final String JOB_BUILD_RESULT_CLASS_ALIAS = "jbr";
+    public static final String RETENTION_STRATEGY_CLASS_ALIAS = "rs";
     public static final String BUILD_SEARCH_CRITERIA_CLASS_ALIAS = "bscr";
     public static final String HISTORIC_SCALE_CLASS_ALIAS = "GBS_HS";
     public static final String YAXIS_CHART_TYPE_CLASS_ALIAS = "GBS_YACT";
@@ -72,7 +75,8 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 		new V4ToV5Migrator(),
 		new V5ToV6Migrator(),
 		new V6ToV7Migrator(),
-        new V7ToV8Migrator()
+        new V7ToV8Migrator(),
+        new V8ToV9Migrator()
 	};
 
 	/**
@@ -98,12 +102,19 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 		writer.startNode("buildStatConfigs");
 		if(plugin.getBuildStatConfigs() != null){
 			for(BuildStatConfiguration c: plugin.getBuildStatConfigs()){
-				writer.startNode(JOB_BUILD_RESULT_CLASS_ALIAS);
+				writer.startNode(BUILD_STAT_CONFIG_CLASS_ALIAS);
 				context.convertAnother(c);
 				writer.endNode();
 			}
 		}
 		writer.endNode();
+
+        // Serializing retention strategies
+        writer.startNode("retentionStrategies");
+        if(plugin.getRetentionStrategies() != null){
+            context.convertAnother(plugin.getRetentionStrategies());
+        }
+        writer.endNode();
 	}
 	
 	/**
@@ -162,6 +173,9 @@ public class GlobalBuildStatsXStreamConverter implements Converter {
 	protected void populateGlobalBuildStatsPlugin(GlobalBuildStatsPlugin plugin, GlobalBuildStatsPOJO pojo){
 		plugin.getBuildStatConfigs().clear();
 		plugin.getBuildStatConfigs().addAll(pojo.getBuildStatConfigs());
+
+        plugin.getRetentionStrategies().clear();
+        plugin.getRetentionStrategies().addAll(pojo.getRetentionStrategies());
 
         plugin.reloadJobBuildResults(pojo.getJobBuildResults());
 	}
