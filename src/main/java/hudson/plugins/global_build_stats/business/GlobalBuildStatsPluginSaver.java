@@ -3,6 +3,7 @@ package hudson.plugins.global_build_stats.business;
 import hudson.model.Hudson;
 import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
 import hudson.plugins.global_build_stats.model.*;
+import hudson.plugins.global_build_stats.rententionstrategies.RetentionStragegy;
 import hudson.plugins.global_build_stats.xstream.GlobalBuildStatsXStreamConverter;
 import hudson.security.Permission;
 import hudson.util.DaemonThreadFactory;
@@ -104,6 +105,7 @@ public class GlobalBuildStatsPluginSaver {
      */
     public void updatePlugin(BeforeSavePluginCallback callback){
         final List<BuildStatConfiguration> configsBeforeStateChange = new ArrayList<BuildStatConfiguration>(plugin.getBuildStatConfigs());
+        final List<RetentionStragegy> retentionStrategiesBeforeStateChange = new ArrayList<RetentionStragegy>(plugin.getRetentionStrategies());
         callback.changePluginStateBeforeSavingIt(plugin);
         LOGGER.log(Level.FINER, "Global build stats state update queued !");
 
@@ -112,6 +114,7 @@ public class GlobalBuildStatsPluginSaver {
 
                 // this happens if other runnables have written bits in a bulk
                 if (configsBeforeStateChange.equals(plugin.getBuildStatConfigs())
+                        && retentionStrategiesBeforeStateChange.equals(plugin.getRetentionStrategies())
                         && !plugin.getJobBuildResultsSharder().pendingChanges()){
                     LOGGER.log(Level.FINER, "No change detected in update queue !");
                     return;

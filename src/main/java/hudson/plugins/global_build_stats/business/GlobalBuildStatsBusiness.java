@@ -16,6 +16,7 @@ import hudson.plugins.global_build_stats.model.JobBuildResult;
 import hudson.plugins.global_build_stats.model.JobBuildSearchResult;
 import hudson.plugins.global_build_stats.model.ModelIdGenerator;
 import hudson.plugins.global_build_stats.model.YAxisChartDimension;
+import hudson.plugins.global_build_stats.rententionstrategies.RetentionStragegy;
 import hudson.plugins.global_build_stats.util.CollectionsUtil;
 import hudson.util.DataSetBuilder;
 import hudson.util.ShiftedCategoryAxis;
@@ -303,7 +304,16 @@ public class GlobalBuildStatsBusiness {
     	
     	return sortedLegendItems;
     }
-    
+
+    public void updateRetentionStrategies(final List<RetentionStragegy> selectedStrategies) {
+        this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
+            @Override
+            public void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin) {
+                plugin.setRetentionStrategies(selectedStrategies);
+            }
+        });
+    }
+
     public List<AbstractBuildStatChartDimension> createDataSetBuilder(BuildStatConfiguration config) {
     	List<AbstractBuildStatChartDimension> dimensions = new ArrayList<AbstractBuildStatChartDimension>();
     	for(YAxisChartDimension dimensionShown : config.getDimensionsShown()){
