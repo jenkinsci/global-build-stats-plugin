@@ -432,11 +432,19 @@ public class GlobalBuildStatsPlugin extends Plugin {
         this.jobBuildResultsSharder = new JobBuildResultSharder(this.jobBuildResultsSharder, results);
     }
 
-    public List<RetentionStragegy> getRetentionStrategies(){
+    public List<RetentionStragegy> getAvailableRetentionStrategies(){
         return RetentionStragegy.values();
     }
 
     public boolean isStrategySelected(String strategyId){
         return retentionStrategies.contains(RetentionStragegy.valueOf(strategyId));
+    }
+
+    public void setRetentionStrategies(List<RetentionStragegy> retentionStrategies) {
+        this.retentionStrategies = retentionStrategies;
+    }
+
+    public List<RetentionStragegy> getRetentionStrategies() {
+        return retentionStrategies;
     }
 }

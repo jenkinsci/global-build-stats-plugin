@@ -232,14 +232,14 @@
     <a name="RetentionStrategy" />
     <strong>${%Build Results retention strategies}</strong><br/><br/>
     <form id="retentionStrategiesForm" action="updateRetentionStrategies">
-        <j:forEach var="strategy" items="${it.retentionStrategies}">
+        <j:forEach var="strategy" items="${it.availableRetentionStrategies}">
           <j:set var="strategySelected" value="${it.isStrategySelected(strategy.id)}" />
           <j:choose>
               <j:when test="${strategySelected}">
-                  <input type="checkbox" name="retentionStrategy" id="${strategy.id}_checkbox" value="${strategy.id}" checked="checked" />
+                  <input type="checkbox" name="retentionStrategies" id="${strategy.id}_checkbox" value="${strategy.id}" checked="checked" />
               </j:when>
               <j:otherwise>
-                  <input type="checkbox" name="retentionStrategy" id="${strategy.id}_checkbox" value="${strategy.id}" />
+                  <input type="checkbox" name="retentionStrategies" id="${strategy.id}_checkbox" value="${strategy.id}" />
               </j:otherwise>
           </j:choose>
           <st:include from="${it}" page="/hudson/plugins/global_build_stats/GlobalBuildStatsPlugin/retentionStrategies/${strategy.configPage}" />
