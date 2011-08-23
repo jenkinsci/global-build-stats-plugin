@@ -365,6 +365,17 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void doUpdateRetentionStrategies(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
         Hudson.getInstance().checkPermission(getRequiredPermission());
 
+        List<RetentionStragegy> selectedStrategies = new ArrayList<RetentionStragegy>();
+        if(req.getParameterValues("retentionStrategies") != null){
+            for(String selectedStrategyId : req.getParameterValues("retentionStrategies")){
+                RetentionStragegy retentionStrategy = RetentionStragegy.valueOf(selectedStrategyId);
+                retentionStrategy.updateState(req.getParameterMap());
+                selectedStrategies.add(retentionStrategy);
+            }
+        }
+
+        business.updateRetentionStrategies(selectedStrategies);
+
         res.getWriter().write("{ status : 'ok' }");
     }
     
