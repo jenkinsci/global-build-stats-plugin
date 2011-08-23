@@ -1,12 +1,12 @@
 package hudson.plugins.global_build_stats.xstream.migration.v8;
 
-import hudson.plugins.global_build_stats.xstream.migration.AbstractMigrator;
+import hudson.plugins.global_build_stats.xstream.migration.PreV9AbstractMigrator;
 import hudson.plugins.global_build_stats.xstream.migration.v7.V7GlobalBuildStatsPOJO;
 
 /**
  * @author fcamblor
  */
-public class V7ToV8Migrator extends AbstractMigrator<V7GlobalBuildStatsPOJO, V8GlobalBuildStatsPOJO> {
+public class V7ToV8Migrator extends PreV9AbstractMigrator<V7GlobalBuildStatsPOJO, V8GlobalBuildStatsPOJO> {
 
     @Override
     protected V8GlobalBuildStatsPOJO createMigratedPojo() {
