@@ -84,11 +84,7 @@ public abstract class AbstractMigrator<TFROM extends GlobalBuildStatsPOJO, TTO e
 
     // Overridable
     protected List<RetentionStragegy> migrateRetentionStrategies(List<RetentionStragegy> retentionStrategies) {
-        if(retentionStrategies == null){
-            return new ArrayList<RetentionStragegy>();
-        } else {
-            return new ArrayList<RetentionStragegy>(retentionStrategies);
-        }
+        return new ArrayList<RetentionStragegy>(retentionStrategies);
     }
 
 	// Overridable
