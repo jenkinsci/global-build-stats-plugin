@@ -3,6 +3,9 @@ package hudson.plugins.global_build_stats.business;
 import hudson.model.Hudson;
 import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
 import hudson.plugins.global_build_stats.model.*;
+import hudson.plugins.global_build_stats.rententionstrategies.DiscardResultsOlderThanDays;
+import hudson.plugins.global_build_stats.rententionstrategies.DoNotKeepBuildResultWhenDiscarded;
+import hudson.plugins.global_build_stats.rententionstrategies.KeepExistingJobResultsOnly;
 import hudson.plugins.global_build_stats.rententionstrategies.RetentionStragegy;
 import hudson.plugins.global_build_stats.xstream.GlobalBuildStatsXStreamConverter;
 import hudson.security.Permission;
@@ -60,6 +63,9 @@ public class GlobalBuildStatsPluginSaver {
 		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.HISTORIC_SCALE_CLASS_ALIAS, HistoricScale.class);
 		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.YAXIS_CHART_TYPE_CLASS_ALIAS, YAxisChartType.class);
 		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.YAXIS_CHART_DIMENSION_CLASS_ALIAS, YAxisChartDimension.class);
+        Hudson.XSTREAM.alias("discardResultsOlderThanDays", DiscardResultsOlderThanDays.class);
+        Hudson.XSTREAM.alias("doNotKeepBuildResultWhenDiscarded", DoNotKeepBuildResultWhenDiscarded.class);
+        Hudson.XSTREAM.alias("keepExistingJobResultsOnly", KeepExistingJobResultsOnly.class);
 
 		Hudson.XSTREAM.aliasField("t", BuildStatConfiguration.class, "buildStatTitle");
 		Hudson.XSTREAM.aliasField("w", BuildStatConfiguration.class, "buildStatWidth");
