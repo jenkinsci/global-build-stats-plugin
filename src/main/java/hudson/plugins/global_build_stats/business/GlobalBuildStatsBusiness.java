@@ -50,6 +50,9 @@ public class GlobalBuildStatsBusiness {
      * Records the result of a build.
      */
 	public void onJobCompleted(final AbstractBuild build) {
+        for(RetentionStragegy s : plugin.getRetentionStrategies()){
+            s.onBuildCompleted(build, pluginSaver);
+        }
         this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
             public void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin) {
 
@@ -289,6 +292,9 @@ public class GlobalBuildStatsBusiness {
             @Override
             public void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin) {
                 plugin.setRetentionStrategies(selectedStrategies);
+                for(RetentionStragegy s : selectedStrategies){
+                    s.strategyActivated(pluginSaver);
+                }
             }
         });
     }
@@ -382,6 +388,12 @@ public class GlobalBuildStatsBusiness {
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, e.getMessage(), e);
             }
+        }
+    }
+
+    public void onBuildDeleted(AbstractBuild build) {
+        for(RetentionStragegy s : plugin.getRetentionStrategies()){
+            s.onBuildDeleted(build, pluginSaver);
         }
     }
 }
