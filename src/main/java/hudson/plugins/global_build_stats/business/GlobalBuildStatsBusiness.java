@@ -7,15 +7,8 @@ import hudson.model.Hudson;
 import hudson.model.Job;
 import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
 import hudson.plugins.global_build_stats.JobBuildResultFactory;
-import hudson.plugins.global_build_stats.model.AbstractBuildStatChartDimension;
+import hudson.plugins.global_build_stats.model.*;
 import hudson.plugins.global_build_stats.model.AbstractBuildStatChartDimension.LegendItemData;
-import hudson.plugins.global_build_stats.model.BuildHistorySearchCriteria;
-import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
-import hudson.plugins.global_build_stats.model.DateRange;
-import hudson.plugins.global_build_stats.model.JobBuildResult;
-import hudson.plugins.global_build_stats.model.JobBuildSearchResult;
-import hudson.plugins.global_build_stats.model.ModelIdGenerator;
-import hudson.plugins.global_build_stats.model.YAxisChartDimension;
 import hudson.plugins.global_build_stats.rententionstrategies.RetentionStragegy;
 import hudson.plugins.global_build_stats.util.CollectionsUtil;
 import hudson.util.DataSetBuilder;
@@ -120,21 +113,7 @@ public class GlobalBuildStatsBusiness {
     	
         for(JobBuildResult r : this.plugin.getJobBuildResults()){
         	if(searchCriteria.isJobResultEligible(r)){
-        		boolean isJobAccessible = false;
-        		boolean isBuildAccessible = false;
-        		
-        		Job targetJob = ((Job) Hudson.getInstance().getItem(r.getJobName()));
-        		// Link to job will be provided only if job has not been deleted/renamed
-        		if(targetJob != null){
-        			isJobAccessible = true;
-        			if(targetJob.getBuildByNumber(r.getBuildNumber()) != null){
-        				// Link to build infos will be provided only if build result has not been purged
-        				// @see issue #7240
-        				isBuildAccessible = true;
-        			}
-        		}
-        		
-        		filteredJobBuildResults.add(new JobBuildSearchResult(r, isJobAccessible, isBuildAccessible));
+                filteredJobBuildResults.add(JobBuildResultFactory.INSTANCE.createJobBuildSearchResult(r));
         	}
         }
         

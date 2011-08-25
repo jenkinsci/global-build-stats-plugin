@@ -1,12 +1,10 @@
 package hudson.plugins.global_build_stats;
 
-import hudson.model.Result;
-import hudson.model.AbstractBuild;
-import hudson.model.Cause;
+import hudson.model.*;
 import hudson.model.Cause.UserCause;
-import hudson.model.CauseAction;
 import hudson.plugins.global_build_stats.model.BuildResult;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
+import hudson.plugins.global_build_stats.model.JobBuildSearchResult;
 
 public class JobBuildResultFactory {
 
@@ -27,6 +25,28 @@ public class JobBuildResultFactory {
     	return new JobBuildResult(createBuildResult(build.getResult()), buildName, 
     			build.getNumber(), build.getTimestamp(), duration, nodeName, extractUserNameIn(build));
 	}
+
+    public JobBuildSearchResult createJobBuildSearchResult(AbstractBuild build){
+        return createJobBuildSearchResult(createJobBuildResult(build));
+    }
+
+    public JobBuildSearchResult createJobBuildSearchResult(JobBuildResult r){
+        boolean isJobAccessible = false;
+        boolean isBuildAccessible = false;
+
+        Job targetJob = ((Job) Hudson.getInstance().getItem(r.getJobName()));
+        // Link to job will be provided only if job has not been deleted/renamed
+        if(targetJob != null){
+            isJobAccessible = true;
+            if(targetJob.getBuildByNumber(r.getBuildNumber()) != null){
+                // Link to build infos will be provided only if build result has not been purged
+                // @see issue #7240
+                isBuildAccessible = true;
+            }
+        }
+
+        return new JobBuildSearchResult(r, isJobAccessible, isBuildAccessible);
+    }
 	
 	public static String extractUserNameIn(AbstractBuild build){
 		String userName = null;
