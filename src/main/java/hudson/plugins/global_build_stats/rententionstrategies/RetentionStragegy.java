@@ -18,6 +18,7 @@ public abstract class RetentionStragegy<T extends RetentionStragegy> {
     protected static final List<RetentionStragegy> RETENTION_STRATEGIES_IMPLEMENTATIONS = new ArrayList<RetentionStragegy>(){{
         add(new DiscardResultsOlderThanDays());
         add(new DoNotKeepBuildResultWhenDiscarded());
+        add(new KeepExistingJobResultsOnly());
     }};
 
     protected RetentionStragegy(){
