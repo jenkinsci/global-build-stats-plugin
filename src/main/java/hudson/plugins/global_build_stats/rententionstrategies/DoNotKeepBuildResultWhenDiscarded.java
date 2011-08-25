@@ -1,14 +1,35 @@
 package hudson.plugins.global_build_stats.rententionstrategies;
 
-import java.util.Map;
+import hudson.model.AbstractBuild;
+import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
+import hudson.plugins.global_build_stats.JobBuildResultFactory;
+import hudson.plugins.global_build_stats.business.GlobalBuildStatsPluginSaver;
+import hudson.plugins.global_build_stats.model.JobBuildResult;
+import hudson.plugins.global_build_stats.rententionstrategies.strategybehaviours.BuildDeletedListener;
 
 /**
  * @author fcamblor
  */
-public class DoNotKeepBuildResultWhenDiscarded extends RetentionStragegy<DoNotKeepBuildResultWhenDiscarded> {
+public class DoNotKeepBuildResultWhenDiscarded extends RetentionStragegy<DoNotKeepBuildResultWhenDiscarded>
+                implements BuildDeletedListener {
 
     @Override
     public String getConfigPage() {
         return "doNotKeepBuildResultWhenDiscarded.jelly";
+    }
+
+    public void buildDeleted(final AbstractBuild build, GlobalBuildStatsPluginSaver pluginSaver) {
+        pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback() {
+            @Override
+            public void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin) {
+                JobBuildResult jbr = JobBuildResultFactory.INSTANCE.createJobBuildResult(build);
+
+                plugin.getJobBuildResultsSharder().queueResultToRemove(jbr);
+            }
+        });
+    }
+
+    @Override
+    public void strategyActivated(GlobalBuildStatsPluginSaver pluginSaver) {
     }
 }
