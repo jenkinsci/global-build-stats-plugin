@@ -10,7 +10,8 @@
     <l:tasks>
       <l:task icon="images/24x24/up.gif" href="${rootURL}/" title="${%Back to Dashboard}" />
       <l:task icon="images/24x24/save.gif" href="#" onclick="new BuildStatConfigForm(null).displayBuildStatConfigForm();" title="${%Create new chart}" />
-      <l:task icon="images/24x24/gear2.gif" href="#Initialize" title="${%Data Initialization}" />
+        <l:task icon="images/24x24/gear2.gif" href="#RetentionStrategy" title="${%Manage retention strategies}" />
+        <l:task icon="images/24x24/gear2.gif" href="#Initialize" title="${%Data Initialization}" />
     </l:tasks>
   </l:side-panel>
 
