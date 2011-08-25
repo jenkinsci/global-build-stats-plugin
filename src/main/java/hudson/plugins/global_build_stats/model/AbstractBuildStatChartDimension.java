@@ -23,10 +23,10 @@ public abstract class AbstractBuildStatChartDimension {
 	protected DataSetBuilder<String, DateRange> datasetBuilder;
 
     private static final LegendItemData[] BUILD_STATUSES_LEGENDITEMS = new LegendItemData[]{
-            new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_FAILURES(), new Color(255, 85, 85)),
-            new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_UNSTABLES(), new Color(255, 255, 85)),
             new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_NOT_BUILD(), new Color(85, 85, 85)),
+            new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_FAILURES(), new Color(255, 85, 85)),
             new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_ABORTED(), new Color(255, 85, 255)),
+            new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_UNSTABLES(), new Color(255, 255, 85)),
             new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_SUCCESS(), new Color(85, 85, 255))
     };
     private static final LegendItemData TOTAL_BUILD_TIME_LEGENDITEM =
