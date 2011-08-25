@@ -53,4 +53,10 @@ public class VersioningTest extends HudsonTestCase {
         assertEquals(30, plugin.getJobBuildResults().size());
         assertEquals(0, plugin.getRetentionStrategies().size());
     }
+
+    public void testMigrationFromV9() throws Exception {
+        assertEquals(1, plugin.getBuildStatConfigs().size());
+        assertEquals(16, plugin.getJobBuildResults().size());
+        assertEquals(3, plugin.getRetentionStrategies().size());
+    }
 }
