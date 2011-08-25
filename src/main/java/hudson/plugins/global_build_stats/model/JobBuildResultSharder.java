@@ -68,7 +68,7 @@ public class JobBuildResultSharder {
         queuedResultsToAdd.addAll(results);
     }
 
-    public void queueResultsToRemove(JobBuildResult result){
+    public void queueResultToRemove(JobBuildResult result){
         queuedResultsToRemove.add(result);
     }
 
