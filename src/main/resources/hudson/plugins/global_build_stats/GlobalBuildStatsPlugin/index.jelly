@@ -32,7 +32,8 @@
 
 	function updateRetentionStrategies(){
 	    ajaxCall('form', 'retentionStrategiesForm', function(ret){
-	        alert('ok !');
+	        $('retentionStrategiesUpdatedMessage').style.display = "inline";
+	        setTimeout("$('retentionStrategiesUpdatedMessage').style.display = 'none';", 2500);
 	    });
 	}
 
@@ -231,6 +232,9 @@
     <hr style="clear:both;"/>
     <a name="RetentionStrategy" />
     <strong>${%Build Results retention strategies}</strong><br/><br/>
+    <span id="retentionStrategiesUpdatedMessage" style="color: rgb(52,101,0); display:none">
+        <strong>${%Retention strategies updated successfully !}</strong>
+    </span>
     <form id="retentionStrategiesForm" action="updateRetentionStrategies">
         <j:forEach var="strategy" items="${it.availableRetentionStrategies}">
           <j:set var="strategySelected" value="${it.isStrategySelected(strategy.id)}" />
