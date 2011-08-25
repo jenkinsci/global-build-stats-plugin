@@ -7,6 +7,7 @@ import hudson.util.StackedAreaRenderer2;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
@@ -14,11 +15,25 @@ import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.data.category.CategoryDataset;
 
+import javax.swing.*;
+
 public abstract class AbstractBuildStatChartDimension {
 	
 	protected BuildStatConfiguration config;
 	protected DataSetBuilder<String, DateRange> datasetBuilder;
-	
+
+    private static final LegendItemData[] BUILD_STATUSES_LEGENDITEMS = new LegendItemData[]{
+            new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_NOT_BUILD(), new Color(85, 85, 85)),
+            new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_ABORTED(), new Color(255, 85, 255)),
+            new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_UNSTABLES(), new Color(255, 255, 85)),
+            new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_FAILURES(), new Color(255, 85, 85)),
+            new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_SUCCESS(), new Color(85, 85, 255))
+    };
+    private static final LegendItemData TOTAL_BUILD_TIME_LEGENDITEM =
+            new LegendItemData(Messages.Build_Results_Total_Build_Time(), new Color(0, 0, 0));
+    private static final LegendItemData AVERAGE_BUILD_TIME_LEGENDITEM =
+            new LegendItemData(Messages.Build_Results_Average_Build_Time(), new Color(128, 255, 255));
+
 	protected AbstractBuildStatChartDimension(BuildStatConfiguration config, DataSetBuilder<String, DateRange> datasetBuilder){
 		this.config = config;
 		this.datasetBuilder = datasetBuilder;
@@ -27,7 +42,7 @@ public abstract class AbstractBuildStatChartDimension {
 	public DataSetBuilder<String, DateRange> getDatasetBuilder(){
 		return this.datasetBuilder;
 	}
-	
+	    
 	public static class LegendItemData{
 		public String label;
 		public Color color;
@@ -42,15 +57,13 @@ public abstract class AbstractBuildStatChartDimension {
 		List<LegendItemData> sortedLegendItemsLabels = new ArrayList<LegendItemData>();
 		
 		// Build statuses
-		sortedLegendItemsLabels.add(new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_NOT_BUILD(), new Color(85, 85, 85)));
-		sortedLegendItemsLabels.add(new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_ABORTED(), new Color(255, 85, 255)));
-		sortedLegendItemsLabels.add(new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_UNSTABLES(), new Color(255, 255, 85)));
-		sortedLegendItemsLabels.add(new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_FAILURES(), new Color(255, 85, 85)));
-		sortedLegendItemsLabels.add(new LegendItemData(Messages.Build_Results_Item_Legend_Statuses_SUCCESS(), new Color(85, 85, 255)));
+        for(int i=0; i<BUILD_STATUSES_LEGENDITEMS.length; i++){
+            sortedLegendItemsLabels.add(BUILD_STATUSES_LEGENDITEMS[i]);
+        }
 
 		// Build durations
-		sortedLegendItemsLabels.add(new LegendItemData(Messages.Build_Results_Total_Build_Time(), new Color(0, 0, 0)));
-		sortedLegendItemsLabels.add(new LegendItemData(Messages.Build_Results_Average_Build_Time(), new Color(128, 255, 255)));
+		sortedLegendItemsLabels.add(TOTAL_BUILD_TIME_LEGENDITEM);
+		sortedLegendItemsLabels.add(AVERAGE_BUILD_TIME_LEGENDITEM);
 
 		return sortedLegendItemsLabels;
 	}
@@ -128,13 +141,11 @@ public abstract class AbstractBuildStatChartDimension {
 	                }
 	            }*/
 	        };
-	        
-	        renderer.setSeriesPaint(0, new Color(85, 85, 85));
-	        renderer.setSeriesPaint(1, new Color(255, 85, 255));
-	        renderer.setSeriesPaint(2, new Color(255, 255, 85));
-	        renderer.setSeriesPaint(3, new Color(255, 85, 85));
-	        renderer.setSeriesPaint(4, new Color(85, 85, 255));
-	        
+
+            for(int i=0; i<BUILD_STATUSES_LEGENDITEMS.length; i++){
+                renderer.setSeriesPaint(i, BUILD_STATUSES_LEGENDITEMS[i].color);
+            }
+
 	        return renderer;
 		}
 		
@@ -163,7 +174,7 @@ public abstract class AbstractBuildStatChartDimension {
 		
 		public CategoryItemRenderer getRenderer() {
 			LineAndShapeRenderer renderer = new LineAndShapeRenderer();
-			renderer.setSeriesPaint(0, new Color(0, 0, 0));
+			renderer.setSeriesPaint(0, TOTAL_BUILD_TIME_LEGENDITEM.color);
 			return renderer;
 		}
 		
@@ -197,7 +208,7 @@ public abstract class AbstractBuildStatChartDimension {
 		
 		public CategoryItemRenderer getRenderer() {
 			LineAndShapeRenderer renderer = new LineAndShapeRenderer();
-			renderer.setSeriesPaint(0, new Color(128, 255, 255));
+			renderer.setSeriesPaint(0, AVERAGE_BUILD_TIME_LEGENDITEM.color);
 			return renderer;
 		}
 		
