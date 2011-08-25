@@ -249,6 +249,7 @@
           </j:choose>
           <st:include from="${it}" page="/hudson/plugins/global_build_stats/GlobalBuildStatsPlugin/retentionStrategies/${strategy.configPage}" />
         </j:forEach>
+        <br/>
         <input type="button" class="submit-button" onclick="updateRetentionStrategies();" value="${%Update retention strategies}" />
     </form>
 
