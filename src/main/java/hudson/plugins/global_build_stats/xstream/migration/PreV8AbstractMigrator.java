@@ -80,7 +80,7 @@ public abstract class PreV8AbstractMigrator<TFROM extends GlobalBuildStatsPOJO, 
 	}
 	
 	protected static AbstractBuild retrieveBuildFromJobBuildResult(JobBuildResult jbr){
-		Job job = (Job)Hudson.getInstance().getItem(jbr.getJobName());
+		Job job = (Job)Hudson.getInstance().getItemByFullName(jbr.getJobName());
 		if(job != null){
 			return (AbstractBuild)job.getBuildByNumber(jbr.getBuildNumber());
 		}

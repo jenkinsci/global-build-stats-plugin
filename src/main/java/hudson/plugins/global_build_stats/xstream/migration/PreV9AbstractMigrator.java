@@ -14,6 +14,7 @@ import hudson.plugins.global_build_stats.model.ModelIdGenerator;
 import hudson.plugins.global_build_stats.xstream.GlobalBuildStatsXStreamConverter;
 import hudson.plugins.global_build_stats.xstream.migration.GlobalBuildStatsDataMigrator;
 import hudson.plugins.global_build_stats.xstream.migration.GlobalBuildStatsPOJO;
+import jenkins.model.Jenkins;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -82,7 +83,7 @@ public abstract class PreV9AbstractMigrator<TFROM extends GlobalBuildStatsPOJO, 
 	}
 	
 	protected static AbstractBuild retrieveBuildFromJobBuildResult(JobBuildResult jbr){
-		Job job = (Job)Hudson.getInstance().getItem(jbr.getJobName());
+		Job job = (Job) Jenkins.getInstance().getItemByFullName(jbr.getJobName());
 		if(job != null){
 			return (AbstractBuild)job.getBuildByNumber(jbr.getBuildNumber());
 		}

@@ -5,6 +5,7 @@ import hudson.model.Cause.UserCause;
 import hudson.plugins.global_build_stats.model.BuildResult;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
 import hudson.plugins.global_build_stats.model.JobBuildSearchResult;
+import jenkins.model.Jenkins;
 
 public class JobBuildResultFactory {
 
@@ -15,7 +16,7 @@ public class JobBuildResultFactory {
 	}
 	
 	public JobBuildResult createJobBuildResult(AbstractBuild build){
-		String buildName = build.getProject().getName();
+		String buildName = build.getProject().getFullName();
 		long duration = build.getDuration();
 		String nodeName = build.getBuiltOnStr();
 		/* Can't do that since MavenModuleSet is in maven-plugin artefact which is in test scope
@@ -34,7 +35,7 @@ public class JobBuildResultFactory {
         boolean isJobAccessible = false;
         boolean isBuildAccessible = false;
 
-        Job targetJob = ((Job) Hudson.getInstance().getItem(r.getJobName()));
+        Job targetJob = ((Job) Jenkins.getInstance().getItemByFullName(r.getJobName()));
         // Link to job will be provided only if job has not been deleted/renamed
         if(targetJob != null){
             isJobAccessible = true;
