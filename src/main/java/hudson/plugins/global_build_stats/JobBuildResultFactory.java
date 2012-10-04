@@ -2,6 +2,7 @@ package hudson.plugins.global_build_stats;
 
 import hudson.model.*;
 import hudson.model.Cause.UserCause;
+import hudson.model.Cause.UserIdCause;
 import hudson.plugins.global_build_stats.model.BuildResult;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
 import hudson.plugins.global_build_stats.model.JobBuildSearchResult;
@@ -52,10 +53,14 @@ public class JobBuildResultFactory {
 	public static String extractUserNameIn(AbstractBuild build){
 		String userName = null;
 		UserCause uc = retrieveUserCause(build);
+		UserIdCause uic = retrieveUserIdCause(build);
 		if(uc != null){
 			userName = uc.getUserName();
+		} else if(uic != null){
+			userName = uic.getUserId();
+		} 
 		// If no UserCause has been found, SYSTEM user should have launched the build
-		} else {
+		else {
 			userName = SYSTEM_USERNAME;
 		}
 		return userName;
@@ -71,6 +76,17 @@ public class JobBuildResultFactory {
 		}
 		return null;
 	}
+	
+	private static UserIdCause retrieveUserIdCause(AbstractBuild build){
+		for(CauseAction a : build.getActions(CauseAction.class)){
+			for(Cause c : a.getCauses()){
+				if(c instanceof UserIdCause){
+					return (UserIdCause)c;
+				}
+			}
+		}
+		return null;
+	}	
 	
 	public BuildResult createBuildResult(Result result){
 		if(Result.ABORTED.equals(result)){
