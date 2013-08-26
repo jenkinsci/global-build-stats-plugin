@@ -98,6 +98,8 @@ public class GlobalBuildStatsPluginSaver {
             this.plugin.load();
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        } catch (NullPointerException x) {
+            LOGGER.log(Level.WARNING, "JENKINS-17248 load failure", x);
         }
     }
 
