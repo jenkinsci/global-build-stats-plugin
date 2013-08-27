@@ -10,6 +10,7 @@ import hudson.plugins.global_build_stats.rententionstrategies.RetentionStragegy;
 import hudson.plugins.global_build_stats.xstream.GlobalBuildStatsXStreamConverter;
 import hudson.security.Permission;
 import hudson.util.DaemonThreadFactory;
+import java.io.File;
 import org.kohsuke.stapler.export.Exported;
 
 import java.io.IOException;
@@ -99,7 +100,12 @@ public class GlobalBuildStatsPluginSaver {
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (NullPointerException x) {
-            LOGGER.log(Level.WARNING, "JENKINS-17248 load failure", x);
+            File f = plugin.getConfigXmlFile();
+            File bak = new File(f.getParentFile(), f.getName() + ".bak");
+            if (!f.renameTo(bak)) {
+                LOGGER.log(Level.WARNING, "failed to rename {0} to {1}", new Object[] {f, bak});
+            }
+            LOGGER.log(Level.WARNING, "JENKINS-17248 load failure; saving problematic file to " + bak, x);
         }
     }
 
