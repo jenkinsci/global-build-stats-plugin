@@ -16,6 +16,7 @@ import hudson.plugins.global_build_stats.validation.GlobalBuildStatsValidator;
 import hudson.security.Permission;
 import hudson.util.ChartUtil;
 import hudson.util.FormValidation;
+import java.io.File;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -96,6 +97,10 @@ public class GlobalBuildStatsPlugin extends Plugin {
      */
     public void load() throws IOException {
         super.load();
+    }
+
+    public File getConfigXmlFile() {
+        return getConfigXml().getFile();
     }
 
     /**
