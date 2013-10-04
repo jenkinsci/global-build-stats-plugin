@@ -1,8 +1,6 @@
 package hudson.plugins.global_build_stats;
 
 import hudson.model.*;
-import hudson.model.Cause.UserCause;
-import hudson.model.Cause.UserIdCause;
 import hudson.plugins.global_build_stats.model.BuildResult;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
 import hudson.plugins.global_build_stats.model.JobBuildSearchResult;
@@ -11,6 +9,7 @@ import jenkins.model.Jenkins;
 public class JobBuildResultFactory {
 
 	public static final JobBuildResultFactory INSTANCE = new JobBuildResultFactory();
+    /** @see hudson.security.ACL#SYSTEM */
 	private static final String SYSTEM_USERNAME = "SYSTEM";
 	
 	private JobBuildResultFactory(){
@@ -50,10 +49,10 @@ public class JobBuildResultFactory {
         return new JobBuildSearchResult(r, isJobAccessible, isBuildAccessible);
     }
 	
-	public static String extractUserNameIn(AbstractBuild build){
-		String userName = null;
-		UserCause uc = retrieveUserCause(build);
-		UserIdCause uic = retrieveUserIdCause(build);
+	public static String extractUserNameIn(AbstractBuild<?,?> build){
+		String userName;
+        @SuppressWarnings("deprecation") Cause.UserCause uc = build.getCause(Cause.UserCause.class);
+		Cause.UserIdCause uic = build.getCause(Cause.UserIdCause.class);
 		if(uc != null){
 			userName = uc.getUserName();
 		} else if(uic != null){
@@ -65,28 +64,6 @@ public class JobBuildResultFactory {
 		}
 		return userName;
 	}
-	
-	private static UserCause retrieveUserCause(AbstractBuild build){
-		for(CauseAction a : build.getActions(CauseAction.class)){
-			for(Cause c : a.getCauses()){
-				if(c instanceof UserCause){
-					return (UserCause)c;
-				}
-			}
-		}
-		return null;
-	}
-	
-	private static UserIdCause retrieveUserIdCause(AbstractBuild build){
-		for(CauseAction a : build.getActions(CauseAction.class)){
-			for(Cause c : a.getCauses()){
-				if(c instanceof UserIdCause){
-					return (UserIdCause)c;
-				}
-			}
-		}
-		return null;
-	}	
 	
 	public BuildResult createBuildResult(Result result){
 		if(Result.ABORTED.equals(result)){
