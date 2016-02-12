@@ -4,6 +4,7 @@ import hudson.model.TopLevelItem;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Hudson;
+import hudson.model.Item;
 import hudson.model.Job;
 import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
 import hudson.plugins.global_build_stats.JobBuildResultFactory;
@@ -33,6 +34,8 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
+
+import com.cloudbees.hudson.plugins.folder.Folder;
 
 public class GlobalBuildStatsBusiness {
 
@@ -92,11 +95,15 @@ public class GlobalBuildStatsBusiness {
             public void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin) {
 
                 List<JobBuildResult> jobBuildResultsRead = new ArrayList<JobBuildResult>();
-
-                //TODO fix MatrixProject and use getAllJobs()
                 for (TopLevelItem item : Hudson.getInstance().getItems()) {
+                	if (item instanceof Folder){
+                		Folder f = (Folder)item;
+                		for (TopLevelItem i : f.getItems()){
+                			handleItem(jobBuildResultsRead,i);
+                		}
+                	}
                     if (item instanceof AbstractProject) {
-                        addBuildsFrom(jobBuildResultsRead, (AbstractProject) item);
+                    	handleItem(jobBuildResultsRead, item);
                     }
                 }
 
@@ -104,6 +111,12 @@ public class GlobalBuildStatsBusiness {
                         CollectionsUtil.<JobBuildResult>minus(jobBuildResultsRead, plugin.getJobBuildResults()));
             }
         });
+	}
+	
+	public void handleItem(List<JobBuildResult> results, TopLevelItem item){
+		if (item instanceof AbstractProject){
+			addBuildsFrom(results, (AbstractProject)item);
+		}
 	}
 	
 	public JFreeChart createChart(BuildStatConfiguration config){
