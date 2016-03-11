@@ -26,7 +26,7 @@
 		<script src="${rootURL}/plugin/global-build-stats/scripts/yui/yahoo-dom-event/yahoo-dom-event.js"></script>
 		<!-- Source file -->
 		<script src="${rootURL}/plugin/global-build-stats/scripts/yui/calendar/calendar-${yuiSuffix}.js"></script>
-		<script src="${rootURL}/plugin/global-build-stats/scripts/yui/datasource/datasource-beta-${yuiSuffix}.js"></script>
+		<script src="${rootURL}/plugin/global-build-stats/scripts/yui/datasource/datasource-${yuiSuffix}.js"></script>
 		<style>
 /* Clear calendar's float */
 .bd:after {content:".";display:block;clear:left;height:0;visibility:hidden;}
