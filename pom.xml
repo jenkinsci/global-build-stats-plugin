@@ -1,50 +1,56 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>org.jenkins-ci.plugins</groupId>
-    <artifactId>plugin</artifactId>
-    <version>1.609.1</version>
-  </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.jenkins-ci.plugins</groupId>
+		<artifactId>plugin</artifactId>
+		<version>1.609.1</version>
+	</parent>
 
-  <artifactId>global-build-stats</artifactId>
-  <version>1.4-SNAPSHOT</version>
-  <name>Hudson global-build-stats plugin</name>
-  <packaging>hpi</packaging>
-  <url>http://wiki.jenkins-ci.org/display/JENKINS/Global+Build+Stats+Plugin</url>
-  <description>Global build stats plugin will allow to gather and display global build result statistics. It is a useful tool allowing to display global hudson build trend over time.</description>
-  
-  <developers>
-    <developer>
-      <id>fcamblor</id>
-      <name>Frederic Camblor</name>
-      <email>fcamblor+wikihudson@gmail.com</email>
-    </developer>
-  </developers>
-  <dependencies>
-  	<dependency>
-  <groupId>org.jenkins-ci.plugins</groupId>
-  <artifactId>cloudbees-folder</artifactId>
-  <version>4.9</version>
-</dependency>
-  </dependencies>
-    
-  <repositories>
-    <repository>
-        <id>repo.jenkins-ci.org</id>
-        <url>http://repo.jenkins-ci.org/public/</url>
-    </repository>
-  </repositories>
+	<artifactId>global-build-stats</artifactId>
+	<version>1.4-SNAPSHOT</version>
+	<name>Hudson global-build-stats plugin</name>
+	<packaging>hpi</packaging>
+	<url>http://wiki.jenkins-ci.org/display/JENKINS/Global+Build+Stats+Plugin</url>
+	<description>Global build stats plugin will allow to gather and display global build result statistics. It is a useful tool allowing to display global hudson build trend over time.</description>
 
-  <pluginRepositories>
-    <pluginRepository>
-        <id>repo.jenkins-ci.org</id>
-        <url>http://repo.jenkins-ci.org/public/</url>
-    </pluginRepository>
-  </pluginRepositories>
-  
-  <scm>
-    <connection>scm:git:git://github.com/jenkinsci/global-build-stats-plugin.git</connection>
-    <developerConnection>scm:git:git@github.com:jenkinsci/global-build-stats-plugin.git</developerConnection>
-    <url>https://github.com/jenkinsci/global-build-stats-plugin</url>
-  </scm>
+	<developers>
+		<developer>
+			<id>dhinske</id>
+			<name>David Hinske</name>
+			<email>david.hinske@gmx.net</email>
+		</developer>
+		<developer>
+			<id>fcamblor</id>
+			<name>Frederic Camblor</name>
+			<email>fcamblor+wikihudson@gmail.com</email>
+		</developer>
+	</developers>
+	<dependencies>
+		<dependency>
+			<groupId>org.jenkins-ci.plugins</groupId>
+			<artifactId>cloudbees-folder</artifactId>
+			<version>4.9</version>
+		</dependency>
+	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>repo.jenkins-ci.org</id>
+			<url>http://repo.jenkins-ci.org/public/</url>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>repo.jenkins-ci.org</id>
+			<url>http://repo.jenkins-ci.org/public/</url>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<scm>
+		<connection>scm:git:git://github.com/jenkinsci/global-build-stats-plugin.git</connection>
+		<developerConnection>scm:git:git@github.com:jenkinsci/global-build-stats-plugin.git</developerConnection>
+		<url>https://github.com/jenkinsci/global-build-stats-plugin</url>
+	</scm>
 </project>
