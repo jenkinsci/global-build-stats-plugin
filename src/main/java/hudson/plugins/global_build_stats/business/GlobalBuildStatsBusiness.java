@@ -146,7 +146,6 @@ public class GlobalBuildStatsBusiness {
 
         this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
             public void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin) {
-
                 if(regenerateId){
                     String newBuildStatId = ModelIdGenerator.INSTANCE.generateIdForClass(BuildStatConfiguration.class);
                     config.setId(newBuildStatId);
@@ -154,7 +153,6 @@ public class GlobalBuildStatsBusiness {
 
                 int buildStatIndex = searchBuildStatConfigIndexById(oldBuildStatId);
 
-                plugin.getBuildStatConfigs().addAll(plugin.getBuildStatConfigs());
                 plugin.getBuildStatConfigs().set(buildStatIndex, config);
             }
 

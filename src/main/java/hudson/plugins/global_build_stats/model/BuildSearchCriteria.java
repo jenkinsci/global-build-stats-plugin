@@ -137,4 +137,19 @@ public class BuildSearchCriteria {
 	public void setShownBuildResults(short shownBuildResults) {
 		this.shownBuildResults = shownBuildResults;
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == null) return false;
+		if (o == this) return true;
+		
+		BuildSearchCriteria bsc = (BuildSearchCriteria) o;
+		
+		if (!jobFilter.equals(bsc.jobFilter)) return false;
+		if (!nodeFilter.equals(bsc.nodeFilter)) return false;
+		if (!launcherFilter.equals(bsc.launcherFilter)) return false;
+		if (shownBuildResults!=bsc.shownBuildResults) return false;
+		
+		return true;
+	}
 }
