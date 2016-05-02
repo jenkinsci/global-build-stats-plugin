@@ -21,7 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
+//import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 
@@ -45,7 +45,7 @@ import org.kohsuke.stapler.export.Flavor;
 @ExportedBean
 public class GlobalBuildStatsPlugin extends Plugin {
 
-    private static final Logger LOGGER = Logger.getLogger(GlobalBuildStatsPlugin.class.getName());
+//    private static final Logger LOGGER = Logger.getLogger(GlobalBuildStatsPlugin.class.getName());
 
     /**
      * List of aggregated job build results
@@ -60,7 +60,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
      * @deprecated Use jobBuildResultsSharder instead of jobBuildResults (since v8 file format)
 	 */
     @Deprecated
-	transient private List<JobBuildResult> jobBuildResults = new ArrayList<JobBuildResult>();
+	private transient List<JobBuildResult> jobBuildResults = new ArrayList<JobBuildResult>();
 	
 	/**
 	 * List of persisted build statistics configurations used on the
@@ -76,12 +76,12 @@ public class GlobalBuildStatsPlugin extends Plugin {
 	/**
 	 * Business layer for global build stats
 	 */
-	transient private final GlobalBuildStatsBusiness business = new GlobalBuildStatsBusiness(this);
+	private transient final GlobalBuildStatsBusiness business = new GlobalBuildStatsBusiness(this);
 	
 	/**
 	 * Validator layer for global build stats
 	 */
-	transient private final GlobalBuildStatsValidator validator = new GlobalBuildStatsValidator();
+	private transient final GlobalBuildStatsValidator validator = new GlobalBuildStatsValidator();
 	
     /**
      * Expose {@link GlobalBuildStatsPlugin} to the remote API :
@@ -95,6 +95,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     /**
      * Highered visibility of load method
      */
+    @Override
     public void load() throws IOException {
         super.load();
     }
@@ -127,7 +128,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     		}
     	}
     	
-    	private boolean exposeChartData(StaplerRequest req, StaplerResponse rsp, Flavor flavor) throws ServletException, IOException{
+    	private static boolean exposeChartData(StaplerRequest req, StaplerResponse rsp, Flavor flavor) throws ServletException, IOException{
     		boolean chartDataHasBeenExposed = false;
     		String buildStatConfigId = req.getParameter("buildStatConfigId");
     		if(buildStatConfigId != null){
@@ -164,14 +165,17 @@ public class GlobalBuildStatsPlugin extends Plugin {
     @Extension
     public static class GlobalBuildStatsManagementLink extends ManagementLink {
 
+    	@Override
         public String getIconFileName() {
             return "/plugin/global-build-stats/icons/global-build-stats.png";
         }
 
+    	@Override
         public String getDisplayName() {
             return Messages.Global_Builds_Stats();
         }
 
+    	@Override
         public String getUrlName() {
             return "plugin/global-build-stats/";
         }
@@ -273,6 +277,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	business.recordBuildInfos();
     	
         return new HttpResponse() {
+        	@Override
 			public void generateResponse(StaplerRequest req, StaplerResponse rsp,
 					Object node) throws IOException, ServletException {
 			}
@@ -304,7 +309,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
 
     	String buildStatId = req.getParameter("buildStatId");
-    	BuildStatConfiguration config = null;
+    	BuildStatConfiguration config;
     	if(buildStatId != null){
     		config = business.searchBuildStatConfigById(buildStatId);
     	} else {
@@ -331,7 +336,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void doUpdateBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
-    	boolean regenerateId = Boolean.valueOf(req.getParameter("regenerateId")).booleanValue();
+    	boolean regenerateId = Boolean.parseBoolean(req.getParameter("regenerateId"));
     	
     	BuildStatConfiguration config = FromRequestObjectFactory.createBuildStatConfiguration(req.getParameter("buildStatId"), req);
     	business.updateBuildStatConfiguration(req.getParameter("buildStatId"), config, regenerateId);
