@@ -10,7 +10,7 @@ import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
 import hudson.plugins.global_build_stats.JobBuildResultFactory;
 import hudson.plugins.global_build_stats.model.*;
 import hudson.plugins.global_build_stats.model.AbstractBuildStatChartDimension.LegendItemData;
-import hudson.plugins.global_build_stats.rententionstrategies.RetentionStragegy;
+import hudson.plugins.global_build_stats.rententionstrategies.RetentionStrategy;
 import hudson.plugins.global_build_stats.util.CollectionsUtil;
 import hudson.util.DataSetBuilder;
 import hudson.util.ShiftedCategoryAxis;
@@ -53,12 +53,12 @@ public class GlobalBuildStatsBusiness {
      * Records the result of a build.
      */
 	public void onJobCompleted(final AbstractBuild build) {
-        for(RetentionStragegy s : plugin.getRetentionStrategies()){
+        for(RetentionStrategy s : plugin.getRetentionStrategies()){
             s.onBuildCompleted(build, pluginSaver);
         }
         this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
+        	@Override
             public void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin) {
-
                 plugin.getJobBuildResultsSharder().queueResultToAdd(JobBuildResultFactory.INSTANCE.createJobBuildResult(build));
             }
         });
@@ -92,6 +92,7 @@ public class GlobalBuildStatsBusiness {
 	public void recordBuildInfos() throws IOException {
 
         this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
+        	@Override
             public void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin) {
 
                 List<JobBuildResult> jobBuildResultsRead = new ArrayList<JobBuildResult>();
@@ -121,7 +122,7 @@ public class GlobalBuildStatsBusiness {
 	
 	public JFreeChart createChart(BuildStatConfiguration config){
 		List<AbstractBuildStatChartDimension> dimensions = createDataSetBuilder(config);
-        return createChart(config, dimensions, config.getBuildStatTitle());
+        return createChart(dimensions, config.getBuildStatTitle());
 	}
 	
 	public List<JobBuildSearchResult> searchBuilds(BuildHistorySearchCriteria searchCriteria){
@@ -145,6 +146,7 @@ public class GlobalBuildStatsBusiness {
                                              final boolean regenerateId) throws IOException {
 
         this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
+        	@Override
             public void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin) {
                 if(regenerateId){
                     String newBuildStatId = ModelIdGenerator.INSTANCE.generateIdForClass(BuildStatConfiguration.class);
@@ -233,7 +235,7 @@ public class GlobalBuildStatsBusiness {
 		}
 	}
     
-    private JFreeChart createChart(final BuildStatConfiguration config, List<AbstractBuildStatChartDimension> dimensions, String title) {
+    private JFreeChart createChart(List<AbstractBuildStatChartDimension> dimensions, String title) {
 
     	final JFreeChart chart = ChartFactory.createStackedAreaChart(title, null, "", 
     			new DataSetBuilder<String, DateRange>().build(), PlotOrientation.VERTICAL, true, true, false);
@@ -298,12 +300,12 @@ public class GlobalBuildStatsBusiness {
     	return sortedLegendItems;
     }
 
-    public void updateRetentionStrategies(final List<RetentionStragegy> selectedStrategies) {
+    public void updateRetentionStrategies(final List<RetentionStrategy> selectedStrategies) {
         this.pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
             @Override
             public void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin) {
                 plugin.setRetentionStrategies(selectedStrategies);
-                for(RetentionStragegy s : selectedStrategies){
+                for(RetentionStrategy s : selectedStrategies){
                     s.strategyActivated(pluginSaver);
                 }
             }
@@ -393,7 +395,7 @@ public class GlobalBuildStatsBusiness {
         this.pluginSaver.reloadPlugin();
 
         // If job results are empty, let's perform an initialization !
-        if(this.plugin.getJobBuildResults()==null || this.plugin.getJobBuildResults().size() == 0){
+        if(this.plugin.getJobBuildResults()==null || this.plugin.getJobBuildResults().isEmpty()){
             try {
                 this.recordBuildInfos();
             } catch (IOException e) {
@@ -403,7 +405,7 @@ public class GlobalBuildStatsBusiness {
     }
 
     public void onBuildDeleted(AbstractBuild build) {
-        for(RetentionStragegy s : plugin.getRetentionStrategies()){
+        for(RetentionStrategy s : plugin.getRetentionStrategies()){
             s.onBuildDeleted(build, pluginSaver);
         }
     }

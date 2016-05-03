@@ -9,7 +9,7 @@ import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
 import hudson.plugins.global_build_stats.model.JobBuildResultSharder;
 import hudson.plugins.global_build_stats.model.ModelIdGenerator;
-import hudson.plugins.global_build_stats.rententionstrategies.RetentionStragegy;
+import hudson.plugins.global_build_stats.rententionstrategies.RetentionStrategy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,12 +54,12 @@ public abstract class AbstractMigrator<TFROM extends GlobalBuildStatsPOJO, TTO e
 
         // Retention strategies
         reader.moveDown();
-        List<RetentionStragegy> retentionStrategiesFakedInstances = (List<RetentionStragegy>)context.convertAnother(pojo, List.class);
-        List<RetentionStragegy> retentionStrategies = new ArrayList<RetentionStragegy>(retentionStrategiesFakedInstances.size());
+        List<RetentionStrategy> retentionStrategiesFakedInstances = (List<RetentionStrategy>)context.convertAnother(pojo, List.class);
+        List<RetentionStrategy> retentionStrategies = new ArrayList<RetentionStrategy>(retentionStrategiesFakedInstances.size());
         // Retention strategies read are not the same instance as the one in RetentionStrategies.IMPLEMENTATIONS
-        for(RetentionStragegy fakeStrategy : retentionStrategiesFakedInstances){
+        for(RetentionStrategy fakeStrategy : retentionStrategiesFakedInstances){
             // So we must convert it to a "true" instance
-            RetentionStragegy rs = RetentionStragegy.valueOf(fakeStrategy.getId());
+            RetentionStrategy rs = RetentionStrategy.valueOf(fakeStrategy.getId());
             rs.from(fakeStrategy);
             retentionStrategies.add(rs);
         }
@@ -83,8 +83,8 @@ public abstract class AbstractMigrator<TFROM extends GlobalBuildStatsPOJO, TTO e
 	}
 
     // Overridable
-    protected List<RetentionStragegy> migrateRetentionStrategies(List<RetentionStragegy> retentionStrategies) {
-        return new ArrayList<RetentionStragegy>(retentionStrategies);
+    protected List<RetentionStrategy> migrateRetentionStrategies(List<RetentionStrategy> retentionStrategies) {
+        return new ArrayList<RetentionStrategy>(retentionStrategies);
     }
 
 	// Overridable

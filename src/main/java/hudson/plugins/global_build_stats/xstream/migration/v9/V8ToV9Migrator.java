@@ -1,6 +1,6 @@
 package hudson.plugins.global_build_stats.xstream.migration.v9;
 
-import hudson.plugins.global_build_stats.rententionstrategies.RetentionStragegy;
+import hudson.plugins.global_build_stats.rententionstrategies.RetentionStrategy;
 import hudson.plugins.global_build_stats.xstream.migration.AbstractMigrator;
 import hudson.plugins.global_build_stats.xstream.migration.PreV9AbstractMigrator;
 import hudson.plugins.global_build_stats.xstream.migration.v7.V7GlobalBuildStatsPOJO;
@@ -20,9 +20,9 @@ public class V8ToV9Migrator extends AbstractMigrator<V8GlobalBuildStatsPOJO, V9G
     }
 
     @Override
-    protected List<RetentionStragegy> migrateRetentionStrategies(List<RetentionStragegy> retentionStrategies) {
+    protected List<RetentionStrategy> migrateRetentionStrategies(List<RetentionStrategy> retentionStrategies) {
         if(retentionStrategies == null){
-            return new ArrayList<RetentionStragegy>();
+            return new ArrayList<RetentionStrategy>();
         } else {
             return super.migrateRetentionStrategies(retentionStrategies);
         }

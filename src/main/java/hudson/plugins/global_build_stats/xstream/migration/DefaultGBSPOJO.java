@@ -2,7 +2,7 @@ package hudson.plugins.global_build_stats.xstream.migration;
 
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
-import hudson.plugins.global_build_stats.rententionstrategies.RetentionStragegy;
+import hudson.plugins.global_build_stats.rententionstrategies.RetentionStrategy;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class DefaultGBSPOJO implements GlobalBuildStatsPOJO {
     /**
      * List of retention strategies used for job build results cleaning
      */
-    public List<RetentionStragegy> retentionStrategies;
+    public List<RetentionStrategy> retentionStrategies;
 
 	public List<JobBuildResult> getJobBuildResults() {
 		return jobBuildResults;
@@ -41,11 +41,11 @@ public class DefaultGBSPOJO implements GlobalBuildStatsPOJO {
 		this.buildStatConfigs = buildStatConfigs;
 	}
 
-    public List<RetentionStragegy> getRetentionStrategies() {
+    public List<RetentionStrategy> getRetentionStrategies() {
         return retentionStrategies;
     }
 
-    public void setRetentionStrategies(List<RetentionStragegy> retentionStrategies) {
+    public void setRetentionStrategies(List<RetentionStrategy> retentionStrategies) {
         this.retentionStrategies = retentionStrategies;
     }
 }

@@ -11,7 +11,7 @@ import hudson.model.listeners.ItemListener;
 import hudson.model.listeners.RunListener;
 import hudson.plugins.global_build_stats.business.GlobalBuildStatsBusiness;
 import hudson.plugins.global_build_stats.model.*;
-import hudson.plugins.global_build_stats.rententionstrategies.RetentionStragegy;
+import hudson.plugins.global_build_stats.rententionstrategies.RetentionStrategy;
 import hudson.plugins.global_build_stats.validation.GlobalBuildStatsValidator;
 import hudson.security.Permission;
 import hudson.util.ChartUtil;
@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-//import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 
@@ -44,8 +43,6 @@ import org.kohsuke.stapler.export.Flavor;
  */
 @ExportedBean
 public class GlobalBuildStatsPlugin extends Plugin {
-
-//    private static final Logger LOGGER = Logger.getLogger(GlobalBuildStatsPlugin.class.getName());
 
     /**
      * List of aggregated job build results
@@ -71,7 +68,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     /**
      * List of retention strategies applied on job results
      */
-    private List<RetentionStragegy> retentionStrategies = new ArrayList<RetentionStragegy>();
+    private List<RetentionStrategy> retentionStrategies = new ArrayList<RetentionStrategy>();
 	
 	/**
 	 * Business layer for global build stats
@@ -382,10 +379,10 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void doUpdateRetentionStrategies(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
         Hudson.getInstance().checkPermission(getRequiredPermission());
 
-        List<RetentionStragegy> selectedStrategies = new ArrayList<RetentionStragegy>();
+        List<RetentionStrategy> selectedStrategies = new ArrayList<RetentionStrategy>();
         if(req.getParameterValues("retentionStrategies") != null){
             for(String selectedStrategyId : req.getParameterValues("retentionStrategies")){
-                RetentionStragegy retentionStrategy = RetentionStragegy.valueOf(selectedStrategyId);
+                RetentionStrategy retentionStrategy = RetentionStrategy.valueOf(selectedStrategyId);
                 retentionStrategy.updateState(req.getParameterMap());
                 selectedStrategies.add(retentionStrategy);
             }
@@ -464,19 +461,19 @@ public class GlobalBuildStatsPlugin extends Plugin {
         this.jobBuildResultsSharder = new JobBuildResultSharder(this.jobBuildResultsSharder, results);
     }
 
-    public List<RetentionStragegy> getAvailableRetentionStrategies(){
-        return RetentionStragegy.values();
+    public List<RetentionStrategy> getAvailableRetentionStrategies(){
+        return RetentionStrategy.values();
     }
 
     public boolean isStrategySelected(String strategyId){
-        return retentionStrategies.contains(RetentionStragegy.valueOf(strategyId));
+        return retentionStrategies.contains(RetentionStrategy.valueOf(strategyId));
     }
 
-    public void setRetentionStrategies(List<RetentionStragegy> retentionStrategies) {
+    public void setRetentionStrategies(List<RetentionStrategy> retentionStrategies) {
         this.retentionStrategies = retentionStrategies;
     }
 
-    public List<RetentionStragegy> getRetentionStrategies() {
+    public List<RetentionStrategy> getRetentionStrategies() {
         return retentionStrategies;
     }
 }

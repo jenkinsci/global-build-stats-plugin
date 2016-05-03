@@ -13,7 +13,7 @@ import java.util.Comparator;
 public class JobBuildResult implements Serializable {
 
 	private static final long serialVersionUID = -4697202185011561179L;
-	public static long EMPTY_DURATION = -1;
+	public static final long EMPTY_DURATION = -1;
 	public static final String EMPTY_NODE_NAME = null;
 	public static final String EMPTY_USER_NAME = null;
 	public static final String MASTER_NODE_NAME = "master";

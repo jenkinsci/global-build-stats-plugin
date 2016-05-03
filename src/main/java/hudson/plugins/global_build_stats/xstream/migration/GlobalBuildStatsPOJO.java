@@ -2,7 +2,7 @@ package hudson.plugins.global_build_stats.xstream.migration;
 
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
-import hudson.plugins.global_build_stats.rententionstrategies.RetentionStragegy;
+import hudson.plugins.global_build_stats.rententionstrategies.RetentionStrategy;
 
 import java.util.List;
 
@@ -15,6 +15,6 @@ public interface GlobalBuildStatsPOJO {
 	public void setJobBuildResults(List<JobBuildResult> jobBuildResults);
 	public List<BuildStatConfiguration> getBuildStatConfigs();
 	public void setBuildStatConfigs(List<BuildStatConfiguration> buildStatConfigs);
-    public List<RetentionStragegy> getRetentionStrategies();
-    public void setRetentionStrategies(List<RetentionStragegy> retentionStrategies);
+    public List<RetentionStrategy> getRetentionStrategies();
+    public void setRetentionStrategies(List<RetentionStrategy> retentionStrategies);
 }

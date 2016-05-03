@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * @author fcamblor
  */
-public class KeepExistingJobResultsOnly extends RetentionStragegy<KeepExistingJobResultsOnly> {
+public class KeepExistingJobResultsOnly extends RetentionStrategy<KeepExistingJobResultsOnly> {
     @Override
     public String getConfigPage() {
         return "keepExistingJobResultsOnly.jelly";
