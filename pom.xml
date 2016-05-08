@@ -12,6 +12,18 @@
 	<packaging>hpi</packaging>
 	<url>http://wiki.jenkins-ci.org/display/JENKINS/Global+Build+Stats+Plugin</url>
 	<description>Global build stats plugin will allow to gather and display global build result statistics. It is a useful tool allowing to display global hudson build trend over time.</description>
+	
+	<build>
+  		<plugins>
+    			<plugin>
+      				<groupId>org.apache.maven.plugins</groupId>
+      				<artifactId>maven-javadoc-plugin</artifactId>
+      				<configuration>
+        				<additionalparam>-Xdoclint:none</additionalparam>
+      				</configuration>
+    			</plugin>
+  		</plugins>
+	</build>
 
 	<developers>
 		<developer>
