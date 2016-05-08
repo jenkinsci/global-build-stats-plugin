@@ -265,7 +265,15 @@ public class BuildStatConfiguration implements Serializable {
         BuildStatConfiguration that = (BuildStatConfiguration) o;
 
         if (!id.equals(that.id)) return false;
-
+        if (!buildStatTitle.equals(that.buildStatTitle)) return false;
+        if (buildStatWidth != that.buildStatWidth) return false;
+        if (buildStatHeight != that.buildStatHeight) return false;
+        if (historicLength != that.historicLength) return false;
+        if (!historicScale.equals(that.historicScale)) return false;
+        if (!yAxisChartType.equals(that.yAxisChartType)) return false;
+        if (!dimensionsShown.equals(that.dimensionsShown)) return false;
+        if (!buildFilters.equals(that.buildFilters)) return false;
+        
         return true;
     }
 

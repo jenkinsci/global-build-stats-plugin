@@ -13,15 +13,15 @@ import java.util.Map;
 /**
  * @author fcamblor
  */
-public abstract class RetentionStragegy<T extends RetentionStragegy> {
+public abstract class RetentionStrategy<T extends RetentionStrategy> {
 
-    protected static final List<RetentionStragegy> RETENTION_STRATEGIES_IMPLEMENTATIONS = new ArrayList<RetentionStragegy>(){{
+    protected static final List<RetentionStrategy> RETENTION_STRATEGIES_IMPLEMENTATIONS = new ArrayList<RetentionStrategy>(){{
         add(new DiscardResultsOlderThanDays());
         add(new DoNotKeepBuildResultWhenDiscarded());
         add(new KeepExistingJobResultsOnly());
     }};
 
-    protected RetentionStragegy(){
+    protected RetentionStrategy(){
     }
 
     public String getId(){
@@ -30,8 +30,8 @@ public abstract class RetentionStragegy<T extends RetentionStragegy> {
 
     public abstract String getConfigPage();
 
-    public static RetentionStragegy valueOf(String strategyId){
-        for(RetentionStragegy strategy : RETENTION_STRATEGIES_IMPLEMENTATIONS){
+    public static RetentionStrategy valueOf(String strategyId){
+        for(RetentionStrategy strategy : RETENTION_STRATEGIES_IMPLEMENTATIONS){
             if(strategyId.equals(strategy.getId())){
                 return strategy;
             }
@@ -65,7 +65,7 @@ public abstract class RetentionStragegy<T extends RetentionStragegy> {
         }
     }
 
-    public static List<RetentionStragegy> values(){
+    public static List<RetentionStrategy> values(){
         return RETENTION_STRATEGIES_IMPLEMENTATIONS;
     }
 

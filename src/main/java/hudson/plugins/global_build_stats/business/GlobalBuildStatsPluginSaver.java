@@ -6,7 +6,7 @@ import hudson.plugins.global_build_stats.model.*;
 import hudson.plugins.global_build_stats.rententionstrategies.DiscardResultsOlderThanDays;
 import hudson.plugins.global_build_stats.rententionstrategies.DoNotKeepBuildResultWhenDiscarded;
 import hudson.plugins.global_build_stats.rententionstrategies.KeepExistingJobResultsOnly;
-import hudson.plugins.global_build_stats.rententionstrategies.RetentionStragegy;
+import hudson.plugins.global_build_stats.rententionstrategies.RetentionStrategy;
 import hudson.plugins.global_build_stats.xstream.GlobalBuildStatsXStreamConverter;
 import hudson.security.Permission;
 import hudson.util.DaemonThreadFactory;
@@ -119,7 +119,7 @@ public class GlobalBuildStatsPluginSaver {
      */
     public void updatePlugin(BeforeSavePluginCallback callback){
         final List<BuildStatConfiguration> configsBeforeStateChange = new ArrayList<BuildStatConfiguration>(plugin.getBuildStatConfigs());
-        final List<RetentionStragegy> retentionStrategiesBeforeStateChange = new ArrayList<RetentionStragegy>(plugin.getRetentionStrategies());
+        final List<RetentionStrategy> retentionStrategiesBeforeStateChange = new ArrayList<RetentionStrategy>(plugin.getRetentionStrategies());
         callback.changePluginStateBeforeSavingIt(plugin);
         LOGGER.log(Level.FINER, "Global build stats state update queued !");
 

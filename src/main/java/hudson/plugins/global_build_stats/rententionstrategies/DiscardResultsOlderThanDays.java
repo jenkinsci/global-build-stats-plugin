@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * @author fcamblor
  */
-public class DiscardResultsOlderThanDays extends RetentionStragegy<DiscardResultsOlderThanDays>
+public class DiscardResultsOlderThanDays extends RetentionStrategy<DiscardResultsOlderThanDays>
                 implements ParameterizedStrategy<DiscardResultsOlderThanDays>, BuildCompletedListener {
 
     private static final long PURGE_FREQUENCY = 1000L * 3600L * 24L; // Let's purge job build results once a day
