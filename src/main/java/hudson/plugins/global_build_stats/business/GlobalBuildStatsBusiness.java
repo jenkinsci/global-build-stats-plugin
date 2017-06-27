@@ -335,7 +335,7 @@ public class GlobalBuildStatsBusiness {
 		while(tickCount != config.getHistoricLength()){
 	    	// Finding range where the build resides
 	    	while(tickCount < config.getHistoricLength() && d1.after(buildDate)){
-	    		DateRange range = new DateRange(d1, d2, config.getHistoricScale().getDateRangeFormatter());
+	    		DateRange range = new DateRange(d1, d2, config.getHistoricScale().getDateRangeFormatter(),config.getTimeZone());
 	    		for(AbstractBuildStatChartDimension dimension : dimensions){
 	    			dimension.provideDataInDataSet(range);
 	    		}

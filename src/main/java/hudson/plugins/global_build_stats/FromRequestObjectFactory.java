@@ -1,5 +1,6 @@
 package hudson.plugins.global_build_stats;
 
+import hudson.plugins.global_build_stats.business.GlobalBuildStatsBusiness;
 import hudson.plugins.global_build_stats.model.BuildHistorySearchCriteria;
 import hudson.plugins.global_build_stats.model.BuildSearchCriteria;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
@@ -8,7 +9,12 @@ import hudson.plugins.global_build_stats.model.YAxisChartType;
 
 import org.kohsuke.stapler.StaplerRequest;
 
+import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class FromRequestObjectFactory {
+	private static final Logger LOGGER = Logger.getLogger(FromRequestObjectFactory.class.getName());
 
 	public static BuildHistorySearchCriteria createBuildHistorySearchCriteria(StaplerRequest req){
 		BuildSearchCriteria criteria = createBuildSearchCriteria(req);
@@ -20,6 +26,12 @@ public class FromRequestObjectFactory {
 	
 	public static BuildStatConfiguration createBuildStatConfiguration(String id, StaplerRequest req){
 		BuildSearchCriteria criteria = createBuildSearchCriteria(req);
+		TimeZone timeZone = null;
+		if(req.getParameter("timeZone") != null){
+			String timeZoneTxt = req.getParameter("timeZone").toString();
+			LOGGER.log(Level.FINEST, "Timezone is "+ timeZoneTxt);
+			timeZone = TimeZone.getTimeZone(timeZoneTxt);
+		}
     	return new BuildStatConfiguration(
     			id,
     			req.getParameter("title"), 
@@ -31,6 +43,7 @@ public class FromRequestObjectFactory {
     			Boolean.parseBoolean(req.getParameter("buildStatusesShown")),
     			Boolean.parseBoolean(req.getParameter("totalBuildTimeShown")),
     			Boolean.parseBoolean(req.getParameter("averageBuildTimeShown")),
+				timeZone,
     			criteria);
 	}
 	
