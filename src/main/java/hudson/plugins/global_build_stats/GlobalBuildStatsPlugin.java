@@ -34,6 +34,7 @@ import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
 import org.kohsuke.stapler.export.Flavor;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 
 /**
  * Entry point of the global build stats plugin
@@ -46,7 +47,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
 
     /**
      * List of aggregated job build results
-     * This list will grow over time, but will be monthly sharded in different files to keep
+     * This list will grow over time, butgit diff will be monthly sharded in different files to keep
      * save() time constant
      */
     private JobBuildResultSharder jobBuildResultsSharder = new JobBuildResultSharder();
@@ -79,6 +80,11 @@ public class GlobalBuildStatsPlugin extends Plugin {
 	 * Validator layer for global build stats
 	 */
 	private transient final GlobalBuildStatsValidator validator = new GlobalBuildStatsValidator();
+	
+	/**
+	 * application/json ContentType for StaplerResponse
+	 */
+	private final static String CONTENT_TYPE = "application/json";
 	
     /**
      * Expose {@link GlobalBuildStatsPlugin} to the remote API :
@@ -330,6 +336,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	req.getView(this, "/hudson/plugins/global_build_stats/GlobalBuildStatsPlugin/buildHistory.jelly").forward(req, res);
     }
     
+    @RequirePOST
     public void doUpdateBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
@@ -339,9 +346,11 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	business.updateBuildStatConfiguration(req.getParameter("buildStatId"), config, regenerateId);
     	
     	String json = JSONObject.fromObject(config).toString();
+    	res.setContentType(CONTENT_TYPE);
     	res.getWriter().write(json);
     }
     
+    @RequirePOST
     public void doAddBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
@@ -349,9 +358,11 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	business.addBuildStatConfiguration(config);
     	
     	String json = JSONObject.fromObject(config).toString();
+    	res.setContentType(CONTENT_TYPE);
     	res.getWriter().write(json);
     }
     
+    @RequirePOST
     public void doDeleteConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
@@ -360,6 +371,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
         respondAjaxOk(res);
     }
     
+    @RequirePOST
     public void doMoveUpConf(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
@@ -368,6 +380,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
         respondAjaxOk(res);
     }
     
+    @RequirePOST
     public void doMoveDownConf(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
@@ -376,6 +389,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
         respondAjaxOk(res);
     }
 
+    @RequirePOST
     public void doUpdateRetentionStrategies(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
         Hudson.getInstance().checkPermission(getRequiredPermission());
 
