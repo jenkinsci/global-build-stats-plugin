@@ -47,7 +47,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
 
     /**
      * List of aggregated job build results
-     * This list will grow over time, butgit diff will be monthly sharded in different files to keep
+     * This list will grow over time, but will be monthly sharded in different files to keep
      * save() time constant
      */
     private JobBuildResultSharder jobBuildResultsSharder = new JobBuildResultSharder();
