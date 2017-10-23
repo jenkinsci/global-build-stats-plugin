@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.TimeZone;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.kohsuke.stapler.export.Exported;
@@ -33,6 +34,7 @@ public class BuildStatConfiguration implements Serializable {
 	private HistoricScale historicScale;
 	private YAxisChartType yAxisChartType = YAxisChartType.COUNT;
 	private YAxisChartDimension[] dimensionsShown;
+	private TimeZone timeZone;
 	
 	// Filters on jobs
 	private BuildSearchCriteria buildFilters;
@@ -59,7 +61,7 @@ public class BuildStatConfiguration implements Serializable {
 	
 	public BuildStatConfiguration(String _id, String _buildStatTitle, int _buildStatWidth, int _buildStatHeight, 
 			int _historicLength, HistoricScale _historicScale, YAxisChartType _yAxisChartType,
-			boolean _buildCountsShown, boolean _totalBuildTimeShown, boolean _averageBuildTimeShown,
+			boolean _buildCountsShown, boolean _totalBuildTimeShown, boolean _averageBuildTimeShown, TimeZone _timeZone,
 			BuildSearchCriteria _buildFilters){
 		
 		this.id = _id;
@@ -71,7 +73,8 @@ public class BuildStatConfiguration implements Serializable {
 		
 		this.yAxisChartType = _yAxisChartType;
 		this.buildFilters = _buildFilters;
-		
+		this.timeZone = _timeZone;
+
 		List<YAxisChartDimension> dimensionsList = new ArrayList<YAxisChartDimension>();
 		if(_buildCountsShown){ dimensionsList.add(YAxisChartDimension.BUILD_COUNTER); }
 		if(_totalBuildTimeShown){ dimensionsList.add(YAxisChartDimension.BUILD_TOTAL_DURATION); }
@@ -112,6 +115,14 @@ public class BuildStatConfiguration implements Serializable {
 	@Exported
 	public YAxisChartType getyAxisChartType() {
 		return yAxisChartType;
+	}
+
+	public TimeZone getTimeZone() {
+		return timeZone;
+	}
+
+	public void setTimeZone(TimeZone timeZone) {
+		this.timeZone = timeZone;
 	}
 
 	public void setBuildStatTitle(String buildStatTitle) {
@@ -273,6 +284,7 @@ public class BuildStatConfiguration implements Serializable {
         if (!yAxisChartType.equals(that.yAxisChartType)) return false;
         if (!dimensionsShown.equals(that.dimensionsShown)) return false;
         if (!buildFilters.equals(that.buildFilters)) return false;
+		if (!timeZone.equals(that.timeZone)) return false;
         
         return true;
     }

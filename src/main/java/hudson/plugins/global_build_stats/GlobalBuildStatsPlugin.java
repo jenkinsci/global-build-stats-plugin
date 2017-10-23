@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.servlet.ServletException;
 
@@ -290,6 +291,12 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void doShowChart(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
     	// Don't check any role : this url is public and should provide a BuildStatConfiguration public id
     	BuildStatConfiguration config = business.searchBuildStatConfigById(req.getParameter("buildStatId"));
+		TimeZone timeZone = null;
+		if(req.getParameter("timeZone") != null){
+			String timeZoneTxt = req.getParameter("timeZone").toString();
+			timeZone = TimeZone.getTimeZone(timeZoneTxt);
+			config.setTimeZone(timeZone);
+		}
     	if(config == null){
     		throw new IllegalArgumentException("Unknown buildStatId parameter !");
     	}
