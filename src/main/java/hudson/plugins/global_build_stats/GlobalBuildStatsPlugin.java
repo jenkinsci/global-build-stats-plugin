@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.ServletException;
 
@@ -96,11 +97,36 @@ public class GlobalBuildStatsPlugin extends Plugin {
     }
 
     /**
+    * Lock used to synchronize Load/Save methods
+    **/
+    private final ReentrantLock SaveLoadLock = new ReentrantLock();
+    
+    /**
      * Highered visibility of load method
+     * synchronized with save()
      */
     @Override
     public void load() throws IOException {
-        super.load();
+        this.SaveLoadLock.lock();
+        try{
+            super.load();
+        } finally {
+            this.SaveLoadLock.unlock();
+        }
+    }
+
+    /**
+     * Highered visibility of save method
+     * synchronized with load()
+     */
+    @Override
+    public void save() throws IOException {
+        this.SaveLoadLock.lock();
+        try{
+            super.save();
+        } finally {
+            this.SaveLoadLock.unlock();
+        }
     }
 
     public File getConfigXmlFile() {
