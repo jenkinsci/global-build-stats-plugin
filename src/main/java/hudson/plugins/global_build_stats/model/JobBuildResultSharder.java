@@ -139,9 +139,9 @@ public class JobBuildResultSharder {
                     List<JobBuildResult> jobResultsInFile = (List<JobBuildResult>)Hudson.XSTREAM.fromXML(fr);
                     jobBuildResults.addAll(jobResultsInFile);
                     fr.close();
-                } catch (IOException e) {
-                    LOGGER.log(Level.SEVERE, "Unable to read job results in "+f.getAbsolutePath(), e);
-                    throw new IllegalStateException("Unable to read job results in "+f.getAbsolutePath(), e);
+                } catch (Exception e) {
+                    //just loging issue and ignoring
+                    LOGGER.log(Level.WARNING, "Unable to read job results in "+f.getAbsolutePath(), e);
                 }
             }
         }
