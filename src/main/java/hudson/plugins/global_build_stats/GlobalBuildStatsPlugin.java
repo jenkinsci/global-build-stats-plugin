@@ -119,10 +119,8 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public void load() throws IOException {
         this.SaveLoadLock.lock();
         try{
-            LOGGER.log(Level.INFO, "DUPA load start" );
             super.load();
         } finally {
-            LOGGER.log(Level.INFO, "DUPA load end");
             wasLoadedFirst = true;
             this.SaveLoadLock.unlock();
         }
@@ -142,10 +140,8 @@ public class GlobalBuildStatsPlugin extends Plugin {
         
         this.SaveLoadLock.lock();
         try{
-            LOGGER.log(Level.INFO, "DUPA save start");
             super.save();
         } finally {
-            LOGGER.log(Level.INFO, "DUPA save end");
             this.SaveLoadLock.unlock();
         }
     }
