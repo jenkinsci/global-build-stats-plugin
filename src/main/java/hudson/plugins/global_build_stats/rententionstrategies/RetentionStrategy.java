@@ -1,6 +1,6 @@
 package hudson.plugins.global_build_stats.rententionstrategies;
 
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.plugins.global_build_stats.business.GlobalBuildStatsPluginSaver;
 import hudson.plugins.global_build_stats.rententionstrategies.strategybehaviours.BuildCompletedListener;
 import hudson.plugins.global_build_stats.rententionstrategies.strategybehaviours.BuildDeletedListener;
@@ -52,14 +52,14 @@ public abstract class RetentionStrategy<T extends RetentionStrategy> {
     }
 
     // Overridable if retention strategy is a build deleted listener
-    public void onBuildDeleted(AbstractBuild build, GlobalBuildStatsPluginSaver pluginSaver) {
+    public void onBuildDeleted(Run build, GlobalBuildStatsPluginSaver pluginSaver) {
         if(this instanceof BuildDeletedListener){
             ((BuildDeletedListener)this).buildDeleted(build, pluginSaver);
         }
     }
 
     // Overridable if retention strategy is a build completed listener
-    public void onBuildCompleted(AbstractBuild build, GlobalBuildStatsPluginSaver pluginSaver) {
+    public void onBuildCompleted(Run build, GlobalBuildStatsPluginSaver pluginSaver) {
         if(this instanceof BuildCompletedListener){
             ((BuildCompletedListener)this).buildCompleted(build, pluginSaver);
         }
