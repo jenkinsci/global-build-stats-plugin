@@ -26,7 +26,7 @@ public class JobBuildResultFactory {
         }
 
         if (r instanceof WorkflowRun) {
-            name = ((WorkflowRun)r).getFullDisplayName();
+            name = ((WorkflowRun)r).getFullDisplayName().replace(" » " ,"/").replaceAll(" #[1-9]+$","");
         }
 
         return new JobBuildResult(
