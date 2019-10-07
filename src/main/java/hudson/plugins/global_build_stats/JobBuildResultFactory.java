@@ -5,6 +5,7 @@ import hudson.plugins.global_build_stats.model.BuildResult;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
 import hudson.plugins.global_build_stats.model.JobBuildSearchResult;
 import jenkins.model.Jenkins;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
 public class JobBuildResultFactory {
 
@@ -15,19 +16,31 @@ public class JobBuildResultFactory {
 	private JobBuildResultFactory(){
 	}
 	
-	public JobBuildResult createJobBuildResult(AbstractBuild build){
-		String buildName = build.getProject().getFullName();
-		long duration = build.getDuration();
-		String nodeName = build.getBuiltOnStr();
-		/* Can't do that since MavenModuleSet is in maven-plugin artefact which is in test scope
-		if(build.getProject() instanceof MavenModuleSet){
-			buildName = ((MavenModuleSet)build.getProject()).getRootModule().toString();
-		}*/
-    	return new JobBuildResult(createBuildResult(build.getResult()), buildName, 
-    			build.getNumber(), build.getTimestamp(), duration, nodeName, extractUserNameIn(build));
+	public JobBuildResult createJobBuildResult(Run r){
+        String builtOn = "pipeline";
+        String name = "";
+
+        if (r instanceof AbstractBuild) {
+            builtOn = ((AbstractBuild)r).getBuiltOnStr();
+            name = ((AbstractBuild)r).getProject().getFullName();
+        }
+
+        if (r instanceof WorkflowRun) {
+            name = ((WorkflowRun)r).getFullDisplayName().replace(" » " ,"/").replaceAll(" #[1-9]+$","");
+        }
+
+        return new JobBuildResult(
+                        createBuildResult(r.getResult()),
+                        name,
+                        r.getNumber(),
+                        r.getTimestamp(),
+                        r.getDuration(),
+                        builtOn,
+                        extractUserNameIn(r)
+                    );
 	}
 
-    public JobBuildSearchResult createJobBuildSearchResult(AbstractBuild build){
+    public JobBuildSearchResult createJobBuildSearchResult(Run build){
         return createJobBuildSearchResult(createJobBuildResult(build));
     }
 
@@ -49,7 +62,7 @@ public class JobBuildResultFactory {
         return new JobBuildSearchResult(r, isJobAccessible, isBuildAccessible);
     }
 	
-	public static String extractUserNameIn(AbstractBuild<?,?> build){
+	public static String extractUserNameIn(Run<?,?> build){
 		String userName;
         @SuppressWarnings("deprecation") Cause.UserCause uc = build.getCause(Cause.UserCause.class);
 		Cause.UserIdCause uic = build.getCause(Cause.UserIdCause.class);

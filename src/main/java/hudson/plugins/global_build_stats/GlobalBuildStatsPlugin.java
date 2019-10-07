@@ -17,6 +17,7 @@ import hudson.security.Permission;
 import hudson.util.ChartUtil;
 import hudson.util.FormValidation;
 import java.io.File;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -254,6 +255,31 @@ public class GlobalBuildStatsPlugin extends Plugin {
             super.onDeleted(build);
 
             getPluginBusiness().onBuildDeleted(build);
+        }
+    }
+
+        /**
+     * At the end of every pipeline job, let's gather job result informations into global build stats
+     * persisted data
+     */
+
+    @Extension
+    public static class GlobalBuildStatsWorkflowRunListener extends RunListener<WorkflowRun> {
+        public GlobalBuildStatsWorkflowRunListener() {
+            super(WorkflowRun.class);
+        }
+
+        @Override
+        public void onCompleted(WorkflowRun w, TaskListener l) {
+            super.onCompleted(w, l);
+
+            getPluginBusiness().onJobCompleted(w);
+        }
+
+        @Override
+        public void onDeleted(WorkflowRun w) {
+            super.onDeleted(w);
+            getPluginBusiness().onBuildDeleted(w);
         }
     }
     
