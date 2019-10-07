@@ -34,6 +34,7 @@ import org.jfree.chart.title.LegendTitle;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
 
+import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
 import com.cloudbees.hudson.plugins.folder.Folder;
 
 public class GlobalBuildStatsBusiness {
@@ -96,15 +97,7 @@ public class GlobalBuildStatsBusiness {
 
                 List<JobBuildResult> jobBuildResultsRead = new ArrayList<JobBuildResult>();
                 for (TopLevelItem item : Hudson.getInstance().getItems()) {
-                	if (item instanceof Folder){
-                		Folder f = (Folder)item;
-                		for (TopLevelItem i : f.getItems()){
-                			handleItem(jobBuildResultsRead,i);
-                		}
-                	}
-                    if (item instanceof Job) {
-                    	handleItem(jobBuildResultsRead, item);
-                    }
+                    recursivelyAddBuilds(jobBuildResultsRead, item);
                 }
 
                 plugin.getJobBuildResultsSharder().queueResultsToAdd(
@@ -112,11 +105,24 @@ public class GlobalBuildStatsBusiness {
             }
         });
 	}
-	
-	public void handleItem(List<JobBuildResult> results, TopLevelItem item){
+
+    public void recursivelyAddBuilds(List<JobBuildResult> results, TopLevelItem item){
 		if (item instanceof Job){
-			addBuildsFrom(results, (Job)item);
+            addBuildsFrom(results, (Job) item);
 		}
+        if (item instanceof Folder){
+            Folder f = (Folder) item;
+            for (TopLevelItem i : f.getItems()){
+                recursivelyAddBuilds(results, i);
+            }
+        }
+
+        if (item instanceof WorkflowMultiBranchProject) {
+            WorkflowMultiBranchProject w = (WorkflowMultiBranchProject) item;
+            for (TopLevelItem i : w.getItems()) {
+                recursivelyAddBuilds(results, i);
+            }
+        }
 	}
 	
 	public JFreeChart createChart(BuildStatConfiguration config){
