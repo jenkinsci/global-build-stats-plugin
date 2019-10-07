@@ -2,7 +2,6 @@ package hudson.plugins.global_build_stats.business;
 
 import hudson.model.TopLevelItem;
 import hudson.model.Hudson;
-import hudson.model.Item;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
