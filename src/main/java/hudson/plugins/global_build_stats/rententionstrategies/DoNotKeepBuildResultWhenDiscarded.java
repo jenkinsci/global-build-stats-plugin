@@ -1,6 +1,6 @@
 package hudson.plugins.global_build_stats.rententionstrategies;
 
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
 import hudson.plugins.global_build_stats.JobBuildResultFactory;
 import hudson.plugins.global_build_stats.business.GlobalBuildStatsPluginSaver;
@@ -18,7 +18,7 @@ public class DoNotKeepBuildResultWhenDiscarded extends RetentionStrategy<DoNotKe
         return "doNotKeepBuildResultWhenDiscarded.jelly";
     }
 
-    public void buildDeleted(final AbstractBuild build, GlobalBuildStatsPluginSaver pluginSaver) {
+    public void buildDeleted(final Run build, GlobalBuildStatsPluginSaver pluginSaver) {
         pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback() {
             @Override
             public void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin) {

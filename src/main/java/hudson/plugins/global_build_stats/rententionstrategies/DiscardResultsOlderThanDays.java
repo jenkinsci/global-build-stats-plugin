@@ -1,6 +1,6 @@
 package hudson.plugins.global_build_stats.rententionstrategies;
 
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
 import hudson.plugins.global_build_stats.JobBuildResultFactory;
 import hudson.plugins.global_build_stats.business.GlobalBuildStatsPluginSaver;
@@ -47,7 +47,7 @@ public class DiscardResultsOlderThanDays extends RetentionStrategy<DiscardResult
         purgeOldBuildResults(pluginSaver, System.currentTimeMillis());
     }
 
-    public void buildCompleted(AbstractBuild buils, GlobalBuildStatsPluginSaver pluginSaver) {
+    public void buildCompleted(Run build, GlobalBuildStatsPluginSaver pluginSaver) {
         final long now = System.currentTimeMillis();
         if(lastPurgeDate == null || now > lastPurgeDate.getTime() + PURGE_FREQUENCY){
             purgeOldBuildResults(pluginSaver, now);
