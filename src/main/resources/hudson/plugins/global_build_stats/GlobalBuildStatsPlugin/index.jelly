@@ -1,3 +1,4 @@
+<?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
 <l:layout title="${%Global Build Stats}" permission="${it.requiredPermission}">
 
@@ -8,10 +9,10 @@
 
   <l:side-panel>
     <l:tasks>
-      <l:task icon="images/24x24/up.gif" href="${rootURL}/" title="${%Back to Dashboard}" />
-      <l:task icon="images/24x24/save.gif" href="#" onclick="new BuildStatConfigForm(null).displayBuildStatConfigForm();" title="${%Create new chart}" />
-        <l:task icon="images/24x24/gear2.gif" href="#RetentionStrategy" title="${%Manage retention strategies}" />
-        <l:task icon="images/24x24/gear2.gif" href="#Initialize" title="${%Data Initialization}" />
+      <l:task icon="icon-up icon-md" href="${rootURL}/" title="${%Back to Dashboard}" />
+      <l:task icon="icon-save icon-md" href="#" onclick="new BuildStatConfigForm(null).displayBuildStatConfigForm();" title="${%Create new chart}" />
+        <l:task icon="icon-gear2 icon-md" href="#RetentionStrategy" title="${%Manage retention strategies}" />
+        <l:task icon="icon-gear2 icon-md" href="#Initialize" title="${%Data Initialization}" />
     </l:tasks>
   </l:side-panel>
 
@@ -91,16 +92,16 @@
     		<a name="buildStat_#{id}" />
     		#{buildStatImage}
 			<a href="#buildStat_#{id}" id="edit_#{id}" onclick="new BuildStatConfigForm('#{id}').displayBuildStatConfigForm();">
-				<img src="${rootURL}/plugin/global-build-stats/icons/save-new.png" height="36" /><br/>
+				<l:icon class="icon-save-new icon-lg"/><br/>
 			</a>
 			<a href="#" onclick="BUILD_STAT_CONFIGS.moveBuildStat('#{id}', 'up');" id="moveUp_#{id}">
-				<img src="${rootURL}/plugin/global-build-stats/icons/up.png" height="36" /><br/>
+				<l:icon class="icon-up icon-lg"/><br/>
 			</a>
 			<a href="#" onclick="BUILD_STAT_CONFIGS.moveBuildStat('#{id}', 'down');" id="moveDown_#{id}">
-				<img src="${rootURL}/plugin/global-build-stats/icons/down.png" height="36" /><br/>
+				<img src="${rootURL}/plugin/global-build-stats/icons/down.png" height="32" /><br/>
 			</a>
 			<a href="#buildStat_#{id}" onclick="deleteBuildStat('#{id}');">
-				<img src="${rootURL}/plugin/global-build-stats/icons/stop.png" height="36" /><br/>
+				<l:icon class="icon-stop icon-lg"/><br/>
 			</a>
 		</div>
 		<div id="regenerateIdBlockTemplate">
