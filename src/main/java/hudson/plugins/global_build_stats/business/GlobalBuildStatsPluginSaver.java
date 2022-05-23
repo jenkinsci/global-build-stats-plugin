@@ -21,6 +21,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Date;
 
 /**
  * @author fcamblor
@@ -101,10 +102,14 @@ public class GlobalBuildStatsPluginSaver {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } catch (NullPointerException x) {
             File f = plugin.getConfigXmlFile();
-            File bak = new File(f.getParentFile(), f.getName() + ".bak");
+
+            Date stamp = new Date();
+
+            File bak = new File(f.getParentFile(), f.getName() + ".bak-"+stamp.getTime());
             if (!f.renameTo(bak)) {
                 LOGGER.log(Level.WARNING, "failed to rename {0} to {1}", new Object[] {f, bak});
             }
+
             LOGGER.log(Level.WARNING, "JENKINS-17248 load failure; saving problematic file to " + bak, x);
         }
     }

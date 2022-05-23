@@ -117,14 +117,17 @@ public class JobBuildResultSharder {
 
         for(String filename : updatedFilenames){
             String jobResultFilepath = jobResultsRoot.getAbsolutePath() + File.separator + filename;
+            FileWriter fw = null;
             try {
-                FileWriter fw = new FileWriter(jobResultFilepath);
+                fw = new FileWriter(jobResultFilepath);
                 Hudson.XSTREAM.toXML(persistedMonthlyResults.get(filename), fw);
-                fw.close();
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "Unable to serialize job results into "+jobResultFilepath, e);
                 throw new IllegalStateException("Unable to serialize job results into "+jobResultFilepath, e);
+            } finally {
+                if (fw != null) try { fw.close(); } catch(Exception e) {}
             }
+            
         }
         LOGGER.log(Level.FINER, "Queued changes applied on job results !");
     }
@@ -134,14 +137,33 @@ public class JobBuildResultSharder {
         File jobResultsRoot = getJobResultFolder();
         if(jobResultsRoot.exists()){
             for(File f: jobResultsRoot.listFiles()){
+
+                if (f.getName().contains(".error-"))
+                    continue;
+
+                FileReader fr=null;
                 try {
-                    FileReader fr = new FileReader(f);
+                    fr = new FileReader(f);
                     List<JobBuildResult> jobResultsInFile = (List<JobBuildResult>)Hudson.XSTREAM.fromXML(fr);
                     jobBuildResults.addAll(jobResultsInFile);
-                    fr.close();
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, "Unable to read job results in "+f.getAbsolutePath(), e);
-                    throw new IllegalStateException("Unable to read job results in "+f.getAbsolutePath(), e);
+
+                } catch (Exception e) {
+                    try { fr.close(); } catch(Exception x) {};
+                    fr = null;
+
+                    Date stamp = new Date();
+                    File bak = new File(f.getParentFile(), f.getName() + ".error-"+stamp.getTime());
+
+                    LOGGER.log(Level.WARNING, "Unable to read job results in "+f.getAbsolutePath()+". Renaming to " + bak, e);
+
+                    if (!f.renameTo(bak)) {
+                        LOGGER.log(Level.WARNING, "failed to rename {0} to {1}", new Object[] {f, bak});
+                    }
+
+                } finally {
+                    if (fr != null) try { fr.close(); } catch(Exception e) {};
                 }
             }
         }
