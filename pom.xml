@@ -3,7 +3,8 @@
 	<parent>
 		<groupId>org.jenkins-ci.plugins</groupId>
 		<artifactId>plugin</artifactId>
-		<version>1.609.1</version>
+		<version>4.40</version>
+		<relativePath />
 	</parent>
 
 	<artifactId>global-build-stats</artifactId>
@@ -11,19 +12,6 @@
 	<name>Jenkins global-build-stats plugin</name>
 	<packaging>hpi</packaging>
 	<url>https://plugins.jenkins.io/global-build-stats/</url>
-	<description>Global build stats plugin will allow to gather and display global build result statistics. It is a useful tool allowing to display global Jenkins build trend over time.</description>
-	
-	<build>
-  		<plugins>
-    			<plugin>
-      				<groupId>org.apache.maven.plugins</groupId>
-      				<artifactId>maven-javadoc-plugin</artifactId>
-      				<configuration>
-        				<additionalparam>-Xdoclint:none</additionalparam>
-      				</configuration>
-    			</plugin>
-  		</plugins>
-	</build>
 
 	<developers>
 		<developer>
@@ -61,6 +49,7 @@
 
 	<properties>
 		<changelist>999999-SNAPSHOT</changelist>
+		<jenkins.version>2.332.3</jenkins.version>
 	</properties>
 
 	<scm>
