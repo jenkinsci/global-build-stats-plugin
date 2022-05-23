@@ -40,7 +40,6 @@ import org.kohsuke.stapler.interceptor.RequirePOST;
  * Entry point of the global build stats plugin
  * 
  * @author fcamblor
- * @plugin
  */
 @ExportedBean
 public class GlobalBuildStatsPlugin extends Plugin {
@@ -413,7 +412,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     
     /**
      * Method must stay here since, for an unknown reason, in buildHistory.jelly,
-     * call to <j:invokeStatic> doesn't work (and <j:invoke> work fine !)
+     * call to &lt;j:invokeStatic&gt; doesn't work (and &lt;j:invoke&gt; work fine !)
      * @param value Parameter which should be escaped
      * @return value where "\" are escaped
      */
@@ -422,7 +421,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
 	}
 	
 	/**
-	 * For some unknown reasons, <j:getStatic> doesn't work due to a classloader problem (FieldFilterFactory doesn't seem
+	 * For some unknown reasons, &lt;j:getStatic&gt; doesn't work due to a classloader problem (FieldFilterFactory doesn't seem
 	 * to be accessible in a static way from jelly script)
 	 * @return FieldFilterFactory.ALL_VALUES_FILTER_LABEL
 	 */
@@ -431,7 +430,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
 	}
 	
 	/**
-	 * For some unknown reasons, <j:getStatic> doesn't work due to a classloader problem (FieldFilterFactory doesn't seem
+	 * For some unknown reasons, &lt;:getStatic&gt; doesn't work due to a classloader problem (FieldFilterFactory doesn't seem
 	 * to be accessible in a static way from jelly script)
 	 * @return FieldFilterFactory.REGEX_FIELD_FILTER_LABEL
 	 */

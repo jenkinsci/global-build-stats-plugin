@@ -14,7 +14,7 @@ import java.util.logging.Logger;
  * @author fcamblor
  * POJO which responsibility is to :
  * - Shard JobBuildResult into several monthly files when saving / loading JobBuildResults
- * - Allow to queue add & remove of job build results before a save
+ * - Allow to queue add and remove of job build results before a save
  */
 public class JobBuildResultSharder {
 

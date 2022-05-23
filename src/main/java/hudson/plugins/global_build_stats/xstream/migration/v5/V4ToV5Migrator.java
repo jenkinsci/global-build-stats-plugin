@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * V5 Evolutions :
  * - BuildStatConfiguration.nodeFilter attribute added
- * - BuildStatConfiguration.jobFilter values refactored ("jobNameRegex" => "fieldRegex")
+ * - BuildStatConfiguration.jobFilter values refactored ("jobNameRegex" to "fieldRegex")
  * @author fcamblor
  */
 public class V4ToV5Migrator extends PreV8AbstractMigrator<V4GlobalBuildStatsPOJO, V5GlobalBuildStatsPOJO> {
