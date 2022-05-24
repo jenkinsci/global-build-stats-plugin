@@ -1,5 +1,7 @@
 package hudson.plugins.global_build_stats.model;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,6 +43,7 @@ public class ModelIdGenerator {
 		}
 	}
 	
+	@SuppressFBWarnings("DMI_RANDOM_USED_ONLY_ONCE")
 	public String generateIdForClass(Class clazz){
 		String id = null;
 		do{

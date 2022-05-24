@@ -1,11 +1,13 @@
 package hudson.plugins.global_build_stats.model;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.Util;
 
 /**
  * Implementation used in search result view
  * @author fcamblor
  */
+@SuppressFBWarnings("EQ_DOESNT_OVERRIDE_EQUALS")
 public class JobBuildSearchResult extends JobBuildResult {
 
 	// Will be true if targetted job hasn't be deleted/renamed

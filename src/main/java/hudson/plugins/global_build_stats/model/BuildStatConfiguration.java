@@ -1,5 +1,6 @@
 package hudson.plugins.global_build_stats.model;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.plugins.global_build_stats.FieldFilter;
 import hudson.plugins.global_build_stats.FieldFilterFactory;
 
@@ -20,6 +21,7 @@ import org.kohsuke.stapler.export.ExportedBean;
  * @author fcamblor
  */
 @ExportedBean
+@SuppressFBWarnings({"SE_BAD_FIELD", "SE_TRANSIENT_FIELD_NOT_RESTORED"})
 public class BuildStatConfiguration implements Serializable {
 
 	private static final long serialVersionUID = -2962124739645932894L;
@@ -143,9 +145,10 @@ public class BuildStatConfiguration implements Serializable {
 	}
 
 	@Exported
+	@SuppressFBWarnings("EI_EXPOSE_REP")
 	public YAxisChartDimension[] getDimensionsShown() {
 		return dimensionsShown;
-	}
+   	}
 
 	public void setDimensionsShown(YAxisChartDimension[] dimensionsShown) {
 		this.dimensionsShown = dimensionsShown;
