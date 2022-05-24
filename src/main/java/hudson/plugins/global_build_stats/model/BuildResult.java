@@ -1,5 +1,6 @@
 package hudson.plugins.global_build_stats.model;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.plugins.global_build_stats.Messages;
 
 public enum BuildResult {
@@ -35,6 +36,7 @@ public enum BuildResult {
 		}
 	};
 
+	@SuppressFBWarnings("ME_MUTABLE_ENUM_FIELD")
 	public transient short code;
 	
 	private BuildResult(short _code){
