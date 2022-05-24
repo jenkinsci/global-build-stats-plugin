@@ -1,5 +1,6 @@
 package hudson.plugins.global_build_stats.model;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.model.Hudson;
 import hudson.plugins.global_build_stats.util.CollectionsUtil;
 import org.apache.commons.io.FileUtils;
@@ -14,7 +15,7 @@ import java.util.logging.Logger;
  * @author fcamblor
  * POJO which responsibility is to :
  * - Shard JobBuildResult into several monthly files when saving / loading JobBuildResults
- * - Allow to queue add & remove of job build results before a save
+ * - Allow to queue add and remove of job build results before a save
  */
 public class JobBuildResultSharder {
 
@@ -76,6 +77,7 @@ public class JobBuildResultSharder {
         queuedResultsToRemove.addAll(results);
     }
 
+    @SuppressFBWarnings("DM_DEFAULT_ENCODING")
     public void applyQueuedResultsInFiles(){
         LOGGER.log(Level.FINER, "Processing job results update queue ...");
         // atomically move all the queued stuff into a local list
@@ -129,6 +131,7 @@ public class JobBuildResultSharder {
         LOGGER.log(Level.FINER, "Queued changes applied on job results !");
     }
 
+    @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", "DM_DEFAULT_ENCODING"})
     public static List<JobBuildResult> load(){
         List<JobBuildResult> jobBuildResults = new ArrayList<JobBuildResult>();
         File jobResultsRoot = getJobResultFolder();
@@ -175,6 +178,7 @@ public class JobBuildResultSharder {
     /**
      * Transforming given JobBuildResult list into a map of type [filename of monthly job result file => list of job results]
      */
+    @SuppressFBWarnings("STCAL_INVOKE_ON_STATIC_DATE_FORMAT_INSTANCE")
     private static Map<String, List<JobBuildResult>> toJobResultFilenameMap(List<JobBuildResult> results){
         // Sharding job build results depending on their year+month
         Map<String, List<JobBuildResult>> byMonthJobResults = new HashMap<String, List<JobBuildResult>>();

@@ -1,5 +1,6 @@
 package hudson.plugins.global_build_stats.model;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.plugins.global_build_stats.FieldFilter;
 import hudson.plugins.global_build_stats.FieldFilterFactory;
 
@@ -139,6 +140,7 @@ public class BuildSearchCriteria {
 	}
 	
 	@Override
+	@SuppressFBWarnings({"BC_EQUALS_METHOD_SHOULD_WORK_FOR_ALL_OBJECTS", "HE_EQUALS_USE_HASHCODE"})
 	public boolean equals(Object o) {
 		if (o == null) return false;
 		if (o == this) return true;

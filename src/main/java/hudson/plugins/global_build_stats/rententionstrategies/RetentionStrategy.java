@@ -1,5 +1,6 @@
 package hudson.plugins.global_build_stats.rententionstrategies;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import hudson.model.AbstractBuild;
 import hudson.plugins.global_build_stats.business.GlobalBuildStatsPluginSaver;
 import hudson.plugins.global_build_stats.rententionstrategies.strategybehaviours.BuildCompletedListener;
@@ -15,6 +16,7 @@ import java.util.Map;
  */
 public abstract class RetentionStrategy<T extends RetentionStrategy> {
 
+    @SuppressFBWarnings("MS_MUTABLE_COLLECTION_PKGPROTECT")
     protected static final List<RetentionStrategy> RETENTION_STRATEGIES_IMPLEMENTATIONS = new ArrayList<RetentionStrategy>(){{
         add(new DiscardResultsOlderThanDays());
         add(new DoNotKeepBuildResultWhenDiscarded());
