@@ -150,7 +150,8 @@ public class BuildStatConfiguration implements Serializable {
 		return dimensionsShown;
    	}
 
-	public void setDimensionsShown(YAxisChartDimension[] dimensionsShown) {
+	@SuppressFBWarnings("EI_EXPOSE_REP2")
+	   public void setDimensionsShown(YAxisChartDimension[] dimensionsShown) {
 		this.dimensionsShown = dimensionsShown;
 	}
 	
@@ -261,6 +262,7 @@ public class BuildStatConfiguration implements Serializable {
 	}
 
     @Override
+	@SuppressFBWarnings("EC_BAD_ARRAY_COMPARE")
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;

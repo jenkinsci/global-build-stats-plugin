@@ -131,7 +131,7 @@ public class JobBuildResultSharder {
         LOGGER.log(Level.FINER, "Queued changes applied on job results !");
     }
 
-    @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE")
+    @SuppressFBWarnings({"NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE", "DM_DEFAULT_ENCODING"})
     public static List<JobBuildResult> load(){
         List<JobBuildResult> jobBuildResults = new ArrayList<JobBuildResult>();
         File jobResultsRoot = getJobResultFolder();
