@@ -94,6 +94,8 @@ public class GlobalBuildStatsPluginSaver {
 		Hudson.XSTREAM.aliasField("un", JobBuildResult.class, "userName");
     }
 
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings
+
     public void reloadPlugin() {
         try {
             this.plugin.load();
