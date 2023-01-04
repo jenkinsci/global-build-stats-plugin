@@ -1,3 +1,4 @@
+<?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
 <l:layout title="${%Global Build Stats}" permission="${it.requiredPermission}">
 
@@ -50,8 +51,8 @@
 	
 	<l:side-panel>
 	  <l:tasks>
-	    <l:task icon="images/24x24/up.gif" href="${rootURL}/" title="${%Back to Dashboard}" />
-	    <l:task icon="images/24x24/up.gif" href="${rootURL}/plugin/global-build-stats/" title="${%Back to Global Build Stats}" />
+	    <l:task icon="icon-up icon-md" href="${rootURL}/" title="${%Back to Dashboard}" />
+	    <l:task icon="icon-up icon-md" href="${rootURL}/plugin/global-build-stats/" title="${%Back to Global Build Stats}" />
 	  </l:tasks>
 	</l:side-panel>
 
@@ -225,7 +226,7 @@
 				    		<td class="pane">
 				    			<j:choose>
 				    				<j:when test="${jobResult.buildAccessible}">
-						    			<a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/console"><img src="${rootURL}/plugin/global-build-stats/icons/terminal.gif" /></a>
+						    			<a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/console"><l:icon class="icon-terminal icon-lg"/><br/></a>
 						    			<a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/">#${jobResult.buildNumber}</a>
 				    				</j:when>
 				    				<j:otherwise>

@@ -1,5 +1,7 @@
 package hudson.plugins.global_build_stats.model;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -86,6 +88,7 @@ public class JobBuildResult implements Serializable {
 	}
 
 	@Override
+	@SuppressFBWarnings("HE_EQUALS_USE_HASHCODE")
 	public boolean equals(Object obj) {
 		if(obj instanceof JobBuildResult){
 			JobBuildResult r = (JobBuildResult)obj;
@@ -119,11 +122,13 @@ public class JobBuildResult implements Serializable {
 		return userName;
 	}
 
+	@SuppressFBWarnings("SE_COMPARATOR_SHOULD_BE_SERIALIZABLE")
 	public void setUserName(String userName) {
 		this.userName = userName;
 	}
 
-    public static class ChronologicalComparator implements Comparator<JobBuildResult>{
+    @SuppressFBWarnings("SE_COMPARATOR_SHOULD_BE_SERIALIZABLE")
+	public static class ChronologicalComparator implements Comparator<JobBuildResult>{
         public int compare(JobBuildResult jbr1, JobBuildResult jbr2) {
             return jbr1.buildDate.compareTo(jbr2.buildDate);
         }

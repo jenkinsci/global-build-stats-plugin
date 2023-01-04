@@ -1,6 +1,6 @@
 package hudson.plugins.global_build_stats;
 
-import org.codehaus.plexus.util.FileUtils;
+import org.apache.commons.io.FileUtils;
 import org.jvnet.hudson.test.HudsonTestCase;
 import org.jvnet.hudson.test.recipes.Recipe;
 import org.springframework.core.io.ClassPathResource;
@@ -33,7 +33,7 @@ public class VersioningTest extends HudsonTestCase {
                     if(!testDirectoryRoot.exists()){
                         throw new IllegalStateException("Directory versioning/"+versionUnderTest+" not found in classpath !");
                     }
-                    FileUtils.copyDirectoryStructure(testDirectoryRoot.getFile(), home);
+                    FileUtils.copyDirectory(testDirectoryRoot.getFile(), home);
                 }
             }
         });

@@ -95,6 +95,8 @@ public class GlobalBuildStatsPluginSaver {
 		Hudson.XSTREAM.aliasField("un", JobBuildResult.class, "userName");
     }
 
+    @edu.umd.cs.findbugs.annotations.SuppressFBWarnings
+
     public void reloadPlugin() {
         try {
             this.plugin.load();
@@ -120,7 +122,6 @@ public class GlobalBuildStatsPluginSaver {
      * non-trivial, up to the order of minutes or more. So to prevent this from blocking executor threads
      * that execute this callback, we use {@linkplain #writer a separate thread} to asynchronously persist
      * them to the disk.
-     * @param callback
      */
     public void updatePlugin(BeforeSavePluginCallback callback){
         final List<BuildStatConfiguration> configsBeforeStateChange = new ArrayList<BuildStatConfiguration>(plugin.getBuildStatConfigs());

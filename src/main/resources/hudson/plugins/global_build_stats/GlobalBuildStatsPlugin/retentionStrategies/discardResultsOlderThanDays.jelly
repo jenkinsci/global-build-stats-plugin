@@ -1,4 +1,5 @@
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:p="/lib/hudson/project">
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core">
     ${%Automatically discard results older than}
     <input type="text" id="${strategy.id}_days" name="discardResultsOlderThanDays" value="${strategy.days}" size="3" />
     ${%days}<br/>

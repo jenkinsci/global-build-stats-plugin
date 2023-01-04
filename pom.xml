@@ -3,27 +3,15 @@
 	<parent>
 		<groupId>org.jenkins-ci.plugins</groupId>
 		<artifactId>plugin</artifactId>
-		<version>1.609.1</version>
+		<version>4.53</version>
+		<relativePath />
 	</parent>
 
 	<artifactId>global-build-stats</artifactId>
-	<version>1.6-SNAPSHOT</version>
-	<name>Hudson global-build-stats plugin</name>
+	<version>${changelist}</version>
+	<name>Jenkins global-build-stats plugin</name>
 	<packaging>hpi</packaging>
-	<url>http://wiki.jenkins-ci.org/display/JENKINS/Global+Build+Stats+Plugin</url>
-	<description>Global build stats plugin will allow to gather and display global build result statistics. It is a useful tool allowing to display global hudson build trend over time.</description>
-	
-	<build>
-  		<plugins>
-    			<plugin>
-      				<groupId>org.apache.maven.plugins</groupId>
-      				<artifactId>maven-javadoc-plugin</artifactId>
-      				<configuration>
-        				<additionalparam>-Xdoclint:none</additionalparam>
-      				</configuration>
-    			</plugin>
-  		</plugins>
-	</build>
+	<url>https://plugins.jenkins.io/global-build-stats/</url>
 
 	<developers>
 		<developer>
@@ -37,23 +25,24 @@
 			<email>fcamblor+wikihudson@gmail.com</email>
 		</developer>
 	</developers>
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.jenkins-ci.plugins</groupId>
 			<artifactId>cloudbees-folder</artifactId>
-			<version>6.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jenkins-ci.plugins.workflow</groupId>
-            <artifactId>workflow-job</artifactId>
-            <version>2.0</version>
-        </dependency>
-		<dependency>
-			<groupId>org.jenkins-ci.plugins.workflow</groupId>
-			<artifactId>workflow-multibranch</artifactId>
-			<version>2.0</version>
 		</dependency>
 	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+			  <groupId>io.jenkins.tools.bom</groupId>
+			  <artifactId>bom-2.361.x</artifactId>
+			  <version>1763.v092b_8980a_f5e</version>
+			  <scope>import</scope>
+			  <type>pom</type>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<repositories>
 		<repository>
@@ -69,10 +58,15 @@
 		</pluginRepository>
 	</pluginRepositories>
 
+	<properties>
+		<changelist>999999-SNAPSHOT</changelist>
+		<jenkins.version>2.361.4</jenkins.version>
+	</properties>
+
 	<scm>
-		<connection>scm:git:git://github.com/jenkinsci/global-build-stats-plugin.git</connection>
+		<connection>scm:git:https://github.com/jenkinsci/global-build-stats-plugin.git</connection>
 		<developerConnection>scm:git:git@github.com:jenkinsci/global-build-stats-plugin.git</developerConnection>
 		<url>https://github.com/jenkinsci/global-build-stats-plugin</url>
-	  <tag>HEAD</tag>
-  </scm>
+		<tag>${scmTag}</tag>
+  	</scm>
 </project>

@@ -35,7 +35,7 @@ public class DiscardResultsOlderThanDays extends RetentionStrategy<DiscardResult
     }
 
     public void updateStrategyParameters(Map<String, String[]> parameters) {
-        this.days = Long.valueOf(parameters.get("discardResultsOlderThanDays")[0]);
+        this.days = Long.parseLong(parameters.get("discardResultsOlderThanDays")[0]);
     }
 
     public void updateStrategyParameters(DiscardResultsOlderThanDays otherStrategyToCopy) {

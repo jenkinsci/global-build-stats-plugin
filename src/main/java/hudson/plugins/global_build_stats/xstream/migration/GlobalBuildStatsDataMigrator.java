@@ -6,8 +6,6 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 /**
  * Migrator from old GlobalBuildStats POJO to later GlobalBuildStats POJO
  * @author fcamblor
- * @param <TFROM>
- * @param <TTO>
  */
 public interface GlobalBuildStatsDataMigrator<TFROM extends GlobalBuildStatsPOJO, TTO extends GlobalBuildStatsPOJO> {
 	public TTO migrate(TFROM pojo);
