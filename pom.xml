@@ -25,13 +25,24 @@
 			<email>fcamblor+wikihudson@gmail.com</email>
 		</developer>
 	</developers>
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.jenkins-ci.plugins</groupId>
 			<artifactId>cloudbees-folder</artifactId>
-			<version>4.9</version>
 		</dependency>
 	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+			  <groupId>io.jenkins.tools.bom</groupId>
+			  <artifactId>bom-2.346.x</artifactId>
+			  <version>1678.vc1feb_6a_3c0f1</version>
+			  <scope>import</scope>
+			  <type>pom</type>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<repositories>
 		<repository>
@@ -50,7 +61,7 @@
 	<properties>
 		<changelist>999999-SNAPSHOT</changelist>
 		<jenkins.version>2.332.3</jenkins.version>
-	</properties>
+	  </properties>
 
 	<scm>
 		<connection>scm:git:https://github.com/jenkinsci/global-build-stats-plugin.git</connection>
