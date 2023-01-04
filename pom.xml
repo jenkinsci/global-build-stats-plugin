@@ -60,8 +60,8 @@
 
 	<properties>
 		<changelist>999999-SNAPSHOT</changelist>
-		<jenkins.version>2.332.3</jenkins.version>
-	  </properties>
+		<jenkins.version>2.346.3</jenkins.version>
+	</properties>
 
 	<scm>
 		<connection>scm:git:https://github.com/jenkinsci/global-build-stats-plugin.git</connection>
