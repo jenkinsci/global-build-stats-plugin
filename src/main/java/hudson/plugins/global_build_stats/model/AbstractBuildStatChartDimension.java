@@ -5,6 +5,7 @@ import hudson.util.DataSetBuilder;
 import hudson.util.StackedAreaRenderer2;
 
 import java.awt.Color;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -109,7 +110,7 @@ public abstract class AbstractBuildStatChartDimension {
 	                boolean notBuildShown=Messages.Build_Results_Item_Legend_Statuses_NOT_BUILD().equals(status);
 	                
 	                StringBuilder sb = new StringBuilder()
-	                	.append("buildHistory?jobFilter=").append(config.getBuildFilters().getJobFilter())
+	                	.append("buildHistory?jobFilter=").append(URLEncoder.encode(config.getBuildFilters().getJobFilter(), "UTF-8"))
 	                	.append("&start=").append(range.getStart().getTimeInMillis())
 	                	.append("&end=").append(range.getEnd().getTimeInMillis())
 	                	.append("&successShown=").append(successShown)
@@ -118,10 +119,10 @@ public abstract class AbstractBuildStatChartDimension {
 	                	.append("&abortedShown=").append(abortedShown)
 	                	.append("&notBuildShown=").append(notBuildShown);
 	                if(config.getBuildFilters().getNodeFilter() != null){
-	                	sb.append("&nodeFilter=").append(config.getBuildFilters().getNodeFilter());
+	                	sb.append("&nodeFilter=").append(URLEncoder.encode(config.getBuildFilters().getNodeFilter(), "UTF-8"));
 	                }
 	                if(config.getBuildFilters().getLauncherFilter() != null){
-	                	sb.append("&launcherFilter=").append(config.getBuildFilters().getLauncherFilter());
+	                	sb.append("&launcherFilter=").append(URLEncoder.encode(config.getBuildFilters().getLauncherFilter(), "UTF-8"));
 	                }
 	                return sb.toString();
 	            }
