@@ -110,7 +110,7 @@ public abstract class AbstractBuildStatChartDimension {
 	                boolean notBuildShown=Messages.Build_Results_Item_Legend_Statuses_NOT_BUILD().equals(status);
 	                
 	                StringBuilder sb = new StringBuilder()
-	                	.append("buildHistory?jobFilter=").append(URLEncoder.encode(config.getBuildFilters().getJobFilter(), "UTF-8"))
+	                	.append("buildHistory?jobFilter=").append(URLEncoder.encode(config.getBuildFilters().getJobFilter()))
 	                	.append("&start=").append(range.getStart().getTimeInMillis())
 	                	.append("&end=").append(range.getEnd().getTimeInMillis())
 	                	.append("&successShown=").append(successShown)
@@ -119,10 +119,10 @@ public abstract class AbstractBuildStatChartDimension {
 	                	.append("&abortedShown=").append(abortedShown)
 	                	.append("&notBuildShown=").append(notBuildShown);
 	                if(config.getBuildFilters().getNodeFilter() != null){
-	                	sb.append("&nodeFilter=").append(URLEncoder.encode(config.getBuildFilters().getNodeFilter(), "UTF-8"));
+	                	sb.append("&nodeFilter=").append(URLEncoder.encode(config.getBuildFilters().getNodeFilter()));
 	                }
 	                if(config.getBuildFilters().getLauncherFilter() != null){
-	                	sb.append("&launcherFilter=").append(URLEncoder.encode(config.getBuildFilters().getLauncherFilter(), "UTF-8"));
+	                	sb.append("&launcherFilter=").append(URLEncoder.encode(config.getBuildFilters().getLauncherFilter()));
 	                }
 	                return sb.toString();
 	            }
