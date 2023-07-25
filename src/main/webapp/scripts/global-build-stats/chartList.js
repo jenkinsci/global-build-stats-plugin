@@ -73,33 +73,39 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 		YAHOO.global.build.stat.wait.modalPopup.setBody(getTemplateContent('loadingTemplate')); 
 	}
 			
-	var ajaxCallParams = {
-		onSuccess: function(ret) {
-			successCallback.call(null, ret);
-			if(!skipLoading){
-				YAHOO.global.build.stat.wait.modalPopup.hide();
-			}
-		},/* For unknown reasons, an exception is thrown after the onSuccess process .. :(
-		onException: function(transport, ex) { 
-			alert('exception : '+ex);
-			if(!skipLoading){
-				YAHOO.global.build.stat.wait.modalPopup.hide();
-			}
-		    throw ex;
-		},*/
-		onFailure: function(transport) { 
-			alert('failure : '+Object.toJSON(transport));
-			if(!skipLoading){
-				YAHOO.global.build.stat.wait.modalPopup.hide();
-			}
-		}
-	};
-	
 	YAHOO.global.build.stat.wait.modalPopup.render(document.body);
 	if(callType == 'form'){
-		document.getElementById(param).request(ajaxCallParams);
+		fetch(url, {
+			method: "post",
+			headers: crumb.wrap({
+				"Content-Type": "application/x-www-form-urlencoded",
+			}),
+			body: objectToUrlFormEncoded(document.getElementById(param)),
+		}).then((response) => {
+			if (response.ok) {
+				successCallback(response);
+			} else {
+				alert('failure : '+Object.toJSON(response));
+			}
+			if(!skipLoading){
+				YAHOO.global.build.stat.wait.modalPopup.hide();
+			}
+		});
 	} else {
-		new Ajax.Request(param, ajaxCallParams);
+		fetch(param, {
+			headers: crumb.wrap({
+				"Content-Type": "application/x-www-form-urlencoded",
+			}),
+		}).then((response) => {
+			if (response.ok) {
+				successCallback(response);
+			} else {
+				alert('failure : '+Object.toJSON(response));
+			}
+			if(!skipLoading){
+				YAHOO.global.build.stat.wait.modalPopup.hide();
+			}
+		});
 	}
 }	
 
