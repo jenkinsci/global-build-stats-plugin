@@ -43,80 +43,80 @@ class BuildStatConfigForm {
 	// Called after buildStatConfigForm is displayed
 	initForm(){
       if(this.buildStatConf!=null && this.buildStatConf.historicScale != '') {
-      	this.selectOption($(this.buildStatConfId+'_historicScale'), this.buildStatConf.historicScale); 
+      	this.selectOption(document.getElementById(this.buildStatConfId+'_historicScale'), this.buildStatConf.historicScale); 
       }
       if(this.buildStatConf!=null && this.buildStatConf.yAxisChartType!= '') {
-      	this.selectOption($(this.buildStatConfId+'_yAxisChartType'), this.buildStatConf.yAxisChartType); 
+      	this.selectOption(document.getElementById(this.buildStatConfId+'_yAxisChartType'), this.buildStatConf.yAxisChartType); 
       }
       
 	  // Job filter default value
-	  if($(this.buildStatConfId+'_jobFilter').value == ''){
-	  	$(this.buildStatConfId+'_jobFilter').value = FIELD_FILTER_ALL;
+	  if(document.getElementById(this.buildStatConfId+'_jobFilter').value == ''){
+	  	document.getElementById(this.buildStatConfId+'_jobFilter').value = FIELD_FILTER_ALL;
 	  }
-	  if($(this.buildStatConfId+'_jobFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
-	  	  $(this.buildStatConfId+'_jobFilteringType_REGEX').checked = 'checked';
+	  if(document.getElementById(this.buildStatConfId+'_jobFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
+	  	  document.getElementById(this.buildStatConfId+'_jobFilteringType_REGEX').checked = 'checked';
 	  	  initializeRegexField(this.buildStatConfId+'_jobNameRegex', this.buildStatConf.buildFilters.jobFilter);
-	 	  $(this.buildStatConfId+'_jobFilteringType_REGEX').onchange();
-	  	  $(this.buildStatConfId+'_jobNameRegex').disabled = false;
-	  } else if($(this.buildStatConfId+'_jobFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
-	  	  $(this.buildStatConfId+'_jobFilteringType_ALL').checked = 'checked';
-	  	  $(this.buildStatConfId+'_jobFilteringType_ALL').onchange();
+	 	  document.getElementById(this.buildStatConfId+'_jobFilteringType_REGEX').onchange();
+	  	  document.getElementById(this.buildStatConfId+'_jobNameRegex').disabled = false;
+	  } else if(document.getElementById(this.buildStatConfId+'_jobFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
+	  	  document.getElementById(this.buildStatConfId+'_jobFilteringType_ALL').checked = 'checked';
+	  	  document.getElementById(this.buildStatConfId+'_jobFilteringType_ALL').onchange();
 	  }
 	  
 	  // Node filter default value
-	  if($(this.buildStatConfId+'_nodeFilter').value == ''){
-	  	$(this.buildStatConfId+'_nodeFilter').value = FIELD_FILTER_ALL;
+	  if(document.getElementById(this.buildStatConfId+'_nodeFilter').value == ''){
+	  	document.getElementById(this.buildStatConfId+'_nodeFilter').value = FIELD_FILTER_ALL;
 	  }
-	  if($(this.buildStatConfId+'_nodeFilter').value.indexOf(NODE_MASTER_REGEX) != -1){
-	  	  $(this.buildStatConfId+'_nodeFilteringType_REGEXMASTER').checked = 'checked';
-	 	  $(this.buildStatConfId+'_nodeFilteringType_REGEXMASTER').onchange();
-	  	  $(this.buildStatConfId+'_nodeNameRegex').disabled = true;
-	  } else if($(this.buildStatConfId+'_nodeFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
-	  	  $(this.buildStatConfId+'_nodeFilteringType_REGEX').checked = 'checked';
+	  if(document.getElementById(this.buildStatConfId+'_nodeFilter').value.indexOf(NODE_MASTER_REGEX) != -1){
+	  	  document.getElementById(this.buildStatConfId+'_nodeFilteringType_REGEXMASTER').checked = 'checked';
+	 	  document.getElementById(this.buildStatConfId+'_nodeFilteringType_REGEXMASTER').onchange();
+	  	  document.getElementById(this.buildStatConfId+'_nodeNameRegex').disabled = true;
+	  } else if(document.getElementById(this.buildStatConfId+'_nodeFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
+	  	  document.getElementById(this.buildStatConfId+'_nodeFilteringType_REGEX').checked = 'checked';
 	  	  initializeRegexField(this.buildStatConfId+'_nodeNameRegex', this.buildStatConf.buildFilters.nodeFilter);
-	 	  $(this.buildStatConfId+'_nodeFilteringType_REGEX').onchange();
-	  	  $(this.buildStatConfId+'_nodeNameRegex').disabled = false;
-	  } else if($(this.buildStatConfId+'_nodeFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
-	  	  $(this.buildStatConfId+'_nodeFilteringType_ALL').checked = 'checked';
-	  	  $(this.buildStatConfId+'_nodeFilteringType_ALL').onchange();
+	 	  document.getElementById(this.buildStatConfId+'_nodeFilteringType_REGEX').onchange();
+	  	  document.getElementById(this.buildStatConfId+'_nodeNameRegex').disabled = false;
+	  } else if(document.getElementById(this.buildStatConfId+'_nodeFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
+	  	  document.getElementById(this.buildStatConfId+'_nodeFilteringType_ALL').checked = 'checked';
+	  	  document.getElementById(this.buildStatConfId+'_nodeFilteringType_ALL').onchange();
 	  }
 	  
 	  // Launcher filter default value
-	  if($(this.buildStatConfId+'_launcherFilter').value == ''){
-	  	$(this.buildStatConfId+'_launcherFilter').value = FIELD_FILTER_ALL;
+	  if(document.getElementById(this.buildStatConfId+'_launcherFilter').value == ''){
+	  	document.getElementById(this.buildStatConfId+'_launcherFilter').value = FIELD_FILTER_ALL;
 	  }
-	  if($(this.buildStatConfId+'_launcherFilter').value.indexOf(LAUNCHER_SYSTEM_REGEX) != -1){
-	  	  $(this.buildStatConfId+'_launcherFilteringType_REGEXSYSTEM').checked = 'checked';
-	 	  $(this.buildStatConfId+'_launcherFilteringType_REGEXSYSTEM').onchange();
-	  	  $(this.buildStatConfId+'_launcherNameRegex').disabled = true;
-	  } else if($(this.buildStatConfId+'_launcherFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
-	  	  $(this.buildStatConfId+'_launcherFilteringType_REGEX').checked = 'checked';
+	  if(document.getElementById(this.buildStatConfId+'_launcherFilter').value.indexOf(LAUNCHER_SYSTEM_REGEX) != -1){
+	  	  document.getElementById(this.buildStatConfId+'_launcherFilteringType_REGEXSYSTEM').checked = 'checked';
+	 	  document.getElementById(this.buildStatConfId+'_launcherFilteringType_REGEXSYSTEM').onchange();
+	  	  document.getElementById(this.buildStatConfId+'_launcherNameRegex').disabled = true;
+	  } else if(document.getElementById(this.buildStatConfId+'_launcherFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
+	  	  document.getElementById(this.buildStatConfId+'_launcherFilteringType_REGEX').checked = 'checked';
 	  	  initializeRegexField(this.buildStatConfId+'_launcherNameRegex', this.buildStatConf.buildFilters.launcherFilter);
-	 	  $(this.buildStatConfId+'_launcherFilteringType_REGEX').onchange();
-	  	  $(this.buildStatConfId+'_launcherNameRegex').disabled = false;
-	  } else if($(this.buildStatConfId+'_launcherFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
-	  	  $(this.buildStatConfId+'_launcherFilteringType_ALL').checked = 'checked';
-	  	  $(this.buildStatConfId+'_launcherFilteringType_ALL').onchange();
+	 	  document.getElementById(this.buildStatConfId+'_launcherFilteringType_REGEX').onchange();
+	  	  document.getElementById(this.buildStatConfId+'_launcherNameRegex').disabled = false;
+	  } else if(document.getElementById(this.buildStatConfId+'_launcherFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
+	  	  document.getElementById(this.buildStatConfId+'_launcherFilteringType_ALL').checked = 'checked';
+	  	  document.getElementById(this.buildStatConfId+'_launcherFilteringType_ALL').onchange();
 	  }
 	  
 	  // Changing default values...
 	  if(this.buildStatConf != null){
-		  if(this.buildStatConf.buildFilters.successShown == false) { $(this.buildStatConfId+'_successShown').checked = false; }
-		  if(this.buildStatConf.buildFilters.failuresShown == false) { $(this.buildStatConfId+'_failuresShown').checked = false; }
-		  if(this.buildStatConf.buildFilters.unstablesShown == false) { $(this.buildStatConfId+'_unstablesShown').checked = false; }
-		  if(this.buildStatConf.buildFilters.abortedShown == false) { $(this.buildStatConfId+'_abortedShown').checked = false; }
-		  if(this.buildStatConf.buildFilters.notBuildsShown == true) { $(this.buildStatConfId+'_notBuildsShown').checked = true; }
-		  if(this.buildStatConf.buildStatusesShown == false) { $(this.buildStatConfId+'_buildStatusesShown').checked = false; }
-		  if(this.buildStatConf.totalBuildTimeShown == true) { $(this.buildStatConfId+'_totalBuildTimeShown').checked = true; }
-		  if(this.buildStatConf.averageBuildTimeShown == true) { $(this.buildStatConfId+'_averageBuildTimeShown').checked = true; }
+		  if(this.buildStatConf.buildFilters.successShown == false) { document.getElementById(this.buildStatConfId+'_successShown').checked = false; }
+		  if(this.buildStatConf.buildFilters.failuresShown == false) { document.getElementById(this.buildStatConfId+'_failuresShown').checked = false; }
+		  if(this.buildStatConf.buildFilters.unstablesShown == false) { document.getElementById(this.buildStatConfId+'_unstablesShown').checked = false; }
+		  if(this.buildStatConf.buildFilters.abortedShown == false) { document.getElementById(this.buildStatConfId+'_abortedShown').checked = false; }
+		  if(this.buildStatConf.buildFilters.notBuildsShown == true) { document.getElementById(this.buildStatConfId+'_notBuildsShown').checked = true; }
+		  if(this.buildStatConf.buildStatusesShown == false) { document.getElementById(this.buildStatConfId+'_buildStatusesShown').checked = false; }
+		  if(this.buildStatConf.totalBuildTimeShown == true) { document.getElementById(this.buildStatConfId+'_totalBuildTimeShown').checked = true; }
+		  if(this.buildStatConf.averageBuildTimeShown == true) { document.getElementById(this.buildStatConfId+'_averageBuildTimeShown').checked = true; }
 	  }
 	  		  
 	  // Initializing validations 
-	  $(this.buildStatConfId+'_title').onchange();
-	  $(this.buildStatConfId+'_buildStatWidth').onchange();
-	  $(this.buildStatConfId+'_buildStatHeight').onchange();
-	  $(this.buildStatConfId+'_historicScale').onchange();
-	  $(this.buildStatConfId+'_historicLength').onchange();
+	  document.getElementById(this.buildStatConfId+'_title').onchange();
+	  document.getElementById(this.buildStatConfId+'_buildStatWidth').onchange();
+	  document.getElementById(this.buildStatConfId+'_buildStatHeight').onchange();
+	  document.getElementById(this.buildStatConfId+'_historicScale').onchange();
+	  document.getElementById(this.buildStatConfId+'_historicLength').onchange();
 	}
 
 	// Display a creation/modification form for build stat config
@@ -124,42 +124,42 @@ class BuildStatConfigForm {
 		var modificationMode = this.isModificationMode();
 	
        	if(modificationMode){
-       		var submitLabel = $('updateSubmitLabel').innerHTML;
-       		var popupTitle = $('updatePopupTitle').innerHTML;
+       		var submitLabel = document.getElementById('updateSubmitLabel').innerHTML;
+       		var popupTitle = document.getElementById('updatePopupTitle').innerHTML;
     		var bsId = this.buildStatConfId;
        	} else {
-       		var submitLabel = $('createSubmitLabel').innerHTML;
-       		var popupTitle = $('createPopupTitle').innerHTML;
+       		var submitLabel = document.getElementById('createSubmitLabel').innerHTML;
+       		var popupTitle = document.getElementById('createPopupTitle').innerHTML;
     		var bsId = "new";
        	}
-       	var overviewLabel = $('overviewLabel').innerHTML;
-       	var cancelLabel = $('cancelLabel').innerHTML;
+       	var overviewLabel = document.getElementById('overviewLabel').innerHTML;
+       	var cancelLabel = document.getElementById('cancelLabel').innerHTML;
        	
 		YAHOO.namespace("global.build.stat.configuration");
 		YAHOO.global.build.stat.configuration._buttons = [];
 	    YAHOO.global.build.stat.configuration.handleOverview = function() {
 	    	// If error resides in form, don't do anything here !
-	    	if(isDivErrorPresentInForm($('createBuildStat_'+bsId))){ return; }
+	    	if(isDivErrorPresentInForm(document.getElementById('createBuildStat_'+bsId))){ return; }
 	    	
 			YAHOO.namespace("global.build.stat.overview");
 			
-			var title = $(bsId+'_title').value;
-			var width = $(bsId+'_buildStatWidth').value;
-			var height = $(bsId+'_buildStatHeight').value;
-			var scale = $(bsId+'_historicScale').value;
-			var length = $(bsId+'_historicLength').value;
-			var jobFilter = $(bsId+'_jobFilter').value;
-			var nodeFilter = $(bsId+'_nodeFilter').value;
-			var launcherFilter = $(bsId+'_launcherFilter').value;
-			var successShown = $(bsId+'_successShown').checked;
-			var failuresShown = $(bsId+'_failuresShown').checked;
-			var unstablesShown = $(bsId+'_unstablesShown').checked;
-			var abortedShown = $(bsId+'_abortedShown').checked;
-			var notBuildsShown = $(bsId+'_notBuildsShown').checked;
-			var buildStatusesShown = $(bsId+'_buildStatusesShown').checked;
-			var totalBuildTimeShown = $(bsId+'_totalBuildTimeShown').checked;
-			var averageBuildTimeShown = $(bsId+'_averageBuildTimeShown').checked;
-			var yAxisChartType = $(bsId+'_yAxisChartType').value;
+			var title = document.getElementById(bsId+'_title').value;
+			var width = document.getElementById(bsId+'_buildStatWidth').value;
+			var height = document.getElementById(bsId+'_buildStatHeight').value;
+			var scale = document.getElementById(bsId+'_historicScale').value;
+			var length = document.getElementById(bsId+'_historicLength').value;
+			var jobFilter = document.getElementById(bsId+'_jobFilter').value;
+			var nodeFilter = document.getElementById(bsId+'_nodeFilter').value;
+			var launcherFilter = document.getElementById(bsId+'_launcherFilter').value;
+			var successShown = document.getElementById(bsId+'_successShown').checked;
+			var failuresShown = document.getElementById(bsId+'_failuresShown').checked;
+			var unstablesShown = document.getElementById(bsId+'_unstablesShown').checked;
+			var abortedShown = document.getElementById(bsId+'_abortedShown').checked;
+			var notBuildsShown = document.getElementById(bsId+'_notBuildsShown').checked;
+			var buildStatusesShown = document.getElementById(bsId+'_buildStatusesShown').checked;
+			var totalBuildTimeShown = document.getElementById(bsId+'_totalBuildTimeShown').checked;
+			var averageBuildTimeShown = document.getElementById(bsId+'_averageBuildTimeShown').checked;
+			var yAxisChartType = document.getElementById(bsId+'_yAxisChartType').value;
 
 			var overviewContent = '<img src="'+rootURL+'/plugin/global-build-stats/createChart?';
 			overviewContent += 'title='+title;
@@ -197,7 +197,7 @@ class BuildStatConfigForm {
 	    }
 	    YAHOO.global.build.stat.configuration.handleSubmit = function() {
 	    	// If error resides in form, don't do anything here !
-	    	if(isDivErrorPresentInForm($('createBuildStat_'+bsId))){ return; }
+	    	if(isDivErrorPresentInForm(document.getElementById('createBuildStat_'+bsId))){ return; }
 	    	
 			ajaxCall('form', 'createBuildStat_'+bsId, function(ret) {
 			  	var buildStatConfig = eval('('+ret.responseText+')');

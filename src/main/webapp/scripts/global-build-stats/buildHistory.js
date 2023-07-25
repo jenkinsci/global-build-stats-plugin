@@ -10,12 +10,12 @@
   }
   
   function verifyDates(){
-    $("datesError").innerHTML = (($("timeStart").value > $("timeEnd").value)?generateErrorMessage($('swapDatesErrorMessage').innerHTML):"");
+    document.getElementById("datesError").innerHTML = ((document.getElementById("timeStart").value > document.getElementById("timeEnd").value)?generateErrorMessage(document.getElementById('swapDatesErrorMessage').innerHTML):"");
   }
   
   function updateDateWithTime(time, targetInputId, targetDisplayId){
-    $(targetInputId).value = time;
-    $(targetDisplayId).innerHTML = displayTime(time);
+    document.getElementById(targetInputId).value = time;
+    document.getElementById(targetDisplayId).innerHTML = displayTime(time);
     verifyDates();
   }
   

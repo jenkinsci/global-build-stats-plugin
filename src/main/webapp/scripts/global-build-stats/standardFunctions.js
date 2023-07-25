@@ -1,13 +1,13 @@
 function fieldFilterTypeSelected(selectedType, regexInputFieldId, filterHiddenInputFieldId){
 	if(FIELD_FILTER_ALL == selectedType){
-		$(regexInputFieldId).disabled = true;
-		$(filterHiddenInputFieldId).value = FIELD_FILTER_ALL;
+		document.getElementById(regexInputFieldId).disabled = true;
+		document.getElementById(filterHiddenInputFieldId).value = FIELD_FILTER_ALL;
 	} else if(FIELD_FILTER_REGEX == selectedType){
-		$(regexInputFieldId).disabled = false;
-		$(filterHiddenInputFieldId).value = FIELD_FILTER_REGEX+'('+$(regexInputFieldId).value+')';
+		document.getElementById(regexInputFieldId).disabled = false;
+		document.getElementById(filterHiddenInputFieldId).value = FIELD_FILTER_REGEX+'('+document.getElementById(regexInputFieldId).value+')';
 	} else if(selectedType.indexOf(FIELD_FILTER_REGEX) != -1){
-		$(regexInputFieldId).disabled = true;
-		$(filterHiddenInputFieldId).value = selectedType;
+		document.getElementById(regexInputFieldId).disabled = true;
+		document.getElementById(filterHiddenInputFieldId).value = selectedType;
 	}
 }
 	
@@ -16,7 +16,7 @@ function initializeRegexField(targetField, regex){
 	if(extractingRegex.test(regex)){
 		extractingRegex.exec(regex);
 		var regexToPut = RegExp.$1;
-		$(targetField).value = regexToPut;
+		document.getElementById(targetField).value = regexToPut;
 	}
 }
 

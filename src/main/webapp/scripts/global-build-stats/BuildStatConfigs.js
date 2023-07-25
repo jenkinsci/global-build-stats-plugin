@@ -32,8 +32,8 @@ class BuildStatConfigs {
 	deleteChartElement(buildStatId){
 		var buildStatContainerId = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatId;
 		var previousBuildStatContainer = this.getPreviousBuildStatConfigContainer(buildStatContainerId);
-		$(buildStatContainerId).update("");
-		$(buildStatContainerId).id="deletedBuildStatConfig";
+		document.getElementById(buildStatContainerId).update("");
+		document.getElementById(buildStatContainerId).id="deletedBuildStatConfig";
 		if(previousBuildStatContainer != null){
 			this.updateButtonsFor(this.retrieveBuildStatIdFromContainerId(previousBuildStatContainer.id));
 		}
@@ -65,14 +65,14 @@ class BuildStatConfigs {
 		return htmlElement != null && htmlElement.id != null && htmlElement.id.startsWith(BUILD_STAT_CONTAINER_ID_PREFIX);
 	}
 	getPreviousBuildStatConfigContainer(currentBuildStatConfigContainerId){
-		var container = $(currentBuildStatConfigContainerId).previous();
+		var container = document.getElementById(currentBuildStatConfigContainerId).previous();
 		while(container != null && !this.isBuildStatConfigContainer(container)){
 			container = container.previous();
 		}
 		return container;
 	}
 	getNextBuildStatConfigContainer(currentBuildStatConfigContainerId){
-		var container = $(currentBuildStatConfigContainerId).next();
+		var container = document.getElementById(currentBuildStatConfigContainerId).next();
 		while(container != null && !this.isBuildStatConfigContainer(container)){
 			container = container.next();
 		}
@@ -80,20 +80,20 @@ class BuildStatConfigs {
 	}
 	updateButtonsFor(buildStatConfigId){
 		var containerId = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConfigId;
-		var container = $(containerId);
+		var container = document.getElementById(containerId);
 		
-		if($('moveUp_'+buildStatConfigId) != null){
+		if(document.getElementById('moveUp_'+buildStatConfigId) != null){
 			if(this.getPreviousBuildStatConfigContainer(containerId) != null){
-				$('moveUp_'+buildStatConfigId).show();
+				document.getElementById('moveUp_'+buildStatConfigId).show();
 			} else {
-				$('moveUp_'+buildStatConfigId).hide();
+				document.getElementById('moveUp_'+buildStatConfigId).hide();
 			}
 		}
-		if($('moveDown_'+buildStatConfigId) != null){
+		if(document.getElementById('moveDown_'+buildStatConfigId) != null){
 			if(this.getNextBuildStatConfigContainer(containerId) != null){
-				$('moveDown_'+buildStatConfigId).show();
+				document.getElementById('moveDown_'+buildStatConfigId).show();
 			} else {
-				$('moveDown_'+buildStatConfigId).hide();
+				document.getElementById('moveDown_'+buildStatConfigId).hide();
 			}
 		}
 	}
@@ -101,8 +101,8 @@ class BuildStatConfigs {
 		var buildStatConf1 = this.getBuildStatConfigFromContainerId(containerId1);
 		var buildStatConf2 = this.getBuildStatConfigFromContainerId(containerId2);
 	
-		var buildStatConf1Container = $(BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConf1.id);
-		var buildStatConf2Container = $(BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConf2.id);
+		var buildStatConf1Container = document.getElementById(BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConf1.id);
+		var buildStatConf2Container = document.getElementById(BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConf2.id);
 		
 		var replacedHTML = buildStatConf1Container.innerHTML;
 		buildStatConf1Container.innerHTML = buildStatConf2Container.innerHTML;
@@ -134,24 +134,24 @@ class BuildStatConfigs {
 	fillDivWithChart(divId, buildStatConfig, updateButtonsCallback){
 		ajaxCall('link', rootURL+'/plugin/global-build-stats/createChartMap?buildStatId='+buildStatConfig.id, function(ret){
 			var content = BUILD_STAT_CONFIGS.getHTMLWithoutContainerFromBuildStatConfig(buildStatConfig);
-			$(divId).update(content);
-			$('map_'+buildStatConfig.id+'_container').update(ret.responseText);
+			document.getElementById(divId).update(content);
+			document.getElementById('map_'+buildStatConfig.id+'_container').update(ret.responseText);
 			var mapId = "map_"+buildStatConfig.id;
-			$('map_'+buildStatConfig.id+'_container').firstChild.setAttribute("name", mapId);
-			$('img_'+buildStatConfig.id).setAttribute("usemap", "#" + mapId);
+			document.getElementById('map_'+buildStatConfig.id+'_container').firstChild.setAttribute("name", mapId);
+			document.getElementById('img_'+buildStatConfig.id).setAttribute("usemap", "#" + mapId);
 			
 			updateButtonsCallback.call(null);
 		}, true);
 	}
 	updateChartElement(bsId, buildStatConfig){
-		$(BUILD_STAT_CONTAINER_ID_PREFIX+bsId).id = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConfig.id;
+		document.getElementById(BUILD_STAT_CONTAINER_ID_PREFIX+bsId).id = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConfig.id;
 		this.fillDivWithChart(BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConfig.id, buildStatConfig, function(){
 			BUILD_STAT_CONFIGS.updateButtonsFor(buildStatConfig.id);
 		});
 	}
 	createChartElement(buildStatConfig){
 		if(this.size() == 0){
-			$('buildStatConfigsContainer').update("");
+			document.getElementById('buildStatConfigsContainer').update("");
 		}
 		
 		var newBuildStatContainerId = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConfig.id;
@@ -161,7 +161,7 @@ class BuildStatConfigs {
 		newBuildStatConf.setAttribute("style", "clear:left");
 		newBuildStatConf.setAttribute("id", newBuildStatContainerId);
 		
-		$('buildStatConfigsContainer').appendChild(newBuildStatConf);
+		document.getElementById('buildStatConfigsContainer').appendChild(newBuildStatConf);
 		this.fillDivWithChart(newBuildStatContainerId, buildStatConfig, function(){
 			BUILD_STAT_CONFIGS.updateButtonsFor(buildStatConfig.id);
 			var previousBuildStatContainer = BUILD_STAT_CONFIGS.getPreviousBuildStatConfigContainer(newBuildStatContainerId);
@@ -180,7 +180,7 @@ class BuildStatConfigs {
 		
 		ajaxCall('link', moveUrl, function(transport) {
 		  	var currentContainerId = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatId;
-			var currentChartContainer = $(currentContainerId);
+			var currentChartContainer = document.getElementById(currentContainerId);
 			var otherChartContainer = null;
 			if(moveType.toLowerCase() == "up"){
 				otherChartContainer = BUILD_STAT_CONFIGS.getPreviousBuildStatConfigContainer(currentContainerId);

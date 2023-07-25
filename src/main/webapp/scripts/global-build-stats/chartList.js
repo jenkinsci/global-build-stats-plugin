@@ -44,7 +44,7 @@ function jsonConcat(o1, o2) {
 
 // For some unknown reasons, on firefox, some #{XXX} template variables are replaced by #%7BXXX%7D :(
 function getTemplateContent(templateId){
-	var content = $(templateId).innerHTML;
+	var content = document.getElementById(templateId).innerHTML;
 	content = content.replace(new RegExp("%7B", "g"), "{");
 	content = content.replace(new RegExp("%7D", "g"), "}");
 	return content;
@@ -69,7 +69,7 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 	            }
 	        ); 
 	        
-		YAHOO.global.build.stat.wait.modalPopup.setHeader($('waitMessage').innerHTML);
+		YAHOO.global.build.stat.wait.modalPopup.setHeader(document.getElementById('waitMessage').innerHTML);
 		YAHOO.global.build.stat.wait.modalPopup.setBody(getTemplateContent('loadingTemplate')); 
 	}
 			
@@ -97,14 +97,14 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 	
 	YAHOO.global.build.stat.wait.modalPopup.render(document.body);
 	if(callType == 'form'){
-		$(param).request(ajaxCallParams);
+		document.getElementById(param).request(ajaxCallParams);
 	} else {
 		new Ajax.Request(param, ajaxCallParams);
 	}
 }	
 
 function deleteBuildStat(buildStatId){
-	var deletionConfirmationMessage = $('deletionConfirmationMessage').innerHTML;
+	var deletionConfirmationMessage = document.getElementById('deletionConfirmationMessage').innerHTML;
 	if(confirm(deletionConfirmationMessage)){
 		ajaxCall('link', 'deleteConfiguration?buildStatId='+buildStatId, function(transport) {
 		  	BUILD_STAT_CONFIGS.deleteChart(buildStatId);
