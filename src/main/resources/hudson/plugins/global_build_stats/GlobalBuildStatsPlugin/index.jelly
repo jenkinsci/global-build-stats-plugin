@@ -40,7 +40,7 @@
 	}
 
 	var BUILD_STAT_CONFIGS = new BuildStatConfigs();
-	new Event.observe(window, 'load', function(){
+	window.addEventListener('load', function(){
 		ajaxCall('link', rootURL+'/plugin/global-build-stats/api/json?depth=2', function(ret) {
 		  	  var buildStat = eval('('+ret.responseText+')');
 		  	  for(i=0; i<buildStat.buildStatConfigs.length; i++){
