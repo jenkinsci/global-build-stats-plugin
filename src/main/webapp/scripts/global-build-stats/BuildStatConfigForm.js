@@ -8,9 +8,8 @@
  * - CHART_LENGTH_UNIT global constant
  * - FIELD_FILTER_ALL, FIELD_FILTER_REGEX, LAUNCHER_SYSTEM_REGEX and NODE_MASTER_REGEX global constants
  */
-var BuildStatConfigForm = Class.create();
-BuildStatConfigForm.prototype = {
-	initialize: function(buildStatConfId){
+class BuildStatConfigForm {
+	constructor(buildStatConfId){
 		if(buildStatConfId != null){
 			this.buildStatConf = BUILD_STAT_CONFIGS.getBuildStat(buildStatConfId);
 		} else {
@@ -18,16 +17,16 @@ BuildStatConfigForm.prototype = {
 		}
 		this.buildStatConfId = getBuildStatConfigId(buildStatConfId);
 		CURRENT_FORM = this;
-	},
+	}
 	
-	selectOption: function(selectElement, optionValue){
+	selectOption(selectElement, optionValue){
 		for (var i=0; i<selectElement.options.length; i++) {
 			selectElement.options[i].selected = selectElement.options[i].value == optionValue;
 		}
 		selectElement.onchange();
-	},
+	}
 	
-	changeChartLengthUnit: function(newScale){
+	changeChartLengthUnit(newScale){
 		for(var i=0; i<CHART_LENGTH_UNITS.length; i++){
 		    if(newScale == CHART_LENGTH_UNITS[i]){
 		    	document.getElementById(this.buildStatConfId+'_'+CHART_LENGTH_UNITS[i]).style.display = "inline";
@@ -35,14 +34,14 @@ BuildStatConfigForm.prototype = {
 		    	document.getElementById(this.buildStatConfId+'_'+CHART_LENGTH_UNITS[i]).style.display = "none";
 		    }
 		}
-	},
+	}
 	
-	isModificationMode: function(){
+	isModificationMode(){
 		return this.buildStatConf != null;
-	},
+	}
 	
 	// Called after buildStatConfigForm is displayed
-	initForm: function(){
+	initForm(){
       if(this.buildStatConf!=null && this.buildStatConf.historicScale != '') {
       	this.selectOption($(this.buildStatConfId+'_historicScale'), this.buildStatConf.historicScale); 
       }
@@ -118,10 +117,10 @@ BuildStatConfigForm.prototype = {
 	  $(this.buildStatConfId+'_buildStatHeight').onchange();
 	  $(this.buildStatConfId+'_historicScale').onchange();
 	  $(this.buildStatConfId+'_historicLength').onchange();
-	},
+	}
 
 	// Display a creation/modification form for build stat config
-	displayBuildStatConfigForm: function(){
+	displayBuildStatConfigForm(){
 		var modificationMode = this.isModificationMode();
 	
        	if(modificationMode){
@@ -256,9 +255,9 @@ BuildStatConfigForm.prototype = {
 	    	CURRENT_FORM.initForm();
 	    }, YAHOO.global.build.stat.configuration, true); 
 		YAHOO.global.build.stat.configuration.modalPopup.render(document.body);
-	},
+	}
 
-	getHTMLForBuildStatConfigForm: function(){
+	getHTMLForBuildStatConfigForm(){
 		var currentContext = createTemplateContext(this.buildStatConf);
 		
 		if(this.isModificationMode()){

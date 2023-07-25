@@ -77,5 +77,5 @@ function generateErrorMessage(message){
 	return "<div class=\"error\"><img src=\"/static/6d8c7ad0/images/none.gif\" height=\"16\" width=\"1\">"+message+"</div>";
 }
 
-Behaviour.register(Object.extend(hudsonRules, myHudsonRules));
+Behaviour.register(Object.assign(hudsonRules, myHudsonRules));
 Behaviour.apply();

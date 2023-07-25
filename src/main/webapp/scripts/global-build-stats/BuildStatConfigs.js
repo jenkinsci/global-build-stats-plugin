@@ -4,17 +4,16 @@
  * - BUILD_STAT_CONTAINER_ID_PREFIX global constant
  * - chartList.js file inclusion
  */
-var BuildStatConfigs = Class.create();
-BuildStatConfigs.prototype = {
-	initialize: function(){
+class BuildStatConfigs {
+	constructor(){
 		this.ids = new Array();
-	},
-	add: function(buildStatConfig){
+	}
+	add(buildStatConfig){
 		this.createChartElement(buildStatConfig);
 		this[buildStatConfig.id] = buildStatConfig;
 		this.ids[this.size()] = buildStatConfig.id;
-	},
-	update: function(bsId, buildStatConfig){
+	}
+	update(bsId, buildStatConfig){
 		this.updateChartElement(bsId, buildStatConfig);
 		this[buildStatConfig.id] = buildStatConfig;
 		
@@ -23,14 +22,14 @@ BuildStatConfigs.prototype = {
 			this[bsId] = null;
 			this.ids = this.ids.without(bsId);
 		}
-	},
+	}
 	// renamed from delete to deleteChart since in chrome_linux, delete is a reserved keyword
-	deleteChart: function(buildStatId){
+	deleteChart(buildStatId){
 		this.deleteChartElement(buildStatId);
 		this[buildStatId] = null;
 		this.ids = this.ids.without(buildStatId);
-	},
-	deleteChartElement: function(buildStatId){
+	}
+	deleteChartElement(buildStatId){
 		var buildStatContainerId = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatId;
 		var previousBuildStatContainer = this.getPreviousBuildStatConfigContainer(buildStatContainerId);
 		$(buildStatContainerId).update("");
@@ -38,14 +37,14 @@ BuildStatConfigs.prototype = {
 		if(previousBuildStatContainer != null){
 			this.updateButtonsFor(this.retrieveBuildStatIdFromContainerId(previousBuildStatContainer.id));
 		}
-	},
-	getBuildStat: function(buildStatId){
+	}
+	getBuildStat(buildStatId){
 		return this[buildStatId];
-	},
-	size: function(){
+	}
+	size(){
 		return this.ids.length;
-	},
-	getHTMLWithoutContainerFromBuildStatConfig: function(buildStatConfiguration){
+	}
+	getHTMLWithoutContainerFromBuildStatConfig(buildStatConfiguration){
 		var currentContext = createTemplateContext(buildStatConfiguration);
 		
 		var imageTemplateStr = '';
@@ -61,25 +60,25 @@ BuildStatConfigs.prototype = {
 		var buildStatConfigWithoutContainerHTML = buildStatConfigWithoutContainerTemplate.evaluate(currentContext);
 		
 		return buildStatConfigWithoutContainerHTML;
-	},
-	isBuildStatConfigContainer: function(htmlElement){
+	}
+	isBuildStatConfigContainer(htmlElement){
 		return htmlElement != null && htmlElement.id != null && htmlElement.id.startsWith(BUILD_STAT_CONTAINER_ID_PREFIX);
-	},
-	getPreviousBuildStatConfigContainer: function(currentBuildStatConfigContainerId){
+	}
+	getPreviousBuildStatConfigContainer(currentBuildStatConfigContainerId){
 		var container = $(currentBuildStatConfigContainerId).previous();
 		while(container != null && !this.isBuildStatConfigContainer(container)){
 			container = container.previous();
 		}
 		return container;
-	},
-	getNextBuildStatConfigContainer: function(currentBuildStatConfigContainerId){
+	}
+	getNextBuildStatConfigContainer(currentBuildStatConfigContainerId){
 		var container = $(currentBuildStatConfigContainerId).next();
 		while(container != null && !this.isBuildStatConfigContainer(container)){
 			container = container.next();
 		}
 		return container;
-	},
-	updateButtonsFor: function(buildStatConfigId){
+	}
+	updateButtonsFor(buildStatConfigId){
 		var containerId = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConfigId;
 		var container = $(containerId);
 		
@@ -97,8 +96,8 @@ BuildStatConfigs.prototype = {
 				$('moveDown_'+buildStatConfigId).hide();
 			}
 		}
-	},
-	swapBuildStatConfigs: function(containerId1, containerId2){
+	}
+	swapBuildStatConfigs(containerId1, containerId2){
 		var buildStatConf1 = this.getBuildStatConfigFromContainerId(containerId1);
 		var buildStatConf2 = this.getBuildStatConfigFromContainerId(containerId2);
 	
@@ -114,8 +113,8 @@ BuildStatConfigs.prototype = {
 		
 		this.updateButtonsFor(buildStatConf1.id);
 		this.updateButtonsFor(buildStatConf2.id);
-	},
-	retrieveBuildStatIdFromContainerId: function(containerId){
+	}
+	retrieveBuildStatIdFromContainerId(containerId){
 		var extractingRegex = new RegExp("^"+BUILD_STAT_CONTAINER_ID_PREFIX+"(.*)$", "g");
 		var buildStatId = null;
 		if(extractingRegex.test(containerId)){
@@ -123,16 +122,16 @@ BuildStatConfigs.prototype = {
 			buildStatId = RegExp.$1;
 		}
 		return buildStatId;
-	},
-	getBuildStatConfigFromContainerId: function(containerId){
+	}
+	getBuildStatConfigFromContainerId(containerId){
 		var buildStatConfigId = this.retrieveBuildStatIdFromContainerId(containerId);
 		var buildStatConfig = null;
 		if(buildStatConfigId != null){
 			buildStatConfig = this.getBuildStat(buildStatConfigId);
 		}
 		return buildStatConfig;
-	},
-	fillDivWithChart: function(divId, buildStatConfig, updateButtonsCallback){
+	}
+	fillDivWithChart(divId, buildStatConfig, updateButtonsCallback){
 		ajaxCall('link', rootURL+'/plugin/global-build-stats/createChartMap?buildStatId='+buildStatConfig.id, function(ret){
 			var content = BUILD_STAT_CONFIGS.getHTMLWithoutContainerFromBuildStatConfig(buildStatConfig);
 			$(divId).update(content);
@@ -143,14 +142,14 @@ BuildStatConfigs.prototype = {
 			
 			updateButtonsCallback.call(null);
 		}, true);
-	},
-	updateChartElement: function(bsId, buildStatConfig){
+	}
+	updateChartElement(bsId, buildStatConfig){
 		$(BUILD_STAT_CONTAINER_ID_PREFIX+bsId).id = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConfig.id;
 		this.fillDivWithChart(BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConfig.id, buildStatConfig, function(){
 			BUILD_STAT_CONFIGS.updateButtonsFor(buildStatConfig.id);
 		});
-	},
-	createChartElement: function(buildStatConfig){
+	}
+	createChartElement(buildStatConfig){
 		if(this.size() == 0){
 			$('buildStatConfigsContainer').update("");
 		}
@@ -170,8 +169,8 @@ BuildStatConfigs.prototype = {
 				BUILD_STAT_CONFIGS.updateButtonsFor(BUILD_STAT_CONFIGS.retrieveBuildStatIdFromContainerId(previousBuildStatContainer.id));
 			}
 		});
-	},
-	moveBuildStat: function(buildStatId, moveType){
+	}
+	moveBuildStat(buildStatId, moveType){
 		var moveUrl = "";
 		if(moveType.toLowerCase() == "up"){
 			moveUrl = rootURL+'/plugin/global-build-stats/moveUpConf?buildStatId='+buildStatId;
