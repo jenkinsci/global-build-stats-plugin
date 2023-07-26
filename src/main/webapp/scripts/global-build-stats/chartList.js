@@ -82,16 +82,16 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 			}),
 			body: objectToUrlFormEncoded(document.getElementById(param)),
 		}).then((response) => {
-			if (response.ok) {
-				response.text().then((responseText) => {
-					successCallback({responseText: responseText});
-				})
-			} else {
-				alert('failure : '+Object.toJSON(response));
-			}
 			if(!skipLoading){
 				YAHOO.global.build.stat.wait.modalPopup.hide();
 			}
+			if (response.ok) {
+				return response.text()
+			} else {
+				alert('failure : '+Object.toJSON(response));
+			}
+		}).then((responseText) => {
+			successCallback({responseText: responseText});
 		});
 	} else {
 		fetch(param, {
@@ -99,16 +99,16 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 				"Content-Type": "application/x-www-form-urlencoded",
 			}),
 		}).then((response) => {
-			if (response.ok) {
-				response.text().then((responseText) => {
-					successCallback({responseText: responseText});
-				})
-			} else {
-				alert('failure : '+Object.toJSON(response));
-			}
 			if(!skipLoading){
 				YAHOO.global.build.stat.wait.modalPopup.hide();
 			}
+			if (response.ok) {
+				return response.text()
+			} else {
+				alert('failure : '+Object.toJSON(response));
+			}
+		}).then((responseText) => {
+			successCallback({responseText: responseText});
 		});
 	}
 }	

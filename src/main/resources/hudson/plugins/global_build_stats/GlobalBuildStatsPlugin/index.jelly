@@ -28,14 +28,14 @@
 	// Called after button "initialize stats" is clicked
 	function initializeStats(){
 		ajaxCall('link', 'recordBuildInfos', function(transport) {
-			$('initializeStatsMessage').style.display = "inline";
+			document.getElementById('initializeStatsMessage').style.display = "inline";
 		});
 	}
 
 	function updateRetentionStrategies(){
 	    ajaxCall('form', 'retentionStrategiesForm', function(ret){
-	        $('retentionStrategiesUpdatedMessage').style.display = "inline";
-	        setTimeout("$('retentionStrategiesUpdatedMessage').style.display = 'none';", 2500);
+	        document.getElementById('retentionStrategiesUpdatedMessage').style.display = "inline";
+	        setTimeout("document.getElementById('retentionStrategiesUpdatedMessage').style.display = 'none';", 2500);
 	    });
 	}
 
@@ -161,7 +161,7 @@
 			      ${%Job name regex} :
 			      <input type="text" id="#{buildStatId}_jobNameRegex" 
 			      		 disabled="true" name="jobNameRegex" size="10"
-			      		 onblur="$('#{buildStatId}_jobFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
+			      		 onblur="document.getElementById('#{buildStatId}_jobFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
 			      />
 			      <input id="#{buildStatId}_jobFilter" type="hidden" name="jobFilter" value="#{jobFilter}" />
 			    </li>
@@ -173,7 +173,7 @@
 			      ${%Node name regex} :
 			      <input type="text" id="#{buildStatId}_nodeNameRegex" 
 			      		 disabled="true" name="nodeNameRegex" size="10"
-			      		 onblur="$('#{buildStatId}_nodeFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
+			      		 onblur="document.getElementById('#{buildStatId}_nodeFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
 			      />
 			      <input id="#{buildStatId}_nodeFilter" type="hidden" name="nodeFilter" value="#{nodeFilter}" />
 		      	</li>
@@ -185,7 +185,7 @@
 			      ${%Username regex} :
 			      <input type="text" id="#{buildStatId}_launcherNameRegex" 
 			      		 disabled="true" name="launcherNameRegex" size="10"
-			      		 onblur="$('#{buildStatId}_launcherFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
+			      		 onblur="document.getElementById('#{buildStatId}_launcherFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
 			      />
 			      <input id="#{buildStatId}_launcherFilter" type="hidden" name="launcherFilter" value="#{launcherFilter}" />
 		      	</li>
