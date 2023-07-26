@@ -83,7 +83,9 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 			body: objectToUrlFormEncoded(document.getElementById(param)),
 		}).then((response) => {
 			if (response.ok) {
-				successCallback(response);
+				response.text().then((responseText) => {
+					successCallback({responseText: responseText});
+				})
 			} else {
 				alert('failure : '+Object.toJSON(response));
 			}
@@ -98,7 +100,9 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 			}),
 		}).then((response) => {
 			if (response.ok) {
-				successCallback(response);
+				response.text().then((responseText) => {
+					successCallback({responseText: responseText});
+				})
 			} else {
 				alert('failure : '+Object.toJSON(response));
 			}
