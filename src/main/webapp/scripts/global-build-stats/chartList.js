@@ -84,7 +84,7 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 			headers: crumb.wrap({
 				"Content-Type": "application/x-www-form-urlencoded",
 			}),
-			body: objectToUrlFormEncoded(document.getElementById(param)),
+			body: objectToUrlFormEncoded(document.getElementById(param).elements),
 		}).then((response) => {
 			if(!skipLoading){
 				YAHOO.global.build.stat.wait.modalPopup.hide();
@@ -92,7 +92,7 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 			if (response.ok) {
 				return response.text()
 			} else {
-				alert('failure : '+Object.toJSON(response));
+				alert('failure : '+toJsonWorkaround(response));
 			}
 		}).then((responseText) => {
 			successCallback({responseText: responseText});
@@ -109,7 +109,7 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 			if (response.ok) {
 				return response.text()
 			} else {
-				alert('failure : '+Object.toJSON(response));
+				alert('failure : '+toJsonWorkaround(response));
 			}
 		}).then((responseText) => {
 			successCallback({responseText: responseText});
@@ -123,5 +123,16 @@ function deleteBuildStat(buildStatId){
 		ajaxCall('link', 'deleteConfiguration?buildStatId='+buildStatId, function(transport) {
 		  	BUILD_STAT_CONFIGS.deleteChart(buildStatId);
 		});
+	}
+}
+
+function toJsonWorkaround(obj){
+	// TODO simplify when Prototype.js is removed
+	if (Object.toJSON) {
+		// Prototype.js
+		return Object.toJSON(obj);
+	} else {
+		// Standard
+		return JSON.stringify(obj);
 	}
 }
