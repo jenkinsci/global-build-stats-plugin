@@ -261,8 +261,8 @@ class BuildStatConfigForm {
 		var currentContext = createTemplateContext(this.buildStatConf);
 		
 		if(this.isModificationMode()){
-			var	regenerateIdBlockTemplate = new Template(getTemplateContent('regenerateIdBlockTemplate'));
-			var regenerateIdBlock = regenerateIdBlockTemplate.evaluate(currentContext);
+			var	regenerateIdBlockTemplate = getTemplateContent('regenerateIdBlockTemplate');
+			var regenerateIdBlock = evaluateTemplate(regenerateIdBlockTemplate, currentContext);
 		} else {
 			var regenerateIdBlock = "";
 		}
@@ -270,8 +270,8 @@ class BuildStatConfigForm {
 		currentContext = jsonConcat(currentContext, { regenerateIdBlock: regenerateIdBlock});
 		
 		// Generating content for creation/update form
-		var formBlockTemplate = new Template(getTemplateContent('formBlockTemplate'));
-		var formBlock = formBlockTemplate.evaluate(currentContext);
+		var formBlockTemplate = getTemplateContent('formBlockTemplate');
+		var formBlock = evaluateTemplate(formBlockTemplate, currentContext);
 		
 		return formBlock;
 	}

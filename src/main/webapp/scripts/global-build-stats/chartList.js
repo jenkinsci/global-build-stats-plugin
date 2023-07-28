@@ -79,7 +79,7 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 			
 	YAHOO.global.build.stat.wait.modalPopup.render(document.body);
 	if(callType == 'form'){
-		fetch(param, {
+		fetch(document.getElementById(param).action, {
 			method: "post",
 			headers: crumb.wrap({
 				"Content-Type": "application/x-www-form-urlencoded",

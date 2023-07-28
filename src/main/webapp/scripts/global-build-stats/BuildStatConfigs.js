@@ -51,13 +51,12 @@ class BuildStatConfigs {
 		imageTemplateStr += '<img style="display:inline; float:left; margin-bottom: 10px; margin-right: 10px;" id="img_#{id}" \n';
 		imageTemplateStr += 'src="#{rootURL}/plugin/global-build-stats/showChart?buildStatId=#{id}&time=#{currentTime}" />\n';
 		imageTemplateStr += '<div id="map_#{id}_container"></div><br/>\n';
-		var imageTemplate = new Template(imageTemplateStr);
-		var image = imageTemplate.evaluate(currentContext);
+		var image = evaluateTemplate(imageTemplateStr, currentContext);
 		
 		currentContext = jsonConcat(currentContext, { buildStatImage: image});
 		
-		var buildStatConfigWithoutContainerTemplate = new Template(getTemplateContent('buildStatConfigWithoutContainerTemplate'));
-		var buildStatConfigWithoutContainerHTML = buildStatConfigWithoutContainerTemplate.evaluate(currentContext);
+		var buildStatConfigWithoutContainerTemplate = getTemplateContent('buildStatConfigWithoutContainerTemplate');
+		var buildStatConfigWithoutContainerHTML = evaluateTemplate(buildStatConfigWithoutContainerTemplate, currentContext);
 		
 		return buildStatConfigWithoutContainerHTML;
 	}
