@@ -75,12 +75,15 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 			
 	YAHOO.global.build.stat.wait.modalPopup.render(document.body);
 	if(callType == 'form'){
-		fetch(document.getElementById(param).action, {
+		const form = document.getElementById(param);
+		const formData = new FormData(form);
+		const objectFormData = Object.fromEntries(data.entries());
+		fetch(form.action, {
 			method: "post",
 			headers: crumb.wrap({
 				"Content-Type": "application/x-www-form-urlencoded",
 			}),
-			body: objectToUrlFormEncoded(document.getElementById(param).elements),
+			body: objectToUrlFormEncoded(objectFormData),
 		}).then((response) => {
 			if(!skipLoading){
 				YAHOO.global.build.stat.wait.modalPopup.hide();
@@ -138,5 +141,7 @@ function evaluateTemplate(content, context){
 	for (const property in context) {
 		progressivelyRenderedContent = progressivelyRenderedContent.replace('#{'+property+'}', object[property]);
 	}
+	// Removed undefined properties
+	progressivelyRenderedContent = progressivelyRenderedContent.replace(/#\{.*?\}/, '');
 	return progressivelyRenderedContent;
 }

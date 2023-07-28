@@ -225,7 +225,7 @@ class BuildStatConfigForm {
 	            }
 	        ); 
 	        
-		let content = this.getHTMLForBuildStatConfigForm();
+		const content = this.getHTMLForBuildStatConfigForm();
 		YAHOO.global.build.stat.configuration.modalPopup.setHeader(popupTitle);
 		YAHOO.global.build.stat.configuration.modalPopup.setBody(content); 
 	    YAHOO.global.build.stat.configuration.modalPopup.setFooter('<span id="panelFooter" class="button-group"></span>'); 
