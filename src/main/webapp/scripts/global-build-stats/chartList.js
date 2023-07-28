@@ -50,10 +50,6 @@ function getTemplateContent(templateId){
 	return content;
 }
 
-function evaluateTemplate(content, context){
-	return content;
-}
-
 function ajaxCall(callType, param, successCallback){
 	ajaxCall(callType, param, successCallback, false);
 }
@@ -135,4 +131,12 @@ function toJsonWorkaround(obj){
 		// Standard
 		return JSON.stringify(obj);
 	}
+}
+
+function evaluateTemplate(content, context){
+	let progressivelyRenderedContent = content
+	for (const property in context) {
+		progressivelyRenderedContent = progressivelyRenderedContent.replace('#{'+property+'}', object[property]);
+	}
+	return progressivelyRenderedContent;
 }
