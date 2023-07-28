@@ -50,6 +50,10 @@ function getTemplateContent(templateId){
 	return content;
 }
 
+function evaluateTemplate(content, context){
+	return content;
+}
+
 function ajaxCall(callType, param, successCallback){
 	ajaxCall(callType, param, successCallback, false);
 }
@@ -75,7 +79,7 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 			
 	YAHOO.global.build.stat.wait.modalPopup.render(document.body);
 	if(callType == 'form'){
-		fetch(url, {
+		fetch(param, {
 			method: "post",
 			headers: crumb.wrap({
 				"Content-Type": "application/x-www-form-urlencoded",
