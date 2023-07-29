@@ -64,9 +64,9 @@ class BuildStatConfigs {
 		return htmlElement != null && htmlElement.id != null && htmlElement.id.startsWith(BUILD_STAT_CONTAINER_ID_PREFIX);
 	}
 	getPreviousBuildStatConfigContainer(currentBuildStatConfigContainerId){
-		var container = document.getElementById(currentBuildStatConfigContainerId).previousSibling;
+		var container = document.getElementById(currentBuildStatConfigContainerId).previousElementSibling;
 		while(container != null && !this.isBuildStatConfigContainer(container)){
-			container = container.previousSibling;
+			container = container.previousElementSibling;
 		}
 		return container;
 	}
@@ -83,16 +83,16 @@ class BuildStatConfigs {
 		
 		if(document.getElementById('moveUp_'+buildStatConfigId) != null){
 			if(this.getPreviousBuildStatConfigContainer(containerId) != null){
-				document.getElementById('moveUp_'+buildStatConfigId).show();
+				document.getElementById('moveUp_'+buildStatConfigId).style.display = '';
 			} else {
-				document.getElementById('moveUp_'+buildStatConfigId).hide();
+				document.getElementById('moveUp_'+buildStatConfigId).style.display = 'none';
 			}
 		}
 		if(document.getElementById('moveDown_'+buildStatConfigId) != null){
 			if(this.getNextBuildStatConfigContainer(containerId) != null){
-				document.getElementById('moveDown_'+buildStatConfigId).show();
+				document.getElementById('moveDown_'+buildStatConfigId).style.display = '';
 			} else {
-				document.getElementById('moveDown_'+buildStatConfigId).hide();
+				document.getElementById('moveDown_'+buildStatConfigId).style.display = 'none';
 			}
 		}
 	}
