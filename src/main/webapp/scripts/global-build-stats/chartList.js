@@ -76,8 +76,8 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 	YAHOO.global.build.stat.wait.modalPopup.render(document.body);
 	if(callType == 'form'){
 		const form = document.getElementById(param);
-		const formData = new FormData(form);
-		const objectFormData = Object.fromEntries(data.entries());
+		// const formData = new FormData(form);
+		const objectFormData = {};//Object.fromEntries(data.entries());
 		fetch(form.action, {
 			method: "post",
 			headers: crumb.wrap({
@@ -142,6 +142,6 @@ function evaluateTemplate(content, context){
 		progressivelyRenderedContent = progressivelyRenderedContent.replace('#{'+property+'}', context[property]);
 	}
 	// Removed undefined properties
-	progressivelyRenderedContent = progressivelyRenderedContent.replace(/#\{.*?\}/, '');
+	progressivelyRenderedContent = progressivelyRenderedContent.replace(/#\{.*?\}/g, '');
 	return progressivelyRenderedContent;
 }
