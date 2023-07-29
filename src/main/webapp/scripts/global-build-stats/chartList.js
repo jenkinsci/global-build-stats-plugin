@@ -139,7 +139,7 @@ function toJsonWorkaround(obj){
 function evaluateTemplate(content, context){
 	let progressivelyRenderedContent = content
 	for (const property in context) {
-		progressivelyRenderedContent = progressivelyRenderedContent.replace('#{'+property+'}', object[property]);
+		progressivelyRenderedContent = progressivelyRenderedContent.replace('#{'+property+'}', context[property]);
 	}
 	// Removed undefined properties
 	progressivelyRenderedContent = progressivelyRenderedContent.replace(/#\{.*?\}/, '');

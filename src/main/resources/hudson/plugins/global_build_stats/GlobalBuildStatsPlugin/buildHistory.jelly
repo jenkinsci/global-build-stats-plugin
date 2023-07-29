@@ -81,7 +81,7 @@
 		      ${%Job name regex} :
 		      <input type="text" id="searchBuild_jobNameRegex" 
 		      		 disabled="true" name="jobNameRegex" size="10"
-		      		 onblur="$('searchBuild_jobFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
+		      		 onblur="document.getElementById('searchBuild_jobFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
 		      />
 		      <input id="searchBuild_jobFilter" type="hidden" name="jobFilter" value="${escapedJobFilter}" />
 		    </li>
@@ -93,7 +93,7 @@
 		      ${%Node name regex} :
 		      <input type="text" id="searchBuild_nodeNameRegex" 
 		      		 disabled="true" name="nodeNameRegex" size="10"
-		      		 onblur="$('searchBuild_nodeFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
+		      		 onblur="document.getElementById('searchBuild_nodeFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
 		      />
 		      <input id="searchBuild_nodeFilter" type="hidden" name="nodeFilter" value="${escapedNodeFilter}" />
 	      	</li>
@@ -105,7 +105,7 @@
 		      ${%Username regex} :
 		      <input type="text" id="searchBuild_launcherNameRegex" 
 		      		 disabled="true" name="launcherNameRegex" size="10"
-		      		 onblur="$('searchBuild_launcherFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
+		      		 onblur="document.getElementById('searchBuild_launcherFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
 		      />
 		      <input id="searchBuild_launcherFilter" type="hidden" name="launcherFilter" value="${escapedLauncherFilter}" />
 	      	</li>
@@ -154,40 +154,40 @@
 	      	</li>
 	      </ul>
 		  <script type="text/javascript"><![CDATA[
-		  if($('searchBuild_jobFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
-		  	  $('searchBuild_jobFilteringType_REGEX').checked = 'checked';
+		  if(document.getElementById('searchBuild_jobFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
+		  	  document.getElementById('searchBuild_jobFilteringType_REGEX').checked = 'checked';
 		  	  initializeRegexField('searchBuild_jobNameRegex', ESCAPED_JOB_FILTER);
-		  	  $('searchBuild_jobFilteringType_REGEX').onchange();
-		  	  $('searchBuild_jobNameRegex').disabled = false;
+		  	  document.getElementById('searchBuild_jobFilteringType_REGEX').onchange();
+		  	  document.getElementById('searchBuild_jobNameRegex').disabled = false;
 		  } else if(document.getElementById('searchBuild_jobFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
-		  	  $('searchBuild_jobFilteringType_ALL').checked = 'checked';
-		  	  $('searchBuild_jobFilteringType_ALL').onchange();
+		  	  document.getElementById('searchBuild_jobFilteringType_ALL').checked = 'checked';
+		  	  document.getElementById('searchBuild_jobFilteringType_ALL').onchange();
 		  }
-		  if($('searchBuild_nodeFilter').value.indexOf(NODE_MASTER_REGEX) != -1){
-		  	  $('searchBuild_nodeFilteringType_REGEXMASTER').checked = 'checked';
- 		 	  $('searchBuild_nodeFilteringType_REGEXMASTER').onchange();
-		  	  $('searchBuild_nodeNameRegex').disabled = true;
-		  } else if($('searchBuild_nodeFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
-		  	  $('searchBuild_nodeFilteringType_REGEX').checked = 'checked';
+		  if(document.getElementById('searchBuild_nodeFilter').value.indexOf(NODE_MASTER_REGEX) != -1){
+		  	  document.getElementById('searchBuild_nodeFilteringType_REGEXMASTER').checked = 'checked';
+ 		 	  document.getElementById('searchBuild_nodeFilteringType_REGEXMASTER').onchange();
+		  	  document.getElementById('searchBuild_nodeNameRegex').disabled = true;
+		  } else if(document.getElementById('searchBuild_nodeFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
+		  	  document.getElementById('searchBuild_nodeFilteringType_REGEX').checked = 'checked';
 		  	  initializeRegexField('searchBuild_nodeNameRegex', ESCAPED_NODE_FILTER);
- 		 	  $('searchBuild_nodeFilteringType_REGEX').onchange();
-		  	  $('searchBuild_nodeNameRegex').disabled = false;
-		  } else if($('searchBuild_nodeFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
-		  	  $('searchBuild_nodeFilteringType_ALL').checked = 'checked';
-		  	  $('searchBuild_nodeFilteringType_ALL').onchange();
+ 		 	  document.getElementById('searchBuild_nodeFilteringType_REGEX').onchange();
+		  	  document.getElementById('searchBuild_nodeNameRegex').disabled = false;
+		  } else if(document.getElementById('searchBuild_nodeFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
+		  	  document.getElementById('searchBuild_nodeFilteringType_ALL').checked = 'checked';
+		  	  document.getElementById('searchBuild_nodeFilteringType_ALL').onchange();
 		  }
-		  if($('searchBuild_launcherFilter').value.indexOf(LAUNCHER_SYSTEM_REGEX) != -1){
-		  	  $('searchBuild_launcherFilteringType_REGEXSYSTEM').checked = 'checked';
- 		 	  $('searchBuild_launcherFilteringType_REGEXSYSTEM').onchange();
-		  	  $('searchBuild_launcherNameRegex').disabled = true;
-		  } else if($('searchBuild_launcherFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
-		  	  $('searchBuild_launcherFilteringType_REGEX').checked = 'checked';
+		  if(document.getElementById('searchBuild_launcherFilter').value.indexOf(LAUNCHER_SYSTEM_REGEX) != -1){
+		  	  document.getElementById('searchBuild_launcherFilteringType_REGEXSYSTEM').checked = 'checked';
+ 		 	  document.getElementById('searchBuild_launcherFilteringType_REGEXSYSTEM').onchange();
+		  	  document.getElementById('searchBuild_launcherNameRegex').disabled = true;
+		  } else if(document.getElementById('searchBuild_launcherFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
+		  	  document.getElementById('searchBuild_launcherFilteringType_REGEX').checked = 'checked';
 		  	  initializeRegexField('searchBuild_launcherNameRegex', ESCAPED_LAUNCHER_FILTER);
- 		 	  $('searchBuild_launcherFilteringType_REGEX').onchange();
-		  	  $('searchBuild_launcherNameRegex').disabled = false;
-		  } else if($('searchBuild_launcherFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
-		  	  $('searchBuild_launcherFilteringType_ALL').checked = 'checked';
-		  	  $('searchBuild_launcherFilteringType_ALL').onchange();
+ 		 	  document.getElementById('searchBuild_launcherFilteringType_REGEX').onchange();
+		  	  document.getElementById('searchBuild_launcherNameRegex').disabled = false;
+		  } else if(document.getElementById('searchBuild_launcherFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
+		  	  document.getElementById('searchBuild_launcherFilteringType_ALL').checked = 'checked';
+		  	  document.getElementById('searchBuild_launcherFilteringType_ALL').onchange();
 		  }
 		  ]]></script>
 	      <input type="submit" class="submit-button" value="${%Search}" name="Submit" />
