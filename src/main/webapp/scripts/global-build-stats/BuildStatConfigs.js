@@ -32,7 +32,7 @@ class BuildStatConfigs {
 	deleteChartElement(buildStatId){
 		var buildStatContainerId = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatId;
 		var previousBuildStatContainer = this.getPreviousBuildStatConfigContainer(buildStatContainerId);
-		document.getElementById(buildStatContainerId).update("");
+		document.getElementById(buildStatContainerId).innerHTML = "";
 		document.getElementById(buildStatContainerId).id="deletedBuildStatConfig";
 		if(previousBuildStatContainer != null){
 			this.updateButtonsFor(this.retrieveBuildStatIdFromContainerId(previousBuildStatContainer.id));
@@ -133,8 +133,8 @@ class BuildStatConfigs {
 	fillDivWithChart(divId, buildStatConfig, updateButtonsCallback){
 		ajaxCall('link', rootURL+'/plugin/global-build-stats/createChartMap?buildStatId='+buildStatConfig.id, function(ret){
 			var content = BUILD_STAT_CONFIGS.getHTMLWithoutContainerFromBuildStatConfig(buildStatConfig);
-			document.getElementById(divId).update(content);
-			document.getElementById('map_'+buildStatConfig.id+'_container').update(ret.responseText);
+			document.getElementById(divId).innerHTML = content;
+			document.getElementById('map_'+buildStatConfig.id+'_container').innerHTML = ret.responseText;
 			var mapId = "map_"+buildStatConfig.id;
 			document.getElementById('map_'+buildStatConfig.id+'_container').firstChild.setAttribute("name", mapId);
 			document.getElementById('img_'+buildStatConfig.id).setAttribute("usemap", "#" + mapId);
@@ -150,7 +150,7 @@ class BuildStatConfigs {
 	}
 	createChartElement(buildStatConfig){
 		if(this.size() == 0){
-			document.getElementById('buildStatConfigsContainer').update("");
+			document.getElementById('buildStatConfigsContainer').innerHTML = "";
 		}
 		
 		var newBuildStatContainerId = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatConfig.id;

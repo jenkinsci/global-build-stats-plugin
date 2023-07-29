@@ -72,7 +72,19 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 		YAHOO.global.build.stat.wait.modalPopup.setHeader(document.getElementById('waitMessage').innerHTML);
 		YAHOO.global.build.stat.wait.modalPopup.setBody(getTemplateContent('loadingTemplate')); 
 	}
-			
+
+	var ajaxCallParams = (response) => {
+		if (response.ok) {
+			response.text().then((responseText) => {
+				successCallback({responseText: responseText});
+			})
+		} else {
+			alert('failure : '+toJsonWorkaround(response));
+		}
+		if(!skipLoading){
+			YAHOO.global.build.stat.wait.modalPopup.hide();
+		}
+	}
 	YAHOO.global.build.stat.wait.modalPopup.render(document.body);
 	if(callType == 'form'){
 		const form = document.getElementById(param);
@@ -84,35 +96,13 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 				"Content-Type": "application/x-www-form-urlencoded",
 			}),
 			body: objectToUrlFormEncoded(objectFormData),
-		}).then((response) => {
-			if(!skipLoading){
-				YAHOO.global.build.stat.wait.modalPopup.hide();
-			}
-			if (response.ok) {
-				return response.text()
-			} else {
-				alert('failure : '+toJsonWorkaround(response));
-			}
-		}).then((responseText) => {
-			successCallback({responseText: responseText});
-		});
+		}).then(ajaxCallParams);
 	} else {
 		fetch(param, {
 			headers: crumb.wrap({
 				"Content-Type": "application/x-www-form-urlencoded",
 			}),
-		}).then((response) => {
-			if(!skipLoading){
-				YAHOO.global.build.stat.wait.modalPopup.hide();
-			}
-			if (response.ok) {
-				return response.text()
-			} else {
-				alert('failure : '+toJsonWorkaround(response));
-			}
-		}).then((responseText) => {
-			successCallback({responseText: responseText});
-		});
+		}).then(ajaxCallParams);
 	}
 }	
 
@@ -137,11 +127,14 @@ function toJsonWorkaround(obj){
 }
 
 function evaluateTemplate(content, context){
-	let progressivelyRenderedContent = content
-	for (const property in context) {
-		progressivelyRenderedContent = progressivelyRenderedContent.replace('#{'+property+'}', context[property]);
-	}
-	// Removed undefined properties
-	progressivelyRenderedContent = progressivelyRenderedContent.replace(/#\{.*?\}/g, '');
-	return progressivelyRenderedContent;
+	return content.replace(
+		/#\{(.*?)\}/g,
+		function(match, p1, offset, string){
+			if (p1 in context) {
+				return context[p1];
+			} else {
+				return '';
+			}
+		}
+	);
 }
