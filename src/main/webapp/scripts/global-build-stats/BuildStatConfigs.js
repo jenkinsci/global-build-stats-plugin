@@ -64,9 +64,9 @@ class BuildStatConfigs {
 		return htmlElement != null && htmlElement.id != null && htmlElement.id.startsWith(BUILD_STAT_CONTAINER_ID_PREFIX);
 	}
 	getPreviousBuildStatConfigContainer(currentBuildStatConfigContainerId){
-		var container = document.getElementById(currentBuildStatConfigContainerId).previous();
+		var container = document.getElementById(currentBuildStatConfigContainerId).previousSibling;
 		while(container != null && !this.isBuildStatConfigContainer(container)){
-			container = container.previous();
+			container = container.previousSibling;
 		}
 		return container;
 	}
