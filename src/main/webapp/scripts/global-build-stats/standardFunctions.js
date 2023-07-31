@@ -47,9 +47,9 @@ function validateField(field){
 }
 
 function findFollowingSPAN(input, className) {
-    var elem = input.nextElementSibling;
+    var elem = input.nextSibling;
     while (elem.tagName != "SPAN" || elem.className != className)
-        elem = elem.nextElementSibling;
+        elem = elem.nextSibling;
 
     return elem;
 }

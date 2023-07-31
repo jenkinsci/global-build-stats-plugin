@@ -71,9 +71,9 @@ class BuildStatConfigs {
 		return container;
 	}
 	getNextBuildStatConfigContainer(currentBuildStatConfigContainerId){
-		var container = document.getElementById(currentBuildStatConfigContainerId).next();
+		var container = document.getElementById(currentBuildStatConfigContainerId).nextElementSibling;
 		while(container != null && !this.isBuildStatConfigContainer(container)){
-			container = container.next();
+			container = container.nextElementSibling;
 		}
 		return container;
 	}
