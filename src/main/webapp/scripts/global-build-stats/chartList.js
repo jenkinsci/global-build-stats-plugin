@@ -98,6 +98,7 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 		}).then(ajaxCallParams);
 	} else {
 		fetch(param, {
+			method: "post",
 			headers: crumb.wrap({
 				"Content-Type": "application/x-www-form-urlencoded",
 			}),
