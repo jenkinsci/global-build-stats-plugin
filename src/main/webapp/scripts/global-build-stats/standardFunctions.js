@@ -39,15 +39,17 @@ function validateField(field){
     FormChecker.sendRequest(url, {
         method : method,
         onComplete : function(x) {
-            targetValidationError.innerHTML = x.responseText;
+			x.text().then((responseText) => {
+				targetValidationError.innerHTML = responseText;
+			})
         }
     });
 }
 
 function findFollowingSPAN(input, className) {
-    var elem = input.nextSibling;
+    var elem = input.nextElementSibling;
     while (elem.tagName != "SPAN" || elem.className != className)
-        elem = elem.nextSibling;
+        elem = elem.nextElementSibling;
 
     return elem;
 }
