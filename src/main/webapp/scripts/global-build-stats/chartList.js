@@ -94,7 +94,7 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 			headers: crumb.wrap({
 				"Content-Type": "application/x-www-form-urlencoded",
 			}),
-			body: objectToUrlFormEncoded(new FormData(form).entries()),
+			body: new URLSearchParams(new FormData(form)).toString(),
 		}).then(ajaxCallParams);
 	} else {
 		fetch(param, {
