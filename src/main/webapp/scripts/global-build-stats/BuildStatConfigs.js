@@ -20,14 +20,14 @@ class BuildStatConfigs {
 		// Is id is updated, remove old id reference
 		if(bsId != buildStatConfig.id){
 			this[bsId] = null;
-			this.ids = this.ids.without(bsId);
+			this.ids.splice(this.ids.indexOf(bsId), 1);
 		}
 	}
 	// renamed from delete to deleteChart since in chrome_linux, delete is a reserved keyword
 	deleteChart(buildStatId){
 		this.deleteChartElement(buildStatId);
 		this[buildStatId] = null;
-		this.ids = this.ids.without(buildStatId);
+		this.ids.splice(this.ids.indexOf(buildStatId), 1);
 	}
 	deleteChartElement(buildStatId){
 		var buildStatContainerId = BUILD_STAT_CONTAINER_ID_PREFIX+buildStatId;
