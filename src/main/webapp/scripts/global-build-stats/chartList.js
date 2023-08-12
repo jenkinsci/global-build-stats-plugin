@@ -72,7 +72,7 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 		YAHOO.global.build.stat.wait.modalPopup.setHeader(document.getElementById('waitMessage').innerHTML);
 		YAHOO.global.build.stat.wait.modalPopup.setBody(getTemplateContent('loadingTemplate')); 
 	}
-
+			
 	var ajaxCallParams = {
 		onSuccess: function(ret) {
 			successCallback.call(null, ret);
@@ -84,17 +84,17 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 			alert('exception : '+ex);
 			if(!skipLoading){
 				YAHOO.global.build.stat.wait.modalPopup.hide();
-		}
+			}
 		    throw ex;
 		},*/
 		onFailure: function(transport) { 
 			alert('failure : '+toJsonWorkaround(transport));
-		if(!skipLoading){
-			YAHOO.global.build.stat.wait.modalPopup.hide();
-		}
+			if(!skipLoading){
+				YAHOO.global.build.stat.wait.modalPopup.hide();
+			}
 		}
 	};
-
+	
 	YAHOO.global.build.stat.wait.modalPopup.render(document.body);
 	if(callType == 'form'){
 		const form = document.getElementById(param);
