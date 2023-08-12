@@ -44,7 +44,7 @@ function jsonConcat(o1, o2) {
 
 // For some unknown reasons, on firefox, some #{XXX} template variables are replaced by #%7BXXX%7D :(
 function getTemplateContent(templateId){
-	var content = $(templateId).innerHTML;
+	var content = document.getElementById(templateId).innerHTML;
 	content = content.replace(new RegExp("%7B", "g"), "{");
 	content = content.replace(new RegExp("%7D", "g"), "}");
 	return content;
@@ -69,7 +69,7 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 	            }
 	        ); 
 	        
-		YAHOO.global.build.stat.wait.modalPopup.setHeader($('waitMessage').innerHTML);
+		YAHOO.global.build.stat.wait.modalPopup.setHeader(document.getElementById('waitMessage').innerHTML);
 		YAHOO.global.build.stat.wait.modalPopup.setBody(getTemplateContent('loadingTemplate')); 
 	}
 			
@@ -88,7 +88,7 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 		    throw ex;
 		},*/
 		onFailure: function(transport) { 
-			alert('failure : '+Object.toJSON(transport));
+			alert('failure : '+toJsonWorkaround(transport));
 			if(!skipLoading){
 				YAHOO.global.build.stat.wait.modalPopup.hide();
 			}
@@ -97,17 +97,62 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 	
 	YAHOO.global.build.stat.wait.modalPopup.render(document.body);
 	if(callType == 'form'){
-		$(param).request(ajaxCallParams);
+		const form = document.getElementById(param);
+		ajaxRequest(form.action, ajaxCallParams, new URLSearchParams(new FormData(form)).toString());
 	} else {
-		new Ajax.Request(param, ajaxCallParams);
+		ajaxRequest(param, ajaxCallParams);
 	}
 }	
 
 function deleteBuildStat(buildStatId){
-	var deletionConfirmationMessage = $('deletionConfirmationMessage').innerHTML;
+	var deletionConfirmationMessage = document.getElementById('deletionConfirmationMessage').innerHTML;
 	if(confirm(deletionConfirmationMessage)){
 		ajaxCall('link', 'deleteConfiguration?buildStatId='+buildStatId, function(transport) {
 		  	BUILD_STAT_CONFIGS.deleteChart(buildStatId);
 		});
 	}
+}
+
+function ajaxRequest(url, ajaxCallParams, body){
+	fetch(url, {
+		method: "post",
+		headers: crumb.wrap({
+			"Content-Type": "application/x-www-form-urlencoded",
+		}),
+		body: body,
+	})
+	.then(response => {
+		if (response.ok) {
+			response.text()
+			.then(responseText => {
+				ajaxCallParams.onSuccess({responseText: responseText});
+			})
+		} else {
+			ajaxCallParams.onFailure(response);
+		}
+	});
+}
+
+function toJsonWorkaround(obj){
+	// TODO simplify when Prototype.js is removed
+	if (Object.toJSON) {
+		// Prototype.js
+		return Object.toJSON(obj);
+	} else {
+		// Standard
+		return JSON.stringify(obj);
+	}
+}
+
+function evaluateTemplate(content, context){
+	return content.replace(
+		/#\{(.*?)\}/g,
+		function(match, p1, offset, string){
+			if (p1 in context) {
+				return context[p1];
+			} else {
+				return '';
+			}
+		}
+	);
 }

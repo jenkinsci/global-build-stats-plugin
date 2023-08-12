@@ -4,9 +4,9 @@
     <input type="text" id="${strategy.id}_days" name="discardResultsOlderThanDays" value="${strategy.days}" size="3" />
     ${%days}<br/>
     <script type="text/javascript">
-        $$('${strategy.id}_checkbox').onchange = function(){
-            $$('${strategy.id}_days').disabled = !$$('${strategy.id}_checkbox').checked;
+        document.getElementById('${strategy.id}_checkbox').onchange = function(){
+            document.getElementById('${strategy.id}_days').disabled = !document.getElementById('${strategy.id}_checkbox').checked;
         }
-        $$('${strategy.id}_checkbox').onchange(); // For initialization
+        document.getElementById('${strategy.id}_checkbox').onchange(); // For initialization
     </script>
 </j:jelly>
