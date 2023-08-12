@@ -73,36 +73,34 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 		YAHOO.global.build.stat.wait.modalPopup.setBody(getTemplateContent('loadingTemplate')); 
 	}
 
-	var ajaxCallParams = (response) => {
-		if (response.ok) {
-			response.text().then((responseText) => {
-				successCallback({responseText: responseText});
-			})
-		} else {
-			alert('failure : '+toJsonWorkaround(response));
+	var ajaxCallParams = {
+		onSuccess: function(ret) {
+			successCallback.call(null, ret);
+			if(!skipLoading){
+				YAHOO.global.build.stat.wait.modalPopup.hide();
+			}
+		},/* For unknown reasons, an exception is thrown after the onSuccess process .. :(
+		onException: function(transport, ex) { 
+			alert('exception : '+ex);
+			if(!skipLoading){
+				YAHOO.global.build.stat.wait.modalPopup.hide();
 		}
+		    throw ex;
+		},*/
+		onFailure: function(transport) { 
+			alert('failure : '+toJsonWorkaround(transport));
 		if(!skipLoading){
 			YAHOO.global.build.stat.wait.modalPopup.hide();
+		}
 		}
 	};
 
 	YAHOO.global.build.stat.wait.modalPopup.render(document.body);
 	if(callType == 'form'){
 		const form = document.getElementById(param);
-		fetch(form.action, {
-			method: "post",
-			headers: crumb.wrap({
-				"Content-Type": "application/x-www-form-urlencoded",
-			}),
-			body: new URLSearchParams(new FormData(form)).toString(),
-		}).then(ajaxCallParams);
+		ajaxRequest(form.action, ajaxCallParams, new FormData(form));
 	} else {
-		fetch(param, {
-			method: "post",
-			headers: crumb.wrap({
-				"Content-Type": "application/x-www-form-urlencoded",
-			}),
-		}).then(ajaxCallParams);
+		ajaxRequest(param, ajaxCallParams);
 	}
 }	
 
@@ -113,6 +111,26 @@ function deleteBuildStat(buildStatId){
 		  	BUILD_STAT_CONFIGS.deleteChart(buildStatId);
 		});
 	}
+}
+
+function ajaxRequest(url, ajaxCallParams, body){
+	fetch(url, {
+		method: "post",
+		headers: crumb.wrap({
+			"Content-Type": "application/x-www-form-urlencoded",
+		}),
+		body: body,
+	})
+	.then(response => {
+		if (response.ok) {
+			response.text()
+			.then(responseText => {
+				ajaxCallParams.onSuccess({responseText: responseText});
+			})
+		} else {
+			ajaxCallParams.onFailure(response);
+		}
+	});
 }
 
 function toJsonWorkaround(obj){
