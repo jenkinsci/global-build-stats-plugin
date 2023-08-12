@@ -94,7 +94,7 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 			}
 		}
 	};
-
+	
 	YAHOO.global.build.stat.wait.modalPopup.render(document.body);
 	if(callType == 'form'){
 		const form = document.getElementById(param);
