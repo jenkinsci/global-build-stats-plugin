@@ -149,10 +149,22 @@ function evaluateTemplate(content, context){
 		/#\{(.*?)\}/g,
 		function(match, p1, offset, string){
 			if (p1 in context) {
-				return context[p1];
+				return escapeHTML(context[p1]);
 			} else {
 				return '';
 			}
 		}
+	);
+}
+
+function escapeHTML(str){
+	return str.replace(/[&<>'"]/g,
+		tag => ({
+			'&': '&amp;',
+			'<': '&lt;',
+			'>': '&gt;',
+			"'": '&#x27;',
+			'"': '&quot;',
+		}[tag])
 	);
 }
