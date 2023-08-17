@@ -158,7 +158,7 @@ function evaluateTemplate(content, context){
 }
 
 function escapeHTML(str){
-	return str.replace(/[&<>'"]/g,
+	return str.toString().replace(/[&<>'"]/g,
 		tag => ({
 			'&': '&amp;',
 			'<': '&lt;',
