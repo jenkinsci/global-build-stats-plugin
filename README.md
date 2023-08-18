@@ -3,24 +3,6 @@
 Global build stats plugin will allow to gather and display global build result statistics.  
 It is a useful tool allowing to display global jenkins/hudson build trend over time.
 
-## Requirements
-
-Since v1.1, Global build stats plugin requires Jenkins 1.398 or higher.
-
-Before v1.0, Global build stats plugin requires Jenkins/Hudson 1.339 or higher.
-
-## Installation
-
-To install Global build stats Plugin, Go to the "plugin management" section in the administration Panel.  
-Latest released version will be available. Install it from there (you should need to restart Jenkins/Hudson after that).
-
-To verify that the plugin is well installed, go to the Administration panel : you should see an icon with mister Jenkins/Hudson and a graph on it :  
-![](https://wiki.jenkins.io/JENKINS/attachments/42470180/42631380.png)  
-or   
-![](https://wiki.jenkins.io/JENKINS/attachments/42470180/58196009.png)
-
-Then you can click it and access the global build stats config panel.
-
 ## Usage
 
 The global build stats main screen is made of different sections :
@@ -28,7 +10,7 @@ The global build stats main screen is made of different sections :
 *   On the left side : Action links
 *   On the center : Charts displaying global build statistics & action buttons (update, move & delete)
 *   On the bottom : Data initialization  
-    ![](https://wiki.jenkins.io/JENKINS/attachments/42470180/46563428.png)
+    ![](docs/images/GlobalBuildStats-MainScreen%20-%20Init.png)
 
 ## Action links
 
@@ -54,7 +36,7 @@ Starting from 0.1 (and greater ones), you can perform several data initializatio
 
 ## Manage retention strategies
 
-![](https://wiki.jenkins.io/JENKINS/attachments/42470180/58196068.png)
+![](docs/images/configuringRetentionStrategies.png)
 
 This section is for customizing job build result retention for global-build-stats plugin.  
 Job build result is the largest data stored in global build stats configuration files (in global-build-stats.xml or global-build-stats/jobResults/\*). That is to say, if you're expecting some disk consumption issue, a workaround would be to be stricter on the job build result retention strategies.
@@ -73,7 +55,7 @@ Prior to version 1.2, 3 retention strategies are available :
 ## Build stats Chart Creation / Update
 
 In this popup form, you can create a new Build Stats Chart.  
-![](https://wiki.jenkins.io/JENKINS/attachments/42470180/46563429.png)
+![](docs/images/GlobalBuildStats%20-%20ChartCreation.png)
 
 Here are some details on the different parameters :
 
@@ -101,8 +83,8 @@ This section displays every persisted Chart Configurations.
 You can, too, edit, delete or move up/down these graphs.  
 Graphs are created using REST-like URL so that you can export this URLs into your favourite Portal or CMS (or Jenkins/Hudson dashboard).  
 2 chart examples can be seen below :  
-![](https://wiki.jenkins.io/JENKINS/attachments/42470180/46563430.png)  
-![](https://wiki.jenkins.io/JENKINS/attachments/42470180/46563431.png)
+![](docs/images/GlobalBuildStats%20-%20Last30Days.png)  
+![](docs/images/GlobalBuildStats%20-%20Last15Weeks.png)
 
 Last chart displays the 3 available dimensions altogether (result counts, total build time & average build time).
 
@@ -136,7 +118,7 @@ For the same reasons as above, don't expect to have relevant results just after 
 
 The build search engine is accessible by clicking a build result region on a chart.  
 It will provide search criteria to query the global-build-stats build results on different ways : result status, job name, node name and date ranges.  
-![](https://wiki.jenkins.io/JENKINS/attachments/42470180/46563432.png)
+![](docs/images/GlobalBuildStats%20-%20BuildSearchEngine.png)
 
 Result sort order can be changed by clicking the table headers.  
 If build result has not been purged, a clickable link will be displayed to navigate through the console output & the detailed build result.
