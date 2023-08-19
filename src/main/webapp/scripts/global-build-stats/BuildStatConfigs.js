@@ -53,7 +53,8 @@ class BuildStatConfigs {
 		imageTemplateStr += '<div id="map_#{id}_container"></div><br/>\n';
 		var image = evaluateTemplate(imageTemplateStr, currentContext);
 		
-		currentContext = jsonConcat(currentContext, { buildStatImage: image});
+		currentContext = jsonConcat(currentContext, { buildStatImage: image},
+			{unsanitized: ['buildStatImage']});
 		
 		var buildStatConfigWithoutContainerTemplate = getTemplateContent('buildStatConfigWithoutContainerTemplate');
 		var buildStatConfigWithoutContainerHTML = evaluateTemplate(buildStatConfigWithoutContainerTemplate, currentContext);

@@ -149,7 +149,11 @@ function evaluateTemplate(content, context){
 		/#\{(.*?)\}/g,
 		function(match, p1, offset, string){
 			if (p1 in context) {
-				return escapeHTML(context[p1]);
+				if (context.unsanitized?.indexOf(p1) >= 0){
+					return context[p1];
+				} else {
+					return escapeHTML(context[p1]);
+				}
 			} else {
 				return '';
 			}

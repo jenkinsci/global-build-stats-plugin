@@ -267,7 +267,8 @@ class BuildStatConfigForm {
 			var regenerateIdBlock = "";
 		}
 		
-		currentContext = jsonConcat(currentContext, { regenerateIdBlock: regenerateIdBlock});
+		currentContext = jsonConcat(currentContext, { regenerateIdBlock: regenerateIdBlock},
+			{unsanitized: ['regenerateIdBlock']});
 		
 		// Generating content for creation/update form
 		var formBlockTemplate = getTemplateContent('formBlockTemplate');
