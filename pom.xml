@@ -11,7 +11,7 @@
 	<version>${changelist}</version>
 	<name>Jenkins global-build-stats plugin</name>
 	<packaging>hpi</packaging>
-	<url>https://plugins.jenkins.io/global-build-stats/</url>
+	<url>https://github.com/jenkinsci/global-build-stats-plugin</url>
 
 	<developers>
 		<developer>
