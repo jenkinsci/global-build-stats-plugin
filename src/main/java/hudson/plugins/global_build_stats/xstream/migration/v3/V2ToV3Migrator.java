@@ -33,11 +33,9 @@ public class V2ToV3Migrator extends PreV8AbstractMigrator<V2GlobalBuildStatsPOJO
 			Run<?, ?> b = retrieveBuildFromJobBuildResult(jbr);
 			if(b != null){
 				duration = b.getDuration();
-				if (b instanceof AbstractBuild) {
-					nodeName = ((AbstractBuild) b).getBuiltOnStr();
-				} else {
-					nodeName = "";
-				}
+				nodeName = (b instanceof AbstractBuild)
+						? ((AbstractBuild<?, ?>) b).getBuiltOnStr()
+						: "";
 			}
 			
 			jbr.setDuration(duration);
