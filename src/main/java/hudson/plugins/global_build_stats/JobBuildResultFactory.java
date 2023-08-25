@@ -16,9 +16,14 @@ public class JobBuildResultFactory {
 	}
 	
 	public JobBuildResult createJobBuildResult(Run<?, ?> build){
-		String buildName = build.getProject().getFullName();
+		String buildName = build.getParent().getFullName();
 		long duration = build.getDuration();
-		String nodeName = build.getBuiltOnStr();
+		String nodeName;
+		if (build instanceof AbstractBuild) {
+			nodeName = ((AbstractBuild) build).getBuiltOnStr();
+		} else {
+			nodeName = Jenkins.getInstance();
+		}
 		/* Can't do that since MavenModuleSet is in maven-plugin artefact which is in test scope
 		if(build.getProject() instanceof MavenModuleSet){
 			buildName = ((MavenModuleSet)build.getProject()).getRootModule().toString();

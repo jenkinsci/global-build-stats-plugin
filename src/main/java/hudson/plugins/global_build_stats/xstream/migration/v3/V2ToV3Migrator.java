@@ -32,7 +32,11 @@ public class V2ToV3Migrator extends PreV8AbstractMigrator<V2GlobalBuildStatsPOJO
 			Run<?, ?> b = retrieveBuildFromJobBuildResult(jbr);
 			if(b != null){
 				duration = b.getDuration();
-				nodeName = b.getBuiltOnStr();
+				if (b instanceof AbstractBuild) {
+					nodeName = ((AbstractBuild) b).getBuiltOnStr();
+				} else {
+					nodeName = Jenkins.getInstance();
+				}
 			}
 			
 			jbr.setDuration(duration);
