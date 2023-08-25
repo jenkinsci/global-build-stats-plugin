@@ -200,6 +200,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     public static class GlobalBuildStatsRunListener extends RunListener<AbstractBuild>{
     	public GlobalBuildStatsRunListener() {
     		super(AbstractBuild.class);
+	        LOGGER.log(Level.INFO, "GlobalBuildStatsRunListener constructor");
 		}
     	
     	@Override
