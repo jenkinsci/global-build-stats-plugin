@@ -53,6 +53,8 @@ public class GlobalBuildStatsBusiness {
      * Records the result of a build.
      */
 	public void onJobCompleted(final AbstractBuild build) {
+        LOGGER.log(Level.INFO, "GlobalBuildStatsBusiness onJobCompleted " + build.getExternalizableId());
+        LOGGER.log(Level.INFO, "GlobalBuildStatsBusiness onJobCompleted RetentionStrategies " + plugin.getRetentionStrategies().size());
         for(RetentionStrategy s : plugin.getRetentionStrategies()){
             s.onBuildCompleted(build, pluginSaver);
         }
