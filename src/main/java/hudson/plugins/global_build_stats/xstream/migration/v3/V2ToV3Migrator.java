@@ -1,5 +1,6 @@
 package hudson.plugins.global_build_stats.xstream.migration.v3;
 
+import hudson.model.AbstractBuild;
 import hudson.model.Run;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
 import hudson.plugins.global_build_stats.xstream.migration.PreV8AbstractMigrator;
@@ -35,7 +36,7 @@ public class V2ToV3Migrator extends PreV8AbstractMigrator<V2GlobalBuildStatsPOJO
 				if (b instanceof AbstractBuild) {
 					nodeName = ((AbstractBuild) b).getBuiltOnStr();
 				} else {
-					nodeName = Jenkins.getInstance();
+					nodeName = "";
 				}
 			}
 			
