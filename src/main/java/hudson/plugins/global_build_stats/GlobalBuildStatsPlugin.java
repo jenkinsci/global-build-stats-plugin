@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 
@@ -43,6 +45,8 @@ import org.kohsuke.stapler.interceptor.RequirePOST;
  */
 @ExportedBean
 public class GlobalBuildStatsPlugin extends Plugin {
+
+    private static final Logger LOGGER = Logger.getLogger(GlobalBuildStatsPlugin.class.getName());
 
     /**
      * List of aggregated job build results
@@ -202,6 +206,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	public void onCompleted(AbstractBuild r, TaskListener listener) {
     		super.onCompleted(r, listener);
     		
+	        LOGGER.log(Level.INFO, "GlobalBuildStatsRunListener onCompleted " + r.getExternalizableId());
     		getPluginBusiness().onJobCompleted(r);
     	}
 
