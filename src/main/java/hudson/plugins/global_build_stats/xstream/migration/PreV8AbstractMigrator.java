@@ -1,8 +1,8 @@
 package hudson.plugins.global_build_stats.xstream.migration;
 
-import hudson.model.AbstractBuild;
 import hudson.model.Hudson;
 import hudson.model.Job;
+import hudson.model.Run;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
 import hudson.plugins.global_build_stats.model.ModelIdGenerator;
@@ -79,10 +79,10 @@ public abstract class PreV8AbstractMigrator<TFROM extends GlobalBuildStatsPOJO, 
 		return true;
 	}
 	
-	protected static AbstractBuild retrieveBuildFromJobBuildResult(JobBuildResult jbr){
+	protected static Run<?, ?> retrieveBuildFromJobBuildResult(JobBuildResult jbr){
 		Job job = (Job)Hudson.getInstance().getItemByFullName(jbr.getJobName());
 		if(job != null){
-			return (AbstractBuild)job.getBuildByNumber(jbr.getBuildNumber());
+			return (Run<?, ?>)job.getBuildByNumber(jbr.getBuildNumber());
 		}
 		return null;
 	}

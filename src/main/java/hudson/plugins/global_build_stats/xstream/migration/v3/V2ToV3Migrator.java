@@ -1,6 +1,6 @@
 package hudson.plugins.global_build_stats.xstream.migration.v3;
 
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
 import hudson.plugins.global_build_stats.xstream.migration.PreV8AbstractMigrator;
 import hudson.plugins.global_build_stats.xstream.migration.v2.V2GlobalBuildStatsPOJO;
@@ -29,7 +29,7 @@ public class V2ToV3Migrator extends PreV8AbstractMigrator<V2GlobalBuildStatsPOJO
 			// Providing JobBuildResult.duration & nodeName attributes
 			long duration = JobBuildResult.EMPTY_DURATION;
 			String nodeName = JobBuildResult.EMPTY_NODE_NAME;
-			AbstractBuild b = retrieveBuildFromJobBuildResult(jbr);
+			Run<?, ?> b = retrieveBuildFromJobBuildResult(jbr);
 			if(b != null){
 				duration = b.getDuration();
 				nodeName = b.getBuiltOnStr();

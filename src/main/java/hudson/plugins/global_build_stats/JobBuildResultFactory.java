@@ -15,7 +15,7 @@ public class JobBuildResultFactory {
 	private JobBuildResultFactory(){
 	}
 	
-	public JobBuildResult createJobBuildResult(AbstractBuild build){
+	public JobBuildResult createJobBuildResult(Run<?, ?> build){
 		String buildName = build.getProject().getFullName();
 		long duration = build.getDuration();
 		String nodeName = build.getBuiltOnStr();
@@ -27,7 +27,7 @@ public class JobBuildResultFactory {
     			build.getNumber(), build.getTimestamp(), duration, nodeName, extractUserNameIn(build));
 	}
 
-    public JobBuildSearchResult createJobBuildSearchResult(AbstractBuild build){
+    public JobBuildSearchResult createJobBuildSearchResult(Run<?, ?> build){
         return createJobBuildSearchResult(createJobBuildResult(build));
     }
 
@@ -49,7 +49,7 @@ public class JobBuildResultFactory {
         return new JobBuildSearchResult(r, isJobAccessible, isBuildAccessible);
     }
 	
-	public static String extractUserNameIn(AbstractBuild<?,?> build){
+	public static String extractUserNameIn(Run<?, ?> build){
 		String userName;
         @SuppressWarnings("deprecation") Cause.UserCause uc = build.getCause(Cause.UserCause.class);
 		Cause.UserIdCause uic = build.getCause(Cause.UserIdCause.class);

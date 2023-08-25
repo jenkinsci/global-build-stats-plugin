@@ -1,11 +1,11 @@
 package hudson.plugins.global_build_stats.business;
 
 import hudson.model.TopLevelItem;
-import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.Hudson;
 import hudson.model.Item;
 import hudson.model.Job;
+import hudson.model.Run;
 import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
 import hudson.plugins.global_build_stats.JobBuildResultFactory;
 import hudson.plugins.global_build_stats.model.*;
@@ -52,9 +52,8 @@ public class GlobalBuildStatsBusiness {
     /**
      * Records the result of a build.
      */
-	public void onJobCompleted(final AbstractBuild build) {
-        LOGGER.log(Level.INFO, "GlobalBuildStatsBusiness onJobCompleted " + build.getExternalizableId());
-        LOGGER.log(Level.INFO, "GlobalBuildStatsBusiness onJobCompleted RetentionStrategies " + plugin.getRetentionStrategies().size());
+	public void onJobCompleted(final Run<?, ?> build) {
+        LOGGER.log(Level.FINEST, "GlobalBuildStatsBusiness onJobCompleted " + build.getExternalizableId());
         for(RetentionStrategy s : plugin.getRetentionStrategies()){
             s.onBuildCompleted(build, pluginSaver);
         }
@@ -368,13 +367,13 @@ public class GlobalBuildStatsBusiness {
 	    return dimensions;
 	}
 	
-	private static void addBuild(List<JobBuildResult> jobBuildResultsRead, AbstractBuild build){
+	private static void addBuild(List<JobBuildResult> jobBuildResultsRead, Run<?, ?> build){
 		jobBuildResultsRead.add(JobBuildResultFactory.INSTANCE.createJobBuildResult(build));
 	}
 	
 	private static void addBuildsFrom(List<JobBuildResult> jobBuildResultsRead, AbstractProject project){
-        List<AbstractBuild> builds = project.getBuilds();
-        Iterator<AbstractBuild> buildIterator = builds.iterator();
+        List<Run<?, ?>> builds = project.getBuilds();
+        Iterator<Run<?, ?>> buildIterator = builds.iterator();
 
         while (buildIterator.hasNext()) {
         	addBuild(jobBuildResultsRead, buildIterator.next());
@@ -406,7 +405,7 @@ public class GlobalBuildStatsBusiness {
         }
     }
 
-    public void onBuildDeleted(AbstractBuild build) {
+    public void onBuildDeleted(Run<?, ?> build) {
         for(RetentionStrategy s : plugin.getRetentionStrategies()){
             s.onBuildDeleted(build, pluginSaver);
         }

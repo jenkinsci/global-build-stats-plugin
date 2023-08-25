@@ -4,9 +4,9 @@ import hudson.Extension;
 import hudson.Plugin;
 import hudson.model.ManagementLink;
 import hudson.model.TaskListener;
-import hudson.model.AbstractBuild;
 import hudson.model.Api;
 import hudson.model.Hudson;
+import hudson.model.Run;
 import hudson.model.listeners.ItemListener;
 import hudson.model.listeners.RunListener;
 import hudson.plugins.global_build_stats.business.GlobalBuildStatsBusiness;
@@ -197,24 +197,15 @@ public class GlobalBuildStatsPlugin extends Plugin {
      * persisted data
      */
     @Extension
-    public static class GlobalBuildStatsRunListener extends RunListener<AbstractBuild>{
-    	public GlobalBuildStatsRunListener() {
-    		super(AbstractBuild.class);
-	        LOGGER.log(Level.INFO, "GlobalBuildStatsRunListener constructor");
-		}
-    	
+    public static class GlobalBuildStatsRunListener extends RunListener<Run<?, ?>>{
     	@Override
-    	public void onCompleted(AbstractBuild r, TaskListener listener) {
-    		super.onCompleted(r, listener);
-    		
-	        LOGGER.log(Level.INFO, "GlobalBuildStatsRunListener onCompleted " + r.getExternalizableId());
+    	public void onCompleted(Run<?, ?> r, TaskListener listener) {
+            LOGGER.log(Level.FINEST, "GlobalBuildStatsRunListener onCompleted " + r.getExternalizableId());
     		getPluginBusiness().onJobCompleted(r);
     	}
 
         @Override
-        public void onDeleted(AbstractBuild build) {
-            super.onDeleted(build);
-
+        public void onDeleted(Run<?, ?> build) {
             getPluginBusiness().onBuildDeleted(build);
         }
     }
