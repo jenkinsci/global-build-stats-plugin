@@ -1,6 +1,6 @@
 package hudson.plugins.global_build_stats.xstream.migration.v7;
 
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.plugins.global_build_stats.FieldFilterFactory;
 import hudson.plugins.global_build_stats.JobBuildResultFactory;
 import hudson.plugins.global_build_stats.model.BuildSearchCriteria;
@@ -54,7 +54,7 @@ public class V6ToV7Migrator extends PreV8AbstractMigrator<V6GlobalBuildStatsPOJO
 
 		ArrayList<JobBuildResult> migratedJobBuildResults = new ArrayList<JobBuildResult>();
 		for(JobBuildResult jbr : jobBuildResults){
-			AbstractBuild b = retrieveBuildFromJobBuildResult(jbr);
+			Run<?, ?> b = retrieveBuildFromJobBuildResult(jbr);
 			if(b != null){
 				String userName = JobBuildResultFactory.extractUserNameIn(b);
 				jbr.setUserName(userName);
