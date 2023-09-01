@@ -149,10 +149,26 @@ function evaluateTemplate(content, context){
 		/#\{(.*?)\}/g,
 		function(match, p1, offset, string){
 			if (p1 in context) {
-				return context[p1];
+				if (context.unsanitized?.includes(p1)){
+					return context[p1];
+				} else {
+					return escapeHTML(context[p1]);
+				}
 			} else {
 				return '';
 			}
 		}
+	);
+}
+
+function escapeHTML(str){
+	return str.toString().replace(/[&<>'"]/g,
+		tag => ({
+			'&': '&amp;',
+			'<': '&lt;',
+			'>': '&gt;',
+			"'": '&#x27;',
+			'"': '&quot;',
+		}[tag])
 	);
 }

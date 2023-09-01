@@ -161,25 +161,25 @@ class BuildStatConfigForm {
 			var averageBuildTimeShown = document.getElementById(bsId+'_averageBuildTimeShown').checked;
 			var yAxisChartType = document.getElementById(bsId+'_yAxisChartType').value;
 
-			var overviewContent = '<img src="'+rootURL+'/plugin/global-build-stats/createChart?';
-			overviewContent += 'title='+title;
-			overviewContent += '&buildStatWidth='+width;
-			overviewContent += '&buildStatHeight='+height;
-			overviewContent += '&historicLength='+length;
-			overviewContent += '&historicScale='+scale;
-			overviewContent += '&jobFilter='+jobFilter;
-			overviewContent += '&nodeFilter='+nodeFilter;
-			overviewContent += '&launcherFilter='+launcherFilter;
-			overviewContent += '&successShown='+successShown;
-			overviewContent += '&failuresShown='+failuresShown;
-			overviewContent += '&unstablesShown='+unstablesShown;
-			overviewContent += '&abortedShown='+abortedShown;
-			overviewContent += '&notBuildsShown='+notBuildsShown;
-			overviewContent += '&yAxisChartType='+yAxisChartType;
-			overviewContent += '&buildStatusesShown='+buildStatusesShown;
-			overviewContent += '&totalBuildTimeShown='+totalBuildTimeShown;
-			overviewContent += '&averageBuildTimeShown='+averageBuildTimeShown;
-			overviewContent += '" />';
+			var overviewContent = '<img src="'+rootURL+'/plugin/global-build-stats/createChart?' + new URLSearchParams({
+				title: title,
+				buildStatWidth: width,
+				buildStatHeight: height,
+				historicLength: length,
+				historicScale: scale,
+				jobFilter: jobFilter,
+				nodeFilter: nodeFilter,
+				launcherFilter: launcherFilter,
+				successShown: successShown,
+				failuresShown: failuresShown,
+				unstablesShown: unstablesShown,
+				abortedShown: abortedShown,
+				notBuildsShown: notBuildsShown,
+				yAxisChartType: yAxisChartType,
+				buildStatusesShown: buildStatusesShown,
+				totalBuildTimeShown: totalBuildTimeShown,
+				averageBuildTimeShown: averageBuildTimeShown,
+			}) + '" />';
 
 			YAHOO.global.build.stat.overview.modalPopup =  
 		        new YAHOO.widget.Panel("buildStatOverview",   
@@ -267,7 +267,8 @@ class BuildStatConfigForm {
 			var regenerateIdBlock = "";
 		}
 		
-		currentContext = jsonConcat(currentContext, { regenerateIdBlock: regenerateIdBlock});
+		currentContext = jsonConcat(currentContext, { regenerateIdBlock: regenerateIdBlock,
+			unsanitized: ['regenerateIdBlock']});
 		
 		// Generating content for creation/update form
 		var formBlockTemplate = getTemplateContent('formBlockTemplate');
