@@ -1,11 +1,9 @@
 package hudson.plugins.global_build_stats.business;
 
 import hudson.model.TopLevelItem;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
 import hudson.model.Hudson;
-import hudson.model.Item;
 import hudson.model.Job;
+import hudson.model.Run;
 import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
 import hudson.plugins.global_build_stats.JobBuildResultFactory;
 import hudson.plugins.global_build_stats.model.*;
@@ -35,6 +33,7 @@ import org.jfree.chart.title.LegendTitle;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
 
+import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
 import com.cloudbees.hudson.plugins.folder.Folder;
 
 public class GlobalBuildStatsBusiness {
@@ -52,7 +51,7 @@ public class GlobalBuildStatsBusiness {
     /**
      * Records the result of a build.
      */
-	public void onJobCompleted(final AbstractBuild build) {
+	public void onJobCompleted(final Run build) {
         for(RetentionStrategy s : plugin.getRetentionStrategies()){
             s.onBuildCompleted(build, pluginSaver);
         }
@@ -97,15 +96,7 @@ public class GlobalBuildStatsBusiness {
 
                 List<JobBuildResult> jobBuildResultsRead = new ArrayList<JobBuildResult>();
                 for (TopLevelItem item : Hudson.getInstance().getItems()) {
-                	if (item instanceof Folder){
-                		Folder f = (Folder)item;
-                		for (TopLevelItem i : f.getItems()){
-                			handleItem(jobBuildResultsRead,i);
-                		}
-                	}
-                    if (item instanceof AbstractProject) {
-                    	handleItem(jobBuildResultsRead, item);
-                    }
+                    recursivelyAddBuilds(jobBuildResultsRead, item);
                 }
 
                 plugin.getJobBuildResultsSharder().queueResultsToAdd(
@@ -113,11 +104,24 @@ public class GlobalBuildStatsBusiness {
             }
         });
 	}
-	
-	public void handleItem(List<JobBuildResult> results, TopLevelItem item){
-		if (item instanceof AbstractProject){
-			addBuildsFrom(results, (AbstractProject)item);
+
+    public void recursivelyAddBuilds(List<JobBuildResult> results, TopLevelItem item){
+		if (item instanceof Job){
+            addBuildsFrom(results, (Job) item);
 		}
+        if (item instanceof Folder){
+            Folder f = (Folder) item;
+            for (TopLevelItem i : f.getItems()){
+                recursivelyAddBuilds(results, i);
+            }
+        }
+
+        if (item instanceof WorkflowMultiBranchProject) {
+            WorkflowMultiBranchProject w = (WorkflowMultiBranchProject) item;
+            for (TopLevelItem i : w.getItems()) {
+                recursivelyAddBuilds(results, i);
+            }
+        }
 	}
 	
 	public JFreeChart createChart(BuildStatConfiguration config){
@@ -366,13 +370,13 @@ public class GlobalBuildStatsBusiness {
 	    return dimensions;
 	}
 	
-	private static void addBuild(List<JobBuildResult> jobBuildResultsRead, AbstractBuild build){
+	private static void addBuild(List<JobBuildResult> jobBuildResultsRead, Run build){
 		jobBuildResultsRead.add(JobBuildResultFactory.INSTANCE.createJobBuildResult(build));
 	}
 	
-	private static void addBuildsFrom(List<JobBuildResult> jobBuildResultsRead, AbstractProject project){
-        List<AbstractBuild> builds = project.getBuilds();
-        Iterator<AbstractBuild> buildIterator = builds.iterator();
+	private static void addBuildsFrom(List<JobBuildResult> jobBuildResultsRead, Job project){
+        List<Run> builds = (List<Run>)project.getBuilds();
+        Iterator<Run> buildIterator = builds.iterator();
 
         while (buildIterator.hasNext()) {
         	addBuild(jobBuildResultsRead, buildIterator.next());
@@ -404,7 +408,7 @@ public class GlobalBuildStatsBusiness {
         }
     }
 
-    public void onBuildDeleted(AbstractBuild build) {
+    public void onBuildDeleted(Run build) {
         for(RetentionStrategy s : plugin.getRetentionStrategies()){
             s.onBuildDeleted(build, pluginSaver);
         }

@@ -119,14 +119,13 @@ public class JobBuildResultSharder {
 
         for(String filename : updatedFilenames){
             String jobResultFilepath = jobResultsRoot.getAbsolutePath() + File.separator + filename;
-            try {
-                FileWriter fw = new FileWriter(jobResultFilepath);
+            try (FileWriter fw = new FileWriter(jobResultFilepath)) {
                 Hudson.XSTREAM.toXML(persistedMonthlyResults.get(filename), fw);
-                fw.close();
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "Unable to serialize job results into "+jobResultFilepath, e);
                 throw new IllegalStateException("Unable to serialize job results into "+jobResultFilepath, e);
             }
+            
         }
         LOGGER.log(Level.FINER, "Queued changes applied on job results !");
     }
@@ -137,14 +136,25 @@ public class JobBuildResultSharder {
         File jobResultsRoot = getJobResultFolder();
         if(jobResultsRoot.exists()){
             for(File f: jobResultsRoot.listFiles()){
-                try {
-                    FileReader fr = new FileReader(f);
+
+                if (f.getName().contains(".error-"))
+                    continue;
+
+                try (FileReader fr = new FileReader(f)) {
                     List<JobBuildResult> jobResultsInFile = (List<JobBuildResult>)Hudson.XSTREAM.fromXML(fr);
                     jobBuildResults.addAll(jobResultsInFile);
-                    fr.close();
                 } catch (IOException e) {
                     LOGGER.log(Level.SEVERE, "Unable to read job results in "+f.getAbsolutePath(), e);
-                    throw new IllegalStateException("Unable to read job results in "+f.getAbsolutePath(), e);
+
+                } catch (Exception e) {
+                    Date stamp = new Date();
+                    File bak = new File(f.getParentFile(), f.getName() + ".error-"+stamp.getTime());
+
+                    LOGGER.log(Level.WARNING, "Unable to read job results in "+f.getAbsolutePath()+". Renaming to " + bak, e);
+
+                    if (!f.renameTo(bak)) {
+                        LOGGER.log(Level.WARNING, "failed to rename {0} to {1}", new Object[] {f, bak});
+                    }
                 }
             }
         }
