@@ -4,9 +4,9 @@ import com.google.common.io.Files;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
-import hudson.model.AbstractBuild;
 import hudson.model.Hudson;
 import hudson.model.Job;
+import hudson.model.Run;
 import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
 import hudson.plugins.global_build_stats.model.JobBuildResultSharder;
@@ -82,10 +82,10 @@ public abstract class PreV9AbstractMigrator<TFROM extends GlobalBuildStatsPOJO, 
 		return true;
 	}
 	
-	protected static AbstractBuild retrieveBuildFromJobBuildResult(JobBuildResult jbr){
+	protected static Run<?, ?> retrieveBuildFromJobBuildResult(JobBuildResult jbr){
 		Job job = (Job) Jenkins.getInstance().getItemByFullName(jbr.getJobName());
 		if(job != null){
-			return (AbstractBuild)job.getBuildByNumber(jbr.getBuildNumber());
+			return (Run<?, ?>)job.getBuildByNumber(jbr.getBuildNumber());
 		}
 		return null;
 	}
