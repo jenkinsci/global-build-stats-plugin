@@ -36,11 +36,13 @@ public class JobBuildResultFactory {
     public JobBuildSearchResult createJobBuildSearchResult(JobBuildResult r){
         boolean isJobAccessible = false;
         boolean isBuildAccessible = false;
+        String jobUrl = "";
 
         Job targetJob = ((Job) Jenkins.getInstance().getItemByFullName(r.getJobName()));
         // Link to job will be provided only if job has not been deleted/renamed
         if(targetJob != null){
             isJobAccessible = true;
+            jobUrl = targetJob.getUrl();
             if(targetJob.getBuildByNumber(r.getBuildNumber()) != null){
                 // Link to build infos will be provided only if build result has not been purged
                 // @see issue #7240
@@ -48,7 +50,7 @@ public class JobBuildResultFactory {
             }
         }
 
-        return new JobBuildSearchResult(r, isJobAccessible, isBuildAccessible);
+        return new JobBuildSearchResult(r, isJobAccessible, isBuildAccessible, jobUrl);
     }
 	
 	public static String extractUserNameIn(Run<?, ?> build){
