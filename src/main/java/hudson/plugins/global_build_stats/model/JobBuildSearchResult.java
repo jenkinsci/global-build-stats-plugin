@@ -14,12 +14,14 @@ public class JobBuildSearchResult extends JobBuildResult {
 	private boolean jobAccessible;
 	// Will be true if isJobAccessible is true AND build result has not been deleted
 	private boolean buildAccessible;
+	private String jobUrl;
 	
-	public JobBuildSearchResult(JobBuildResult decoree, boolean isJobAccessible, boolean isBuildAccessible){
+	public JobBuildSearchResult(JobBuildResult decoree, boolean isJobAccessible, boolean isBuildAccessible, String jobUrl) {
 		super(decoree.getResult(), decoree.getJobName(), decoree.getBuildNumber(), decoree.getBuildDate(), 
 			  decoree.getDuration(), decoree.getNodeName(), decoree.getUserName());
 		this.jobAccessible = isJobAccessible;
 		this.buildAccessible = isBuildAccessible;
+		this.jobUrl = jobUrl;
 	}
 
 	public boolean isJobAccessible() {
@@ -32,5 +34,9 @@ public class JobBuildSearchResult extends JobBuildResult {
 	
 	public String getDurationString(){
 		return Util.getTimeSpanString(getDuration());
+	}
+
+	public String getJobUrl() {
+		return jobUrl;
 	}
 }

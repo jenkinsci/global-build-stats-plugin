@@ -216,7 +216,7 @@
 				    		<td class="pane">
 				    			<j:choose>
 				    				<j:when test="${jobResult.jobAccessible}">
-				    					<a href="${rootURL}/job/${jobResult.jobName}/">${jobResult.jobName}</a>
+				    					<a href="${rootURL}/${jobResult.jobUrl}">${jobResult.jobName}</a>
 				    				</j:when>
 				    				<j:otherwise>
 				    					${jobResult.jobName}
@@ -226,8 +226,8 @@
 				    		<td class="pane">
 				    			<j:choose>
 				    				<j:when test="${jobResult.buildAccessible}">
-						    			<a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/console"><l:icon class="icon-terminal icon-lg"/><br/></a>
-						    			<a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/">#${jobResult.buildNumber}</a>
+						    			<a href="${rootURL}/${jobResult.jobUrl}${jobResult.buildNumber}/console"><l:icon class="icon-terminal icon-lg"/><br/></a>
+						    			<a href="${rootURL}/${jobResult.jobUrl}${jobResult.buildNumber}/">#${jobResult.buildNumber}</a>
 				    				</j:when>
 				    				<j:otherwise>
 				    					#${jobResult.buildNumber}
@@ -237,7 +237,7 @@
 				    		<td class="pane">
 				    			<j:choose>
 				    				<j:when test="${jobResult.buildAccessible}">
-						    			<a href="${rootURL}/job/${jobResult.jobName}/${jobResult.buildNumber}/"><i:formatDate value="${jobResult.buildDate.time}" type="both" dateStyle="medium" timeStyle="medium"/></a>
+						    			<a href="${rootURL}/${jobResult.jobUrl}${jobResult.buildNumber}/"><i:formatDate value="${jobResult.buildDate.time}" type="both" dateStyle="medium" timeStyle="medium"/></a>
 				    				</j:when>
 				    				<j:otherwise>
 				    					<i:formatDate value="${jobResult.buildDate.time}" type="both" dateStyle="medium" timeStyle="medium"/>
