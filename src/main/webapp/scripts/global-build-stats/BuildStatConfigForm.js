@@ -126,23 +126,22 @@ class BuildStatConfigForm {
        	if(modificationMode){
        		var submitLabel = document.getElementById('updateSubmitLabel').innerHTML;
        		var popupTitle = document.getElementById('updatePopupTitle').innerHTML;
+          var submitMessage = document.getElementById('updateMessage').innerHTML;
     		var bsId = this.buildStatConfId;
        	} else {
        		var submitLabel = document.getElementById('createSubmitLabel').innerHTML;
        		var popupTitle = document.getElementById('createPopupTitle').innerHTML;
+          var submitMessage = document.getElementById('createMessage').innerHTML;
     		var bsId = "new";
        	}
        	var overviewLabel = document.getElementById('overviewLabel').innerHTML;
        	var cancelLabel = document.getElementById('cancelLabel').innerHTML;
        	
-		YAHOO.namespace("global.build.stat.configuration");
-		YAHOO.global.build.stat.configuration._buttons = [];
-	    YAHOO.global.build.stat.configuration.handleOverview = function() {
+	    let handleOverview = function() {
 	    	// If error resides in form, don't do anything here !
 	    	if(isDivErrorPresentInForm(document.getElementById('createBuildStat_'+bsId))){ return; }
 	    	
-			YAHOO.namespace("global.build.stat.overview");
-			
+
 			var title = document.getElementById(bsId+'_title').value;
 			var width = document.getElementById(bsId+'_buildStatWidth').value;
 			var height = document.getElementById(bsId+'_buildStatHeight').value;
@@ -181,80 +180,47 @@ class BuildStatConfigForm {
 				averageBuildTimeShown: averageBuildTimeShown,
 			}) + '" />';
 
-			YAHOO.global.build.stat.overview.modalPopup =  
-		        new YAHOO.widget.Panel("buildStatOverview",   
-		            { width:width+"px",
-		              fixedcenter:true,  
-		              close:true,  
-		              draggable:true,
-		              zindex:8, 
-		              modal:true
-		            }
-		        ); 
-			YAHOO.global.build.stat.overview.modalPopup.setHeader(overviewLabel);
-			YAHOO.global.build.stat.overview.modalPopup.setBody(overviewContent);
-			YAHOO.global.build.stat.overview.modalPopup.render(document.body);
-	    }
-	    YAHOO.global.build.stat.configuration.handleSubmit = function() {
-	    	// If error resides in form, don't do anything here !
-	    	if(isDivErrorPresentInForm(document.getElementById('createBuildStat_'+bsId))){ return; }
-	    	
-			ajaxCall('form', 'createBuildStat_'+bsId, function(ret) {
-			  	var buildStatConfig = eval('('+ret.responseText+')');
-			  	if(modificationMode){
-	    			BUILD_STAT_CONFIGS.update(bsId, buildStatConfig);
-			  	} else {
-		    		BUILD_STAT_CONFIGS.add(buildStatConfig);
-			  	}
-		        YAHOO.global.build.stat.configuration.modalPopup.hide();
-		        CURRENT_FORM = null;
-			});
-	    } 
-	    YAHOO.global.build.stat.configuration.handleCancel = function() { 
-	        YAHOO.global.build.stat.configuration.modalPopup.hide(); 
-	        CURRENT_FORM = null;
-	    }
-		YAHOO.global.build.stat.configuration.modalPopup =  
-	        new YAHOO.widget.Panel("buildStatConfigForm",   
-	            { width:"830px",
-	              fixedcenter:true,  
-	              close:false,  
-	              draggable:false,  
-	              zindex:4, 
-	              modal:true
-	            }
-	        ); 
-	        
-		const content = this.getHTMLForBuildStatConfigForm();
-		YAHOO.global.build.stat.configuration.modalPopup.setHeader(popupTitle);
-		YAHOO.global.build.stat.configuration.modalPopup.setBody(content); 
-	    YAHOO.global.build.stat.configuration.modalPopup.setFooter('<span id="panelFooter" class="button-group"></span>'); 
-	    YAHOO.global.build.stat.configuration.modalPopup.showEvent.subscribe(function() { 
-	        if (this._buttons.length == 0) { 
-	            this._buttons[0] = new YAHOO.widget.Button({ 
-	                type: 'button', 
-	                label: overviewLabel, 
-	                container: 'panelFooter' 
-	            }); 
-	            this._buttons[0].on('click', YAHOO.global.build.stat.configuration.handleOverview); 
-	            this._buttons[1] = new YAHOO.widget.Button({ 
-	                type: 'button', 
-	                label: submitLabel, 
-	                container: 'panelFooter' 
-	            }); 
-	            this._buttons[1].on('click', YAHOO.global.build.stat.configuration.handleSubmit); 
-	            this._buttons[2] = new YAHOO.widget.Button({ 
-	                type: 'button', 
-	                label: cancelLabel, 
-	                container: 'panelFooter' 
-	            }); 
-	            this._buttons[2].on('click', YAHOO.global.build.stat.configuration.handleCancel); 
-	        }
-	    }, YAHOO.global.build.stat.configuration, true); 
-	    YAHOO.global.build.stat.configuration.modalPopup.renderEvent.subscribe(function() {
-	    	CURRENT_FORM.initForm();
-	    }, YAHOO.global.build.stat.configuration, true); 
-		YAHOO.global.build.stat.configuration.modalPopup.render(document.body);
+        const previewArea = document.createElement("div");
+        previewArea.innerHTML = overviewContent;
+        dialog.modal(previewArea, {
+          title: "Preview",
+          maxWidth: width
+        });
+      }
+
+
+		const content = createElementFromHtml(this.getHTMLForBuildStatConfigForm());
+    const previewButton = content.querySelector(".gbs-preview-button");
+    previewButton.addEventListener("click", function() {
+      handleOverview();
+    });
+    const oldDisplay = content.style.display;
+    content.style.display = "none";
+    document.body.append(content);
+    CURRENT_FORM.initForm();
+    content.remove();
+    content.style.display = oldDisplay;
+
+    dialog.form(content, {
+      title: popupTitle,
+      okText: submitLabel,
+      cancelText: cancelLabel,
+      submitButton: false,
+    }).then(formData => {
+      let ajaxCallParams = createAjaxCallParams(function(ret) {
+        const buildStatConfig = JSON.parse(ret.responseText);
+        if(modificationMode){
+          BUILD_STAT_CONFIGS.update(bsId, buildStatConfig);
+        } else {
+          BUILD_STAT_CONFIGS.add(buildStatConfig);
+        }
+        notificationBar.show(submitMessage, notificationBar.SUCCESS);
+      });
+      ajaxRequest(content.action, ajaxCallParams, new URLSearchParams(formData).toString());
+      CURRENT_FORM = null;
+    }, () => {
+      CURRENT_FORM = null;
+    });
 	}
 
 	getHTMLForBuildStatConfigForm(){

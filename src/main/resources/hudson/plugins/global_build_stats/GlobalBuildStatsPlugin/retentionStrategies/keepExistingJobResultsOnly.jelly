@@ -1,4 +1,4 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core">
-    ${%Keep existing job results only}<br/>
+  <span>${%Keep existing job results only}</span>
 </j:jelly>

@@ -1,273 +1,334 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt">
-<l:layout title="${%Global Build Stats}" permission="${it.requiredPermission}">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form"
+         xmlns:i="jelly:fmt">
+  <l:layout title="${%Global Build Stats}" permission="${it.requiredPermission}">
 
-  <j:invoke var="FIELD_FILTER_ALL" on="${it}" method="getFieldFilterALL" />
-  <j:invoke var="FIELD_FILTER_REGEX" on="${it}" method="getFieldFilterRegex" />
-  <j:set var="LAUNCHER_SYSTEM_REGEX" value="${FIELD_FILTER_REGEX}(^SYSTEM$$)"/>
-  <j:set var="NODE_MASTER_REGEX" value="${FIELD_FILTER_REGEX}(^master$$)"/>
+    <j:invoke var="FIELD_FILTER_ALL" on="${it}" method="getFieldFilterALL"/>
+    <j:invoke var="FIELD_FILTER_REGEX" on="${it}" method="getFieldFilterRegex"/>
+    <j:set var="LAUNCHER_SYSTEM_REGEX" value="${FIELD_FILTER_REGEX}(^SYSTEM$$)"/>
+    <j:set var="NODE_MASTER_REGEX" value="${FIELD_FILTER_REGEX}(^master$$)"/>
 
-  <l:side-panel>
-    <l:tasks>
-      <l:task icon="icon-up icon-md" href="${rootURL}/" title="${%Back to Dashboard}" />
-      <l:task icon="icon-save icon-md" href="#" onclick="new BuildStatConfigForm(null).displayBuildStatConfigForm();" title="${%Create new chart}" />
-        <l:task icon="icon-gear2 icon-md" href="#RetentionStrategy" title="${%Manage retention strategies}" />
-        <l:task icon="icon-gear2 icon-md" href="#Initialize" title="${%Data Initialization}" />
-    </l:tasks>
-  </l:side-panel>
+    <l:side-panel sticky="true">
+      <l:tasks>
+        <l:task icon="symbol-bar-chart-outline plugin-ionicons-api" href="#"
+                onclick="new BuildStatConfigForm(null).displayBuildStatConfigForm(); return false;" title="${%Create new chart}"/>
+        <l:task icon="icon-gear2 icon-md" href="#RetentionStrategy" title="${%Manage retention strategies}"/>
+        <l:task icon="icon-gear2 icon-md" href="#Initialize" title="${%Data Initialization}"/>
+      </l:tasks>
+    </l:side-panel>
 
-  <l:header>
-	<script src="${rootURL}/plugin/global-build-stats/scripts/global-build-stats/standardFunctions.js"></script>
-	<script src="${rootURL}/plugin/global-build-stats/scripts/global-build-stats/chartList.js"></script>
-	<script src="${rootURL}/plugin/global-build-stats/scripts/global-build-stats/BuildStatConfigs.js"></script>
-	<script src="${rootURL}/plugin/global-build-stats/scripts/global-build-stats/BuildStatConfigForm.js"></script>
-	<script type="text/javascript"><![CDATA[
-	BUILD_STAT_CONTAINER_ID_PREFIX = "container_buildStatConfig_";
-	var CURRENT_FORM = null;
-	
-	// Called after button "initialize stats" is clicked
-	function initializeStats(){
-		ajaxCall('link', 'recordBuildInfos', function(transport) {
-			document.getElementById('initializeStatsMessage').style.display = "inline";
-		});
-	}
+    <l:header>
+      <link rel="stylesheet" href="${rootURL}/plugin/global-build-stats/css/global-build-stats.css" type="text/css"/>
+      <script src="${rootURL}/plugin/global-build-stats/scripts/global-build-stats/standardFunctions.js"></script>
+      <script src="${rootURL}/plugin/global-build-stats/scripts/global-build-stats/chartList.js"></script>
+      <script src="${rootURL}/plugin/global-build-stats/scripts/global-build-stats/BuildStatConfigs.js"></script>
+      <script src="${rootURL}/plugin/global-build-stats/scripts/global-build-stats/BuildStatConfigForm.js"></script>
+      <script type="text/javascript"><![CDATA[
+        BUILD_STAT_CONTAINER_ID_PREFIX = "container_buildStatConfig_";
+        var CURRENT_FORM = null;
 
-	function updateRetentionStrategies(){
-	    ajaxCall('form', 'retentionStrategiesForm', function(ret){
-	        document.getElementById('retentionStrategiesUpdatedMessage').style.display = "inline";
-	        setTimeout("document.getElementById('retentionStrategiesUpdatedMessage').style.display = 'none';", 2500);
-	    });
-	}
-
-	var BUILD_STAT_CONFIGS = new BuildStatConfigs();
-	window.addEventListener('load', function(){
-		ajaxCall('link', rootURL+'/plugin/global-build-stats/api/json?depth=2', function(ret) {
-		  	  var buildStat = eval('('+ret.responseText+')');
-		  	  for(i=0; i<buildStat.buildStatConfigs.length; i++){
-		  	  	var config = buildStat.buildStatConfigs[i];
-		  	  	BUILD_STAT_CONFIGS.add(config);
-		  	  }
-		});
-	});
-	]]></script>
-	<script type="text/javascript">
-		CHART_LENGTH_UNITS = new Array();
-		<j:forEach var="historicScale" items="${it.historicScales}" varStatus="status">
-		CHART_LENGTH_UNITS[${status.index}] = "${historicScale}";</j:forEach>
-		FIELD_FILTER_ALL = "${FIELD_FILTER_ALL}";
-		FIELD_FILTER_REGEX = "${FIELD_FILTER_REGEX}";
-		LAUNCHER_SYSTEM_REGEX = "${LAUNCHER_SYSTEM_REGEX}";
-		NODE_MASTER_REGEX = "${NODE_MASTER_REGEX}";
-	</script>
-  </l:header>
+        // Called after button "initialize stats" is clicked
+        function initializeStats(){
+          ajaxCall('link', 'recordBuildInfos', function(transport) {
+            document.getElementById('initializeStatsMessage').style.display = "inline";
+          });
+        }
 
 
-  <l:main-panel>
-    <h1><img src="${rootURL}/plugin/global-build-stats/icons/global-build-stats.png" /> ${%Global Build Stats} </h1>
-    
-    <div id="buildStatActionSpinner" class="spinner" style="display: none" />
-    <span id="buildStatActionValidationMessage" style="color: rgb(52, 101, 0); display: none;"></span>
-    <span id="buildStatActionErrorMessage" class="error" style="display: none;"></span>
-	
-    <div id="errors">
-	    <j:forEach var="error" items="${requestScope['errors']}">
-	    ${error.renderHtml()}
-	    </j:forEach>
-    </div>
-
-	<hr />
-	<div style="display:none" id="jsTemplates">
-		<div id="loadingTemplate">
-			<img src="${rootURL}/plugin/global-build-stats/icons/loading.gif" />
-		</div>
-		<span id="updateSubmitLabel">${%Update build stat configuration}</span>
-		<span id="updatePopupTitle">${%Updating build stat configuration}</span>
-		<span id="createSubmitLabel">${%Create new chart}</span>
-		<span id="createPopupTitle">${%Adding new chart}</span>
-		<span id="overviewLabel">${%Overview}</span>
-		<span id="cancelLabel">${%Cancel}</span>
-		<span id="waitMessage">${%Loading, please wait...}</span>
-		<span id="deletionConfirmationMessage">${%Are you sure to delete this build stat configuration ?}</span>
-		<div id="buildStatConfigWithoutContainerTemplate">
-    		<a name="buildStat_#{id}" />
-    		#{buildStatImage}
-			<a href="#buildStat_#{id}" id="edit_#{id}" onclick="new BuildStatConfigForm('#{id}').displayBuildStatConfigForm();">
-				<l:icon class="icon-save-new icon-lg"/><br/>
-			</a>
-			<a href="#" onclick="BUILD_STAT_CONFIGS.moveBuildStat('#{id}', 'up');" id="moveUp_#{id}">
-				<l:icon class="icon-up icon-lg"/><br/>
-			</a>
-			<a href="#" onclick="BUILD_STAT_CONFIGS.moveBuildStat('#{id}', 'down');" id="moveDown_#{id}">
-				<img src="${rootURL}/plugin/global-build-stats/icons/down.png" height="32" /><br/>
-			</a>
-			<a href="#buildStat_#{id}" onclick="deleteBuildStat('#{id}');">
-				<l:icon class="icon-stop icon-lg"/><br/>
-			</a>
-		</div>
-		<div id="regenerateIdBlockTemplate">
-			${%Identifier} : 
-			<input type="radio" id="#{buildStatId}_regenerateId_no" name="regenerateId" value="false" checked="checked" />#{buildStatId}
-			<input type="radio" id="#{buildStatId}_regenerateId_yes" name="regenerateId" value="true" />${%Regenerate a new identifier}
-			<br/>
-		</div>
-		<div id="formBlockTemplate">
-		   <form name="createBuildStat_#{buildStatId}" action="#{formAction}" method="post" class="globalBuildStatsForm"
-		    	  id="createBuildStat_#{buildStatId}" onsubmit="return !isDivErrorPresentInForm(this);">
-		      #{regenerateIdBlock}
-		      ${%Title} : <input type="text" id="#{buildStatId}_title" name="title"
-		      				 value="#{buildStatTitle}"
-		      				 checkUrl="'${rootURL}/plugin/global-build-stats/checkTitle?value='+escape(field.value)"
-		      				 onblur="validateField(this);" onchange="validateField(this);"
-		      		  /><span class="validation-error-area" style="display:inline-block;"></span><br/>
-		      ${%Chart Width * Height} :
-		      <input type="text" id="#{buildStatId}_buildStatWidth" name="buildStatWidth" 
-		      		 size="3" value="#{buildStatWidth}"
-		      		 checkUrl="'${rootURL}/plugin/global-build-stats/checkBuildStatWidth?value='+escape(field.value)"
-		      		 onblur="validateField(this);" onchange="validateField(this);"
-		      		 validationErrorAreaClassName="width-validation-error-area"
-		      />
-		      <span class="width-validation-error-area" style="display:inline-block;"></span>
-		      * 
-		      <input type="text" id="#{buildStatId}_buildStatHeight" name="buildStatHeight" 
-		      		 size="3" value="#{buildStatHeight}"
-		      		 checkUrl="'${rootURL}/plugin/global-build-stats/checkBuildStatHeight?value='+escape(field.value)"
-		      		 onblur="validateField(this);" onchange="validateField(this);"
-		      		 validationErrorAreaClassName="height-validation-error-area"
-		      />
-		      <span class="height-validation-error-area" style="display:inline-block;"></span><br/>
-		      ${%Chart time scale} :
-		      <select id="#{buildStatId}_historicScale" 
-		      		  name="historicScale" checkUrl="'${rootURL}/plugin/global-build-stats/checkHistoricScale?value='+escape(field.value)"
-		      		  onchange="validateField(this); CURRENT_FORM.changeChartLengthUnit(this.value);">
-				<j:forEach var="historicScale" items="${it.historicScales}" varStatus="status">
-					<option value="${historicScale}">${historicScale.label}</option>
-				</j:forEach>
-		      </select><span class="validation-error-area" style="display:inline-block;"></span><br/>
-		      ${%Chart time length} :
-			   <input type="text" id="#{buildStatId}_historicLength" name="historicLength" 
-			  		 size="3" value="#{historicLength}"
-		      		 checkUrl="'${rootURL}/plugin/global-build-stats/checkHistoricLength?value='+escape(field.value)"
-		      		 onblur="validateField(this);" onchange="validateField(this);"
-			   />
-			  <j:forEach var="historicScale" items="${it.historicScales}" varStatus="status">
-				<span id="#{buildStatId}_${historicScale}" style="display:none">${historicScale.unitLabel}</span>
-			  </j:forEach>
-		      <span class="validation-error-area" style="display:inline-block;"></span><br/>
-		      ${%Filters} :
-		      <ul style="margin-top: 4px;">
-		      	<li>
-			      ${%Job filtering} : <input type="radio" id="#{buildStatId}_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="${FIELD_FILTER_ALL}" onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_jobNameRegex', '#{buildStatId}_jobFilter');" />${%ALL Jobs}
-			      <input type="radio" id="#{buildStatId}_jobFilteringType_REGEX" name="jobFilteringType" value="${FIELD_FILTER_REGEX}" onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_jobNameRegex', '#{buildStatId}_jobFilter');" />
-			      ${%Job name regex} :
-			      <input type="text" id="#{buildStatId}_jobNameRegex" 
-			      		 disabled="true" name="jobNameRegex" size="10"
-			      		 onblur="document.getElementById('#{buildStatId}_jobFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
-			      />
-			      <input id="#{buildStatId}_jobFilter" type="hidden" name="jobFilter" value="#{jobFilter}" />
-			    </li>
-			    <li>
-			      ${%Node filtering} : <input type="radio" id="#{buildStatId}_nodeFilteringType_ALL" checked="checked" name="nodeFilteringType" value="${FIELD_FILTER_ALL}" onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_nodeNameRegex', '#{buildStatId}_nodeFilter');" />${%ALL Nodes}
-			      <input type="radio" id="#{buildStatId}_nodeFilteringType_REGEXMASTER" name="nodeFilteringType" value="${NODE_MASTER_REGEX}" onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_nodeNameRegex', '#{buildStatId}_nodeFilter');" />
-			      ${%Master only}
-			      <input type="radio" id="#{buildStatId}_nodeFilteringType_REGEX" name="nodeFilteringType" value="${FIELD_FILTER_REGEX}" onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_nodeNameRegex', '#{buildStatId}_nodeFilter');" />
-			      ${%Node name regex} :
-			      <input type="text" id="#{buildStatId}_nodeNameRegex" 
-			      		 disabled="true" name="nodeNameRegex" size="10"
-			      		 onblur="document.getElementById('#{buildStatId}_nodeFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
-			      />
-			      <input id="#{buildStatId}_nodeFilter" type="hidden" name="nodeFilter" value="#{nodeFilter}" />
-		      	</li>
-			    <li>
-			      ${%Launcher filtering} : <input type="radio" id="#{buildStatId}_launcherFilteringType_ALL" checked="checked" name="launcherFilteringType" value="${FIELD_FILTER_ALL}" onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_launcherNameRegex', '#{buildStatId}_launcherFilter');" />${%ALL Users}
-			      <input type="radio" id="#{buildStatId}_launcherFilteringType_REGEXSYSTEM" name="launcherFilteringType" value="${LAUNCHER_SYSTEM_REGEX}" onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_launcherNameRegex', '#{buildStatId}_launcherFilter');" />
-			      ${%System only}
-			      <input type="radio" id="#{buildStatId}_launcherFilteringType_REGEX" name="launcherFilteringType" value="${FIELD_FILTER_REGEX}" onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_launcherNameRegex', '#{buildStatId}_launcherFilter');" />
-			      ${%Username regex} :
-			      <input type="text" id="#{buildStatId}_launcherNameRegex" 
-			      		 disabled="true" name="launcherNameRegex" size="10"
-			      		 onblur="document.getElementById('#{buildStatId}_launcherFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
-			      />
-			      <input id="#{buildStatId}_launcherFilter" type="hidden" name="launcherFilter" value="#{launcherFilter}" />
-		      	</li>
-		      	<li>
-			      ${%Statuses taken into account} :
-			      <input type="checkbox" value="true" id="#{buildStatId}_successShown" name="successShown" checked="checked" />${%Success}
-			      <input type="checkbox" value="true" id="#{buildStatId}_failuresShown" name="failuresShown" checked="checked" />${%Failures}
-			      <input type="checkbox" value="true" id="#{buildStatId}_unstablesShown" name="unstablesShown" checked="checked" />${%Unstables}
-			      <input type="checkbox" value="true" id="#{buildStatId}_abortedShown" name="abortedShown" checked="checked" />${%Aborted}
-			      <input type="checkbox" value="true" id="#{buildStatId}_notBuildsShown" name="notBuildsShown" />${%Not Build}
-		      	</li>
-		      </ul>
-		      ${%Elements displayed on chart} :
-		      <ul style="margin-top: 4px;">
-		      	<li>
-			      <input type="checkbox" value="true" id="#{buildStatId}_buildStatusesShown" name="buildStatusesShown" checked="checked" />
-			      ${%Build statuses with Y Axis type} :
-			      <select id="#{buildStatId}_yAxisChartType" 
-			      		  name="yAxisChartType" checkUrl="'${rootURL}/plugin/global-build-stats/checkYAxisChartType?value='+escape(field.value)"
-			      		  onchange="validateField(this);">
-					  <j:forEach var="yAxisChartType" items="${it.yAxisChartTypes}" varStatus="status">
-					  	<option value="${yAxisChartType}">${yAxisChartType.label}</option>
-					  </j:forEach>
-			      </select><span class="validation-error-area" style="display:inline-block;"></span>
-		      	</li>
-		      	<li>
-			      <input type="checkbox" value="true" id="#{buildStatId}_totalBuildTimeShown" name="totalBuildTimeShown" />
-			      ${%Total build time}
-		      	</li>
-		      	<li>
-			      <input type="checkbox" value="true" id="#{buildStatId}_averageBuildTimeShown" name="averageBuildTimeShown" />
-			      ${%Average build time}
-		      	</li>
-		      </ul>
-		      <input type="hidden" name="buildStatId" value="#{buildStatId}" />
-		    </form>
-		</div>
-	</div>
-	<strong>${%Statistics}</strong><br/>
-	<div id="buildStatConfigsContainer">
-	<j:if test="${empty(it.buildStatConfigsArrayed)}">
-		<em>${%No chart configured for the moment ...} <a href="#" onclick="new BuildStatConfigForm(null).displayBuildStatConfigForm();">${%Create a new chart configuration}</a></em>
-	</j:if>
-	</div>
-
-    <hr style="clear:both;"/>
-    <a name="RetentionStrategy" />
-    <strong>${%Build Results retention strategies}</strong><br/><br/>
-    <span id="retentionStrategiesUpdatedMessage" style="color: rgb(52,101,0); display:none">
-        <strong>${%Retention strategies updated successfully !}</strong>
-    </span>
-    <form id="retentionStrategiesForm" action="updateRetentionStrategies">
-        <j:forEach var="strategy" items="${it.availableRetentionStrategies}">
-          <j:set var="strategySelected" value="${it.isStrategySelected(strategy.id)}" />
-          <j:choose>
-              <j:when test="${strategySelected}">
-                  <input type="checkbox" name="retentionStrategies" id="${strategy.id}_checkbox" value="${strategy.id}" checked="checked" />
-              </j:when>
-              <j:otherwise>
-                  <input type="checkbox" name="retentionStrategies" id="${strategy.id}_checkbox" value="${strategy.id}" />
-              </j:otherwise>
-          </j:choose>
-          <st:include from="${it}" page="/hudson/plugins/global_build_stats/GlobalBuildStatsPlugin/retentionStrategies/${strategy.configPage}" />
+        var BUILD_STAT_CONFIGS = new BuildStatConfigs();
+        window.addEventListener('load', function(){
+          ajaxCall('link', rootURL+'/plugin/global-build-stats/api/json?depth=2', function(ret) {
+            var buildStat = eval('('+ret.responseText+')');
+            for(i=0; i<buildStat.buildStatConfigs.length; i++){
+              var config = buildStat.buildStatConfigs[i];
+              BUILD_STAT_CONFIGS.add(config);
+            }
+          });
+        });
+        ]]></script>
+      <script type="text/javascript">
+        CHART_LENGTH_UNITS = new Array();
+        <j:forEach var="historicScale" items="${it.historicScales}" varStatus="status">
+          CHART_LENGTH_UNITS[${status.index}] = "${historicScale}";
         </j:forEach>
-        <br/>
-        <input type="button" class="submit-button" onclick="updateRetentionStrategies();" value="${%Update retention strategies}" />
-    </form>
+        FIELD_FILTER_ALL = "${FIELD_FILTER_ALL}";
+        FIELD_FILTER_REGEX = "${FIELD_FILTER_REGEX}";
+        LAUNCHER_SYSTEM_REGEX = "${LAUNCHER_SYSTEM_REGEX}";
+        NODE_MASTER_REGEX = "${NODE_MASTER_REGEX}";
+      </script>
+    </l:header>
 
-	<hr style="clear:both;"/>
-	<a name="Initialize" />
-	<strong>${%Data Initialization}</strong><br/><br/>
-    <em>
-      ${%Click button below to initialize build statistics}<br/>
-      ${%Job results read will be merged with already recorded job results.}<br/>
-    </em>
-    <span id="initializeStatsMessage" style="color: rgb(52, 101, 0); display: none;">
-    	<strong>${%Data successfully initialized !}</strong>&#160;
-		<j:if test="${!empty(it.buildStatConfigsArrayed)}"><a href="#" onclick="window.location.href = '';">${%Refresh page}</a></j:if>
-		<br/>
-    </span>
-    <input type="button" class="submit-button" onclick="initializeStats();" value="${%Initialize stats}" />
-    <div id="initializeStatsSpinner" class="spinner" style="display: none" />
-  </l:main-panel>
-</l:layout>
+
+    <l:main-panel>
+      <l:app-bar title="${%Global Build Stats}"/>
+
+      <div id="buildStatActionSpinner" class="spinner" style="display: none"/>
+      <span id="buildStatActionValidationMessage" style="color: rgb(52, 101, 0); display: none;"></span>
+      <span id="buildStatActionErrorMessage" class="error" style="display: none;"></span>
+
+      <div id="errors">
+        <j:forEach var="error" items="${requestScope['errors']}">
+          ${error.renderHtml()}
+        </j:forEach>
+      </div>
+
+      <div class="jenkins-hidden" id="jsTemplates">
+        <span id="createMessage">${%New chart was created successfully}</span>
+        <span id="updateMessage">${%Chart was updated successfully}</span>
+        <span id="updateSubmitLabel">${%Update build stat configuration}</span>
+        <span id="updatePopupTitle">${%Updating build stat configuration}</span>
+        <span id="createSubmitLabel">${%Create new chart}</span>
+        <span id="createPopupTitle">${%Adding new chart}</span>
+        <span id="overviewLabel">${%Overview}</span>
+        <span id="cancelLabel">${%Cancel}</span>
+        <span id="waitMessage">${%Loading, please wait...}</span>
+        <span id="deletionConfirmationMessage">${%Are you sure to delete this build stat configuration ?}</span>
+        <div id="buildStatConfigWithoutContainerTemplate">
+          <a name="buildStat_#{id}"/>
+          #{buildStatImage}
+          <div class="gbs-chart-buttons">
+            <button id="edit_#{id}" onclick="new BuildStatConfigForm('#{id}').displayBuildStatConfigForm();"
+                    class="jenkins-button jenkins-button--tertiary">
+              <l:icon src="symbol-settings-outline plugin-ionicons-api" class="icon-lg"/>
+            </button>
+            <button onclick="BUILD_STAT_CONFIGS.moveBuildStat('#{id}', 'up');" id="moveUp_#{id}" class="jenkins-button jenkins-button--tertiary">
+              <l:icon src="symbol-arrow-up-outline plugin-ionicons-api" class="icon-lg"/>
+            </button>
+            <button onclick="BUILD_STAT_CONFIGS.moveBuildStat('#{id}', 'down');" id="moveDown_#{id}" class="jenkins-button jenkins-button--tertiary">
+              <l:icon src="symbol-arrow-down-outline plugin-ionicons-api" class="icon-lg"/>
+            </button>
+            <button onclick="deleteBuildStat('#{id}');" class="jenkins-button jenkins-button--tertiary">
+              <l:icon src="symbol-trash-outline plugin-ionicons-api" class="icon-lg"/>
+            </button>
+          </div>
+        </div>
+        <div id="regenerateIdBlockTemplate">
+          <div class="gbs-form-row">
+            <span>${%Identifier}:</span>
+            <div class="jenkins-radio">
+              <input type="radio" id="#{buildStatId}_regenerateId_no" class="jenkins-radio__input" name="regenerateId"
+                     value="false" checked="checked"/>
+              <label for="#{buildStatId}_regenerateId_no" class="jenkins-radio__label">#{buildStatId}</label>
+            </div>
+            <div class="jenkins-radio">
+              <input type="radio" id="#{buildStatId}_regenerateId_yes" class="jenkins-radio__input" name="regenerateId"
+                     value="true"/>
+              <label for="#{buildStatId}_regenerateId_yes" class="jenkins-radio__label">${%Regenerate a new identifier}</label>
+            </div>
+          </div>
+        </div>
+        <div id="formBlockTemplate">
+          <form name="createBuildStat_#{buildStatId}" action="#{formAction}" method="post" class="globalBuildStatsForm"
+                id="createBuildStat_#{buildStatId}" onsubmit="return !isDivErrorPresentInForm(this);">
+            <div class="gbs-chart-config">
+              #{regenerateIdBlock}
+              <div class="gbs-form-row">
+                <span>${%Title}:</span>
+                <input type="text" id="#{buildStatId}_title" name="title"
+                       value="#{buildStatTitle}" class="jenkins-input"
+                       checkUrl="'${rootURL}/plugin/global-build-stats/checkTitle?value='+escape(field.value)"
+                       onblur="validateField(this);" onchange="validateField(this);"
+                />
+                <span class="validation-error-area" data-id="#{buildStatId}_title" style="display:inline-block;"></span>
+              </div>
+              <div class="gbs-form-row">
+                <span>${%Chart Width * Height}:</span>
+                <input type="number" id="#{buildStatId}_buildStatWidth" name="buildStatWidth"
+                       size="3" value="#{buildStatWidth}" class="jenkins-input" min="100"
+                       checkUrl="'${rootURL}/plugin/global-build-stats/checkBuildStatWidth?value='+escape(field.value)"
+                       onblur="validateField(this);" onchange="validateField(this);"
+                />
+                <div>
+                  <span class="width-validation-error-area" data-id="#{buildStatId}_buildStatWidth" style="display:inline-block;"></span>*
+                </div>
+                <input type="number" id="#{buildStatId}_buildStatHeight" name="buildStatHeight"
+                       size="3" value="#{buildStatHeight}" class="jenkins-input" min="100"
+                       checkUrl="'${rootURL}/plugin/global-build-stats/checkBuildStatHeight?value='+escape(field.value)"
+                       onblur="validateField(this);" onchange="validateField(this);"
+                />
+                <span class="height-validation-error-area" data-id="#{buildStatId}_buildStatHeight" style="display:inline-block;"></span>
+              </div>
+              <div class="gbs-form-row">
+                <span>${%Chart time scale}:</span>
+                <div class="jenkins-select gbs-select">
+                  <select id="#{buildStatId}_historicScale" class="jenkins-select__input"
+                          name="historicScale" checkUrl="'${rootURL}/plugin/global-build-stats/checkHistoricScale?value='+escape(field.value)"
+                          onchange="validateField(this); CURRENT_FORM.changeChartLengthUnit(this.value);">
+                    <j:forEach var="historicScale" items="${it.historicScales}" varStatus="status">
+                      <option value="${historicScale}">${historicScale.label}</option>
+                    </j:forEach>
+                  </select>
+                </div>
+                <span class="validation-error-area" data-id="#{buildStatId}_historicScale" style="display:inline-block;"></span>
+                <span>${%Chart time length}:</span>
+                <input type="number" id="#{buildStatId}_historicLength" name="historicLength"
+                       size="3" value="#{historicLength}" class="jenkins-input"
+                       checkUrl="'${rootURL}/plugin/global-build-stats/checkHistoricLength?value='+escape(field.value)"
+                       onblur="validateField(this);" onchange="validateField(this);"
+                />
+                <j:forEach var="historicScale" items="${it.historicScales}" varStatus="status">
+                  <span id="#{buildStatId}_${historicScale}" style="display:none">${historicScale.unitLabel}</span>
+                </j:forEach>
+                <span class="validation-error-area" data-id="#{buildStatId}_historicLength" style="display:inline-block;"></span>
+              </div>
+              <div class="gbs-form-row">${%Filters}:</div>
+              <div class="gbs-sub-config">
+                <div class="gbs-form-row">
+                  <span>${%Job filtering}:</span>
+                  <div class="jenkins-radio">
+                    <input type="radio" id="#{buildStatId}_jobFilteringType_ALL" checked="checked" name="jobFilteringType"
+                           value="${FIELD_FILTER_ALL}" class="jenkins-radio__input"
+                           onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_jobNameRegex', '#{buildStatId}_jobFilter');"/>
+                    <label for="#{buildStatId}_jobFilteringType_ALL" class="jenkins-radio__label">${%ALL Jobs}</label>
+                  </div>
+                  <div class="jenkins-radio">
+                    <input type="radio" id="#{buildStatId}_jobFilteringType_REGEX" name="jobFilteringType"
+                           value="${FIELD_FILTER_REGEX}" class="jenkins-radio__input"
+                           onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_jobNameRegex', '#{buildStatId}_jobFilter');"/>
+                    <label for="#{buildStatId}_jobFilteringType_REGEX" class="jenkins-radio__label">${%Job name regex}:</label>
+                  </div>
+                  <input type="text" id="#{buildStatId}_jobNameRegex" class="jenkins-input"
+                         disabled="true" name="jobNameRegex" size="10"
+                         onblur="document.getElementById('#{buildStatId}_jobFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';"/>
+                  <input id="#{buildStatId}_jobFilter" type="hidden" name="jobFilter" value="#{jobFilter}"/>
+                </div>
+                <div class="gbs-form-row">
+                  <span>${%Node filtering}:</span>
+                  <div class="jenkins-radio">
+                    <input type="radio" id="#{buildStatId}_nodeFilteringType_ALL" checked="checked" name="nodeFilteringType"
+                           value="${FIELD_FILTER_ALL}" class="jenkins-radio__input"
+                           onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_nodeNameRegex', '#{buildStatId}_nodeFilter');"/>
+                    <label for="#{buildStatId}_nodeFilteringType_ALL" class="jenkins-radio__label">${%ALL Nodes}</label>
+                  </div>
+                  <div class="jenkins-radio">
+                    <input type="radio" id="#{buildStatId}_nodeFilteringType_REGEXMASTER" name="nodeFilteringType"
+                           value="${NODE_MASTER_REGEX}" class="jenkins-radio__input"
+                           onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_nodeNameRegex', '#{buildStatId}_nodeFilter');"/>
+                    <label for="#{buildStatId}_nodeFilteringType_REGEXMASTER" class="jenkins-radio__label">${%Master only}</label>
+                  </div>
+                  <div class="jenkins-radio">
+                    <input type="radio" id="#{buildStatId}_nodeFilteringType_REGEX" name="nodeFilteringType"
+                           value="${FIELD_FILTER_REGEX}" class="jenkins-radio__input"
+                           onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_nodeNameRegex', '#{buildStatId}_nodeFilter');"/>
+                    <label for="#{buildStatId}_nodeFilteringType_REGEX" class="jenkins-radio__label">${%Node name regex}:</label>
+                  </div>
+                  <input type="text" id="#{buildStatId}_nodeNameRegex" class="jenkins-input"
+                         disabled="true" name="nodeNameRegex" size="10"
+                         onblur="document.getElementById('#{buildStatId}_nodeFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';"/>
+                  <input id="#{buildStatId}_nodeFilter" type="hidden" name="nodeFilter" value="#{nodeFilter}"/>
+                </div>
+                <div class="gbs-form-row">
+                  <span>${%Launcher filtering}:</span>
+                  <div class="jenkins-radio">
+                    <input type="radio" id="#{buildStatId}_launcherFilteringType_ALL" checked="checked" name="launcherFilteringType"
+                           value="${FIELD_FILTER_ALL}" class="jenkins-radio__input"
+                           onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_launcherNameRegex', '#{buildStatId}_launcherFilter');"/>
+                    <label for="#{buildStatId}_launcherFilteringType_ALL" class="jenkins-radio__label">${%ALL Users}</label>
+                  </div>
+                  <div class="jenkins-radio">
+                    <input type="radio" id="#{buildStatId}_launcherFilteringType_REGEXSYSTEM" name="launcherFilteringType"
+                           value="${LAUNCHER_SYSTEM_REGEX}" class="jenkins-radio__input"
+                           onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_launcherNameRegex', '#{buildStatId}_launcherFilter');"/>
+                    <label for="#{buildStatId}_launcherFilteringType_REGEXSYSTEM" class="jenkins-radio__label">${%System only}</label>
+                  </div>
+                  <div class="jenkins-radio">
+                    <input type="radio" id="#{buildStatId}_launcherFilteringType_REGEX" name="launcherFilteringType"
+                           value="${FIELD_FILTER_REGEX}" class="jenkins-radio__input"
+                           onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_launcherNameRegex', '#{buildStatId}_launcherFilter');"/>
+                    <label for="#{buildStatId}_launcherFilteringType_REGEX" class="jenkins-radio__label">${%Username regex}:</label>
+                  </div>
+                  <input type="text" id="#{buildStatId}_launcherNameRegex" class="jenkins-input"
+                         disabled="true" name="launcherNameRegex" size="10"
+                         onblur="document.getElementById('#{buildStatId}_launcherFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';"/>
+                  <input id="#{buildStatId}_launcherFilter" type="hidden" name="launcherFilter" value="#{launcherFilter}"/>
+                </div>
+                <div class="gbs-form-row">
+                  <span>${%Statuses taken into account}:</span>
+                  <f:checkbox value="true" id="#{buildStatId}_successShown" name="successShown" checked="true" title="${%Success}"/>
+                  <f:checkbox value="true" id="#{buildStatId}_failuresShown" name="failuresShown" checked="true" title="${%Failures}"/>
+                  <f:checkbox value="true" id="#{buildStatId}_unstablesShown" name="unstablesShown" checked="true" title="${%Unstables}"/>
+                  <f:checkbox value="true" id="#{buildStatId}_abortedShown" name="abortedShown" checked="true" title="${%Aborted}"/>
+                  <f:checkbox value="true" id="#{buildStatId}_notBuildsShown" name="notBuildsShown" title="${%Not Build}"/>
+                </div>
+              </div>
+              <div class="gbs-form-row">${%Elements displayed on chart}:</div>
+              <div class="gbs-sub-config">
+                <div class="gbs-form-row ">
+                  <f:checkbox value="true" id="#{buildStatId}_buildStatusesShown" name="buildStatusesShown" checked="true"
+                              title="${%Build statuses with Y Axis type}:"/>
+                  <div class="jenkins-select gbs-select">
+                    <select id="#{buildStatId}_yAxisChartType" class="jenkins-select__input"
+                            name="yAxisChartType" checkUrl="'${rootURL}/plugin/global-build-stats/checkYAxisChartType?value='+escape(field.value)"
+                            onchange="validateField(this);">
+                      <j:forEach var="yAxisChartType" items="${it.yAxisChartTypes}" varStatus="status">
+                        <option value="${yAxisChartType}">${yAxisChartType.label}</option>
+                      </j:forEach>
+                    </select>
+                  </div>
+                  <span class="validation-error-area" data-id="#{buildStatId}_yAxisChartType" style="display:inline-block;"/>
+                </div>
+                <div class="gbs-form-row">
+                  <f:checkbox value="true" id="#{buildStatId}_totalBuildTimeShown" name="totalBuildTimeShown" title="${%Total build time}" class="jenkins-!-margin-left-2"/>
+                </div>
+                <div class="gbs-form-row">
+                  <f:checkbox value="true" id="#{buildStatId}_averageBuildTimeShown" name="averageBuildTimeShown" title="${%Average build time}" class="jenkins-!-margin-left-2"/>
+                </div>
+              </div>
+            </div>
+            <input type="hidden" name="buildStatId" value="#{buildStatId}"/>
+            <button type="button" class="jenkins-button jenkins-!-margin-top-2 gbs-preview-button">${%Preview}</button>
+          </form>
+        </div>
+      </div>
+      <strong>${%Statistics}</strong>
+      <div id="buildStatConfigsContainer">
+        <j:if test="${empty(it.buildStatConfigsArrayed)}">
+          <em>${%No chart configured for the moment ...}
+            <a href="#" onclick="new BuildStatConfigForm(null).displayBuildStatConfigForm();">${%Create a new chart configuration}</a>
+          </em>
+        </j:if>
+      </div>
+
+      <div style="clear:both;" class="jenkins-!-padding-top-3">
+      <a name="RetentionStrategy"/>
+      <strong>${%Build Results retention strategies}</strong>
+      <br/>
+      <br/>
+      <form id="retentionStrategiesForm" action="updateRetentionStrategies" class="gbs-chart-config jenkins-!-margin-bottom-4">
+        <j:forEach var="strategy" items="${it.availableRetentionStrategies}">
+          <j:set var="strategySelected" value="${it.isStrategySelected(strategy.id)}"/>
+          <div class="gbs-form-row">
+            <f:checkbox name="retentionStrategies" id="${strategy.id}_checkbox" value="${strategy.id}" checked="${strategySelected}"/>
+            <st:include from="${it}" page="/hudson/plugins/global_build_stats/GlobalBuildStatsPlugin/retentionStrategies/${strategy.configPage}"/>
+          </div>
+        </j:forEach>
+        <div>
+        <button id="updateRetentionStrategies" type="button" class="jenkins-button jenkins-!-margin-top-2"
+                data-message="${%Retention strategies updated successfully !}">${%Update retention strategies}
+        </button>
+        </div>
+      </form>
+
+      <a name="Initialize"/>
+      <strong>${%Data Initialization}</strong>
+      <br/>
+      <br/>
+      <em>
+        ${%Click button below to initialize build statistics}
+        <br/>
+        ${%Job results read will be merged with already recorded job results.}
+        <br/>
+      </em>
+      <span id="initializeStatsMessage" style="color: rgb(52, 101, 0); display: none;">
+        <strong>${%Data successfully initialized !}</strong>&#160;
+        <j:if test="${!empty(it.buildStatConfigsArrayed)}">
+          <a href="#" onclick="window.location.href = ''; return false;">${%Refresh page}</a>
+        </j:if>
+        <br/>
+      </span>
+      <button type="button" class="jenkins-button" onclick="initializeStats();">${%Initialize stats}</button>
+      <div id="initializeStatsSpinner" class="spinner" style="display: none"/>
+      </div>
+    </l:main-panel>
+  </l:layout>
 </j:jelly>
