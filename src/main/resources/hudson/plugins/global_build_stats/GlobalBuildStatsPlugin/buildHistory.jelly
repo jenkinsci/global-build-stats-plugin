@@ -184,7 +184,7 @@
 	  		</j:when>
 	  		<j:otherwise>
         <t:setIconSize/>
-				<table id="projectstatus" class="jenkins-table jenkins-table--auto-width ${iconSize == '16x16' ? 'jenkins-table--small' : iconSize == '24x24' ? 'jenkins-table--medium' : ''}" data-icon-size-class="${iconSizeClass}">
+				<table id="projectstatus" class="jenkins-table jenkins-table--auto-width ${iconSize == '16x16' ? 'jenkins-table--small' : iconSize == '24x24' ? 'jenkins-table--medium' : ''} sortable" data-icon-size-class="${iconSizeClass}">
           <thead>
             <tr>
 			  			<th>${%Status}</th>
@@ -211,7 +211,7 @@
 				    				</j:otherwise>
 				    			</j:choose>
 				    		</td>
-				    		<td>
+				    		<td data="${jobResult.buildDate.timeInMillis}">
 				    			<j:choose>
 				    				<j:when test="${jobResult.buildAccessible}">
 						    			<a href="${rootURL}/${jobResult.jobUrl}${jobResult.buildNumber}/"><i:formatDate value="${jobResult.buildDate.time}" type="both" dateStyle="medium" timeStyle="medium"/></a>
@@ -221,7 +221,7 @@
 				    				</j:otherwise>
 				    			</j:choose>
 				    		</td>
-				    		<td>
+				    		<td data="${jobResult.duration}">
 				    			<j:choose>
 				    				<j:when test="${jobResult.durationEmpty}"><em>${%Data not available}</em></j:when>
 				    				<j:otherwise>${jobResult.durationString}</j:otherwise>
