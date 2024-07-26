@@ -111,8 +111,8 @@ public abstract class AbstractBuildStatChartDimension {
 	                
 	                StringBuilder sb = new StringBuilder()
 	                	.append("buildHistory?jobFilter=").append(URLEncoder.encode(config.getBuildFilters().getJobFilter()))
-	                	.append("&start=").append(range.getStart().getTimeInMillis() / 1000)
-	                	.append("&end=").append(range.getEnd().getTimeInMillis() / 1000)
+	                	.append("&start=").append(range.getStart().getTimeInMillis())
+	                	.append("&end=").append(range.getEnd().getTimeInMillis())
 	                	.append("&successShown=").append(successShown)
 	                	.append("&failuresShown=").append(failuresShown)
 	                	.append("&unstablesShown=").append(unstablesShown)
