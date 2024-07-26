@@ -22,7 +22,7 @@
 	<l:header>
     <link rel="stylesheet" href="${rootURL}/plugin/global-build-stats/css/global-build-stats.css" type="text/css"/>
 		<script src="${rootURL}/plugin/global-build-stats/scripts/global-build-stats/standardFunctions.js"></script>
-		<script>var startDate = ${searchCriteria.start / 1000}; var endDate = ${searchCriteria.end / 1000};</script>
+		<script>var startDate = ${searchCriteria.start}; var endDate = ${searchCriteria.end};</script>
 		<script type="text/javascript">
 			FIELD_FILTER_ALL = "${FIELD_FILTER_ALL}";
 			FIELD_FILTER_REGEX = "${FIELD_FILTER_REGEX}";
