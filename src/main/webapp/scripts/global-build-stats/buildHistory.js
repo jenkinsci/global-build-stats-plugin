@@ -10,7 +10,7 @@ Behaviour.specify("#startTimeDisplay, #endTimeDisplay", "gsb-date-inputs", 0, fu
     enableTime: true,
     wrap: true,
     clickOpens: false,
-    dateFormat: "U",
+    dateFormat: "u",
     static: true,
     time_24hr: true,
     onChange: verifyDates,

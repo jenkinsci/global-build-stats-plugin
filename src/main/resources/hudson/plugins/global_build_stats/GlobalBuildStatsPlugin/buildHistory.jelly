@@ -49,7 +49,7 @@
 	    <f:form name="searchBuildStat" action="buildHistory" method="get" class="globalBuildStatsForm jenkins-!-padding-bottom-3" id="searchBuildStat">
         <f:entry title="${%Start date}">
           <div id="startTimeDisplay">
-            <f:textbox id="timeStart" name="start" value="${searchCriteria.start / 1000}" data-input=""/>
+            <f:textbox id="timeStart" name="start" value="${searchCriteria.start}" data-input=""/>
             <button class="jenkins-button" type="button" data-toggle="" tooltip="Open date picker">
               <l:icon src="symbol-calendar-outline plugin-ionicons-api"/>
             </button>
@@ -57,7 +57,7 @@
         </f:entry>
         <f:entry title="${%End date}">
           <div id="endTimeDisplay">
-            <f:textbox id="timeEnd" name="end" value="${searchCriteria.end / 1000}" data-input=""/>
+            <f:textbox id="timeEnd" name="end" value="${searchCriteria.end}" data-input=""/>
             <button class="jenkins-button" type="button" data-toggle="" tooltip="Open date picker">
               <l:icon src="symbol-calendar-outline plugin-ionicons-api"/>
             </button>
