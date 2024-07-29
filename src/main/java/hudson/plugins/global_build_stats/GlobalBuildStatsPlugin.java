@@ -173,7 +173,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
 
     	@Override
         public String getIconFileName() {
-            return "/plugin/global-build-stats/icons/global-build-stats.png";
+            return "symbol-bar-chart-outline plugin-ionicons-api";
         }
 
     	@Override

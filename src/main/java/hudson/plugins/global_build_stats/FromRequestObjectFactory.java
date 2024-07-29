@@ -13,8 +13,8 @@ public class FromRequestObjectFactory {
 	public static BuildHistorySearchCriteria createBuildHistorySearchCriteria(StaplerRequest req){
 		BuildSearchCriteria criteria = createBuildSearchCriteria(req);
 		return new BuildHistorySearchCriteria(
-				Long.parseLong(req.getParameter("start")), 
-				Long.parseLong(req.getParameter("end")), 
+				Long.parseLong(req.getParameter("start")),
+				Long.parseLong(req.getParameter("end")),
 				criteria);
 	}
 	

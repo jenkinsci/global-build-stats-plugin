@@ -1,8 +1,8 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core">
-    ${%Automatically discard results older than}
-    <input type="text" id="${strategy.id}_days" name="discardResultsOlderThanDays" value="${strategy.days}" size="3" />
-    ${%days}<br/>
+    <span>${%Automatically discard results older than}</span>
+    <input type="number" id="${strategy.id}_days" name="discardResultsOlderThanDays" value="${strategy.days}" size="3" class="jenkins-input gbs-days" />
+    <span>${%days}</span>
     <script type="text/javascript">
         document.getElementById('${strategy.id}_checkbox').onchange = function(){
             document.getElementById('${strategy.id}_days').disabled = !document.getElementById('${strategy.id}_checkbox').checked;

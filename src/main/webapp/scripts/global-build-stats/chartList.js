@@ -54,48 +54,26 @@ function ajaxCall(callType, param, successCallback){
 	ajaxCall(callType, param, successCallback, false);
 }
 
-function ajaxCall(callType, param, successCallback, skipLoading){
-	
-	if(!skipLoading){
-		YAHOO.namespace("global.build.stat.wait");
-		YAHOO.global.build.stat.wait.modalPopup =  
-	        new YAHOO.widget.Panel("wait",   
-	            { width:"240px",
-	              fixedcenter:true,  
-	              close:false,  
-	              draggable:false,  
-	              zindex:4, 
-	              modal:true
-	            }
-	        ); 
-	        
-		YAHOO.global.build.stat.wait.modalPopup.setHeader(document.getElementById('waitMessage').innerHTML);
-		YAHOO.global.build.stat.wait.modalPopup.setBody(getTemplateContent('loadingTemplate')); 
-	}
-			
-	var ajaxCallParams = {
-		onSuccess: function(ret) {
-			successCallback.call(null, ret);
-			if(!skipLoading){
-				YAHOO.global.build.stat.wait.modalPopup.hide();
-			}
-		},/* For unknown reasons, an exception is thrown after the onSuccess process .. :(
-		onException: function(transport, ex) { 
+
+function createAjaxCallParams(successCallback) {
+  return {
+    onSuccess: function(ret) {
+      successCallback.call(null, ret);
+    },/* For unknown reasons, an exception is thrown after the onSuccess process .. :(
+		onException: function(transport, ex) {
 			alert('exception : '+ex);
-			if(!skipLoading){
-				YAHOO.global.build.stat.wait.modalPopup.hide();
-			}
 		    throw ex;
 		},*/
-		onFailure: function(transport) { 
-			alert('failure : '+toJsonWorkaround(transport));
-			if(!skipLoading){
-				YAHOO.global.build.stat.wait.modalPopup.hide();
-			}
-		}
-	};
+    onFailure: function(transport) {
+      dialog.alert('failure : '+ JSON.stringify(transport));
+    }
+  };
+}
+
+function ajaxCall(callType, param, successCallback, skipLoading){
+
+	var ajaxCallParams = createAjaxCallParams(successCallback);
 	
-	YAHOO.global.build.stat.wait.modalPopup.render(document.body);
 	if(callType == 'form'){
 		const form = document.getElementById(param);
 		ajaxRequest(form.action, ajaxCallParams, new URLSearchParams(new FormData(form)).toString());
@@ -106,11 +84,11 @@ function ajaxCall(callType, param, successCallback, skipLoading){
 
 function deleteBuildStat(buildStatId){
 	var deletionConfirmationMessage = document.getElementById('deletionConfirmationMessage').innerHTML;
-	if(confirm(deletionConfirmationMessage)){
+	dialog.confirm(deletionConfirmationMessage, {type: 'destructive'}).then(() => {
 		ajaxCall('link', 'deleteConfiguration?buildStatId='+buildStatId, function(transport) {
 		  	BUILD_STAT_CONFIGS.deleteChart(buildStatId);
 		});
-	}
+	});
 }
 
 function ajaxRequest(url, ajaxCallParams, body){
@@ -133,16 +111,13 @@ function ajaxRequest(url, ajaxCallParams, body){
 	});
 }
 
-function toJsonWorkaround(obj){
-	// TODO simplify when Prototype.js is removed
-	if (Object.toJSON) {
-		// Prototype.js
-		return Object.toJSON(obj);
-	} else {
-		// Standard
-		return JSON.stringify(obj);
-	}
+
+function createElementFromHtml(html) {
+  const template = document.createElement("template");
+  template.innerHTML = html.trim();
+  return template.content.firstElementChild;
 }
+
 
 function evaluateTemplate(content, context){
 	return content.replace(
@@ -172,3 +147,15 @@ function escapeHTML(str){
 		}[tag])
 	);
 }
+
+function updateRetentionStrategies(btn){
+  ajaxCall('form', 'retentionStrategiesForm', function(ret){
+    notificationBar.show(btn.dataset.message, notificationBar.SUCCESS);
+  }, true);
+}
+
+Behaviour.specify("#updateRetentionStrategies", "updateRetentionStrategies", 0, function(btn) {
+  btn.onclick = function() {
+    updateRetentionStrategies(btn);
+  }
+});

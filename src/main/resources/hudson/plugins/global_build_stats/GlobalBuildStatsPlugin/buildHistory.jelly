@@ -20,21 +20,7 @@
     </j:invoke>
 
 	<l:header>
-		<!-- Including calendar yui 2.5.1 module ... -->
-		<!--CSS file (default YUI Sam Skin) -->
-		<link rel="stylesheet" type="text/css" href="${rootURL}/plugin/global-build-stats/scripts/yui/calendar/assets/skins/sam/calendar.css" />
-		<!-- Dependencies -->
-		<script src="${rootURL}/plugin/global-build-stats/scripts/yui/yahoo-dom-event/yahoo-dom-event.js"></script>
-		<!-- Source file -->
-		<script src="${rootURL}/plugin/global-build-stats/scripts/yui/calendar/calendar-${yuiSuffix}.js"></script>
-		<script src="${rootURL}/plugin/global-build-stats/scripts/yui/datasource/datasource-${yuiSuffix}.js"></script>
-		<style>
-/* Clear calendar's float */
-.bd:after {content:".";display:block;clear:left;height:0;visibility:hidden;}
-
-/* Have calendar squeeze upto bd bounding box */
-.bd {padding:0;}
-		</style>
+    <link rel="stylesheet" href="${rootURL}/plugin/global-build-stats/css/global-build-stats.css" type="text/css"/>
 		<script src="${rootURL}/plugin/global-build-stats/scripts/global-build-stats/standardFunctions.js"></script>
 		<script>var startDate = ${searchCriteria.start}; var endDate = ${searchCriteria.end};</script>
 		<script type="text/javascript">
@@ -49,110 +35,108 @@
 		<script src="${rootURL}/plugin/global-build-stats/scripts/global-build-stats/buildHistory.js"></script>
 	</l:header>
 	
-	<l:side-panel>
+	<l:side-panel sticky="true">
 	  <l:tasks>
-	    <l:task icon="icon-up icon-md" href="${rootURL}/" title="${%Back to Dashboard}" />
-	    <l:task icon="icon-up icon-md" href="${rootURL}/plugin/global-build-stats/" title="${%Back to Global Build Stats}" />
+	    <l:task icon="symbol-bar-chart-outline plugin-ionicons-api" href="${rootURL}/plugin/global-build-stats/" title="${%Back to Global Build Stats}" />
 	  </l:tasks>
 	</l:side-panel>
 
 	<l:main-panel>
-	    <h1><img src="${rootURL}/plugin/global-build-stats/icons/global-build-stats.png" /> ${%Global Build Search} </h1>
-	    <hr />
+    <st:adjunct includes="io.jenkins.plugins.flatpickr"/>
+    <l:app-bar title="${%Global Build Search}"/>
 	  
-	  	<strong>${%Search criteria}</strong><br/>
-	    <form name="searchBuildStat" action="buildHistory" method="get" class="globalBuildStatsForm" id="searchBuildStat">
-	      <label for="start">${%Start date} : </label><span id="startTimeDisplay"></span><input type="hidden" id="timeStart" name="start" />
-	      <button type="button" id="showStartCalendar" title="${%Show Calendar}"><img src="${rootURL}/plugin/global-build-stats/icons/yui/calendar/assets/calbtn.gif" width="18" height="18" alt="Calendar" /></button>
-		  <div id="startCalendarContainer"><div class="hd">${%Start date}</div> 
-		   <div class="bd"><div id="startCalendar" style="border:none;padding:1em"></div></div> 
-		  </div><br/>
-	      <label for="end">${%End date} : </label><span id="endTimeDisplay"></span><input type="hidden" id="timeEnd" name="end" />
-	      <button type="button" id="showEndCalendar" title="Show Calendar"><img src="${rootURL}/plugin/global-build-stats/icons/yui/calendar/assets/calbtn.gif" width="18" height="18" alt="Calendar" /></button>
-		  <div id="endCalendarContainer"><div class="hd">${%End date}</div> 
-		   <div class="bd"><div id="endCalendar" style="border:none;padding:1em"></div></div> 
-		  </div>
-	      <span id="datesError" class="width-validation-error-area" style="display:inline-block;"></span><br/>
-	      ${%Filters} :
-	      <ul style="margin-top: 4px;">
-	      	<li>
-		      ${%Job filtering} : <input type="radio" id="searchBuild_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="${FIELD_FILTER_ALL}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_jobNameRegex', 'searchBuild_jobFilter');" />${%ALL Jobs}
-		      <input type="radio" id="searchBuild_jobFilteringType_REGEX" name="jobFilteringType" value="${FIELD_FILTER_REGEX}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_jobNameRegex', 'searchBuild_jobFilter');" />
-		      ${%Job name regex} :
-		      <input type="text" id="searchBuild_jobNameRegex" 
-		      		 disabled="true" name="jobNameRegex" size="10"
-		      		 onblur="document.getElementById('searchBuild_jobFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
-		      />
-		      <input id="searchBuild_jobFilter" type="hidden" name="jobFilter" value="${escapedJobFilter}" />
-		    </li>
-		    <li>
-		      ${%Node filtering} : <input type="radio" id="searchBuild_nodeFilteringType_ALL" checked="checked" name="nodeFilteringType" value="${FIELD_FILTER_ALL}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_nodeNameRegex', 'searchBuild_nodeFilter');" />${%ALL Nodes}
-		      <input type="radio" id="searchBuild_nodeFilteringType_REGEXMASTER" name="nodeFilteringType" value="${NODE_MASTER_REGEX}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_nodeNameRegex', 'searchBuild_nodeFilter');" />
-		      ${%Master only} :
-		      <input type="radio" id="searchBuild_nodeFilteringType_REGEX" name="nodeFilteringType" value="${FIELD_FILTER_REGEX}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_nodeNameRegex', 'searchBuild_nodeFilter');" />
-		      ${%Node name regex} :
-		      <input type="text" id="searchBuild_nodeNameRegex" 
-		      		 disabled="true" name="nodeNameRegex" size="10"
-		      		 onblur="document.getElementById('searchBuild_nodeFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
-		      />
-		      <input id="searchBuild_nodeFilter" type="hidden" name="nodeFilter" value="${escapedNodeFilter}" />
-	      	</li>
-		    <li>
-		      ${%Launcher filtering} : <input type="radio" id="searchBuild_launcherFilteringType_ALL" checked="checked" name="launcherFilteringType" value="${FIELD_FILTER_ALL}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_launcherNameRegex', 'searchBuild_launcherFilter');" />${%ALL Users}
-		      <input type="radio" id="searchBuild_launcherFilteringType_REGEXSYSTEM" name="launcherFilteringType" value="${LAUNCHER_SYSTEM_REGEX}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_launcherNameRegex', 'searchBuild_launcherFilter');" />
-		      ${%System only} :
-		      <input type="radio" id="searchBuild_launcherFilteringType_REGEX" name="launcherFilteringType" value="${FIELD_FILTER_REGEX}" onchange="fieldFilterTypeSelected(this.value, 'searchBuild_launcherNameRegex', 'searchBuild_launcherFilter');" />
-		      ${%Username regex} :
-		      <input type="text" id="searchBuild_launcherNameRegex" 
-		      		 disabled="true" name="launcherNameRegex" size="10"
-		      		 onblur="document.getElementById('searchBuild_launcherFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';" 
-		      />
-		      <input id="searchBuild_launcherFilter" type="hidden" name="launcherFilter" value="${escapedLauncherFilter}" />
-	      	</li>
-	      	<li>
-		      ${%Statuses taken into account} :
-		      <j:choose>
-		      	<j:when test="${! searchCriteria.buildFilters.successShown}">
-			      <input type="checkbox" value="true" name="successShown" />${%Success}
-		      	</j:when>
-		      	<j:otherwise>
-			      <input type="checkbox" value="true" name="successShown" checked="checked" />${%Success}
-		      	</j:otherwise>
-		      </j:choose>
-		      <j:choose>
-		      	<j:when test="${! searchCriteria.buildFilters.failuresShown}">
-			      <input type="checkbox" value="true" name="failuresShown" />${%Failures}
-		      	</j:when>
-		      	<j:otherwise>
-		    	  <input type="checkbox" value="true" name="failuresShown" checked="checked" />${%Failures}
-		      	</j:otherwise>
-		      </j:choose>
-		      <j:choose>
-		      	<j:when test="${! searchCriteria.buildFilters.unstablesShown}">
-			      <input type="checkbox" value="true" name="unstablesShown" />${%Unstables}
-		      	</j:when>
-		      	<j:otherwise>
-		    	  <input type="checkbox" value="true" name="unstablesShown" checked="checked" />${%Unstables}
-		      	</j:otherwise>
-		      </j:choose>
-		      <j:choose>
-		      	<j:when test="${! searchCriteria.buildFilters.abortedShown}">
-		    	  <input type="checkbox" value="true" name="abortedShown" />${%Aborted}
-		      	</j:when>
-		      	<j:otherwise>
-			      <input type="checkbox" value="true" name="abortedShown" checked="checked" />${%Aborted}
-		      	</j:otherwise>
-		      </j:choose>
-		      <j:choose>
-		      	<j:when test="${searchCriteria.buildFilters.notBuildShown}">
-			      <input type="checkbox" value="true" name="notBuildShown" checked="checked" />${%Not Build}
-		      	</j:when>
-		      	<j:otherwise>
-		    	  <input type="checkbox" value="true" name="notBuildShown" />${%Not Build}
-		      	</j:otherwise>
-		      </j:choose>
-	      	</li>
-	      </ul>
+	  	<f:section title="${%Search criteria}">
+	    <f:form name="searchBuildStat" action="buildHistory" method="get" class="globalBuildStatsForm jenkins-!-padding-bottom-3" id="searchBuildStat">
+        <f:entry title="${%Start date}">
+          <div id="startTimeDisplay">
+            <f:textbox id="timeStart" name="start" value="${searchCriteria.start}" data-input=""/>
+            <button class="jenkins-button" type="button" data-toggle="" tooltip="Open date picker">
+              <l:icon src="symbol-calendar-outline plugin-ionicons-api"/>
+            </button>
+          </div>
+        </f:entry>
+        <f:entry title="${%End date}">
+          <div id="endTimeDisplay">
+            <f:textbox id="timeEnd" name="end" value="${searchCriteria.end}" data-input=""/>
+            <button class="jenkins-button" type="button" data-toggle="" tooltip="Open date picker">
+              <l:icon src="symbol-calendar-outline plugin-ionicons-api"/>
+            </button>
+          </div>
+        </f:entry>
+	      <div id="datesError" class="width-validation-error-area"></div>
+        <f:entry title="${%Filters}">
+          <div class="gbs-sub-config">
+            <div class="gbs-form-row">
+              <span>${%Job filtering}:</span>
+              <div class="jenkins-radio">
+                <input type="radio" id="searchBuild_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="${FIELD_FILTER_ALL}" class="jenkins-radio__input"
+                     onchange="fieldFilterTypeSelected(this.value, 'searchBuild_jobNameRegex', 'searchBuild_jobFilter');" />
+                <label for="searchBuild_jobFilteringType_ALL" class="jenkins-radio__label">${%ALL Jobs}</label>
+              </div>
+              <div class="jenkins-radio">
+                <input type="radio" id="searchBuild_jobFilteringType_REGEX" name="jobFilteringType" value="${FIELD_FILTER_REGEX}" class="jenkins-radio__input"
+                       onchange="fieldFilterTypeSelected(this.value, 'searchBuild_jobNameRegex', 'searchBuild_jobFilter');" />
+                <label for="searchBuild_jobFilteringType_REGEX" class="jenkins-radio__label">${%Job name regex}:</label>
+              </div>
+              <input type="text" id="searchBuild_jobNameRegex" class="jenkins-input"
+                     disabled="true" name="jobNameRegex" size="10"
+                     onblur="document.getElementById('searchBuild_jobFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';"/>
+              <input id="searchBuild_jobFilter" type="hidden" name="jobFilter" value="${escapedJobFilter}" />
+            </div>
+            <div class="gbs-form-row">
+              <span>${%Node filtering}:</span>
+              <div class="jenkins-radio">
+                <input type="radio" id="searchBuild_nodeFilteringType_ALL" checked="checked" name="nodeFilteringType" value="${FIELD_FILTER_ALL}" class="jenkins-radio__input"
+                       onchange="fieldFilterTypeSelected(this.value, 'searchBuild_nodeNameRegex', 'searchBuild_nodeFilter');" />
+                <label for="searchBuild_nodeFilteringType_ALL" class="jenkins-radio__label">${%ALL Nodes}</label>
+              </div>
+              <div class="jenkins-radio">
+                <input type="radio" id="searchBuild_nodeFilteringType_REGEXMASTER" name="nodeFilteringType" value="${NODE_MASTER_REGEX}" class="jenkins-radio__input"
+                       onchange="fieldFilterTypeSelected(this.value, 'searchBuild_nodeNameRegex', 'searchBuild_nodeFilter');" />
+                <label for="searchBuild_nodeFilteringType_REGEXMASTER" class="jenkins-radio__label">${%Controller only}</label>
+              </div>
+              <div class="jenkins-radio">
+                <input type="radio" id="searchBuild_nodeFilteringType_REGEX" name="nodeFilteringType" value="${FIELD_FILTER_REGEX}" class="jenkins-radio__input"
+                       onchange="fieldFilterTypeSelected(this.value, 'searchBuild_nodeNameRegex', 'searchBuild_nodeFilter');" />
+                <label for="searchBuild_nodeFilteringType_REGEX" class="jenkins-radio__label">${%Node name regex}:</label>
+              </div>
+              <input type="text" id="searchBuild_nodeNameRegex" class="jenkins-input"
+                 disabled="true" name="nodeNameRegex" size="10"
+                 onblur="document.getElementById('searchBuild_nodeFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';"/>
+              <input id="searchBuild_nodeFilter" type="hidden" name="nodeFilter" value="${escapedNodeFilter}" />
+            </div>
+            <div class="gbs-form-row">
+              ${%Launcher filtering}:
+              <div class="jenkins-radio">
+                <input type="radio" id="searchBuild_launcherFilteringType_ALL" checked="checked" name="launcherFilteringType" value="${FIELD_FILTER_ALL}" class="jenkins-radio__input"
+                       onchange="fieldFilterTypeSelected(this.value, 'searchBuild_launcherNameRegex', 'searchBuild_launcherFilter');" />
+                <label for="searchBuild_launcherFilteringType_ALL" class="jenkins-radio__label">${%ALL Users}</label>
+              </div>
+              <div class="jenkins-radio">
+                <input type="radio" id="searchBuild_launcherFilteringType_REGEXSYSTEM" name="launcherFilteringType" value="${LAUNCHER_SYSTEM_REGEX}" class="jenkins-radio__input"
+                       onchange="fieldFilterTypeSelected(this.value, 'searchBuild_launcherNameRegex', 'searchBuild_launcherFilter');" />
+                <label for="searchBuild_launcherFilteringType_REGEXSYSTEM" class="jenkins-radio__label">${%System only}</label>
+              </div>
+              <div class="jenkins-radio">
+                <input type="radio" id="searchBuild_launcherFilteringType_REGEX" name="launcherFilteringType" value="${FIELD_FILTER_REGEX}" class="jenkins-radio__input"
+                       onchange="fieldFilterTypeSelected(this.value, 'searchBuild_launcherNameRegex', 'searchBuild_launcherFilter');" />
+                <label for="searchBuild_launcherFilteringType_REGEX" class="jenkins-radio__label">${%Username regex}:</label>
+              </div>
+              <input type="text" id="searchBuild_launcherNameRegex" class="jenkins-input"
+                   disabled="true" name="launcherNameRegex" size="10"
+                   onblur="document.getElementById('searchBuild_launcherFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';"/>
+              <input id="searchBuild_launcherFilter" type="hidden" name="launcherFilter" value="${escapedLauncherFilter}" />
+            </div>
+            <div class="gbs-form-row">
+              <span>${%Statuses taken into account}:</span>
+              <f:checkbox title="${%Success}" value="true" name="successShown" checked="${searchCriteria.buildFilters.successShown}"/>
+              <f:checkbox title="${%Failures}" value="true" name="failuresShown" checked="${searchCriteria.buildFilters.failuresShown}"/>
+              <f:checkbox title="${%Unstables}" value="true" name="unstablesShown" checked="${searchCriteria.buildFilters.unstablesShown}"/>
+              <f:checkbox title="${%Aborted}" value="true" name="abortedShown" checked="${searchCriteria.buildFilters.abortedShown}"/>
+              <f:checkbox title="${%Not Build}" value="true" name="notBuildShown" checked="${searchCriteria.buildFilters.notBuildShown}"/>
+            </div>
+          </div>
+        </f:entry>
 		  <script type="text/javascript"><![CDATA[
 		  if(document.getElementById('searchBuild_jobFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
 		  	  document.getElementById('searchBuild_jobFilteringType_REGEX').checked = 'checked';
@@ -190,51 +174,44 @@
 		  	  document.getElementById('searchBuild_launcherFilteringType_ALL').onchange();
 		  }
 		  ]]></script>
-	      <input type="submit" class="submit-button" value="${%Search}" name="Submit" />
-	    </form>
-	  	
-	  	<hr />
-	  	<strong>${%Search results}</strong><br/>
+        <f:submit value="${%Search}" name="Submit"/>
+	    </f:form>
+      </f:section>
+	  	<f:section title="Search Results">
 	  	<j:choose>
 	  		<j:when test="${empty(jobResults)}">
 	  			<em>${%No job found.}</em>
 	  		</j:when>
 	  		<j:otherwise>
-				<table id="projectstatus" class="sortable pane bigtable">
-			        <tr style="border-top: 0px;">
+        <t:setIconSize/>
+				<table id="projectstatus" class="jenkins-table jenkins-table--auto-width ${iconSize == '16x16' ? 'jenkins-table--small' : iconSize == '24x24' ? 'jenkins-table--medium' : ''} sortable" data-icon-size-class="${iconSizeClass}">
+          <thead>
+            <tr>
 			  			<th>${%Status}</th>
 			  			<th>${%Job name}</th>
-			  			<th>#</th>
 			  			<th>${%Date}</th>
 			  			<th>${%Duration}</th>
 			  			<th>${%Node name}</th>
 			  			<th>${%Launched by}</th>
-			        </tr>
+              <th class="jenkins-table__cell--tight"/>
+			      </tr>
+          </thead>
+          <tbody>
 				    <j:forEach var="jobResult" items="${jobResults}">
-				    	<tr class="build-row">
-				    		<td class="pane">${jobResult.result.label}</td>
-				    		<td class="pane">
+				    	<tr>
+				    		<td>${jobResult.result.label}</td>
+				    		<td>
 				    			<j:choose>
 				    				<j:when test="${jobResult.jobAccessible}">
-				    					<a href="${rootURL}/${jobResult.jobUrl}">${jobResult.jobName}</a>
+				    					<a href="${rootURL}/${jobResult.jobUrl}" class="jenkins-table__link model-link">${jobResult.jobName}</a>
+                      <a href="${rootURL}/${jobResult.jobUrl}${jobResult.buildNumber}/" class="jenkins-table__link model-link">#${jobResult.buildNumber}</a>
 				    				</j:when>
 				    				<j:otherwise>
-				    					${jobResult.jobName}
+				    					${jobResult.jobName} #${jobResult.buildNumber}
 				    				</j:otherwise>
 				    			</j:choose>
 				    		</td>
-				    		<td class="pane">
-				    			<j:choose>
-				    				<j:when test="${jobResult.buildAccessible}">
-						    			<a href="${rootURL}/${jobResult.jobUrl}${jobResult.buildNumber}/console"><l:icon class="icon-terminal icon-lg"/><br/></a>
-						    			<a href="${rootURL}/${jobResult.jobUrl}${jobResult.buildNumber}/">#${jobResult.buildNumber}</a>
-				    				</j:when>
-				    				<j:otherwise>
-				    					#${jobResult.buildNumber}
-				    				</j:otherwise>
-				    			</j:choose>
-				    		</td>
-				    		<td class="pane">
+				    		<td data="${jobResult.buildDate.timeInMillis}">
 				    			<j:choose>
 				    				<j:when test="${jobResult.buildAccessible}">
 						    			<a href="${rootURL}/${jobResult.jobUrl}${jobResult.buildNumber}/"><i:formatDate value="${jobResult.buildDate.time}" type="both" dateStyle="medium" timeStyle="medium"/></a>
@@ -244,32 +221,44 @@
 				    				</j:otherwise>
 				    			</j:choose>
 				    		</td>
-				    		<td class="pane">
+				    		<td data="${jobResult.duration}">
 				    			<j:choose>
 				    				<j:when test="${jobResult.durationEmpty}"><em>${%Data not available}</em></j:when>
 				    				<j:otherwise>${jobResult.durationString}</j:otherwise>
 				    			</j:choose>
 				    		</td>
-				    		<td class="pane">
+				    		<td>
 				    			<j:choose>
 				    				<j:when test="${jobResult.nodeNameEmpty}"><em>${%Data not available}</em></j:when>
 				    				<j:otherwise>${jobResult.nodeName}</j:otherwise>
 				    			</j:choose>
 				    		</td>
-				    		<td class="pane">
+				    		<td>
 				    			<j:choose>
 				    				<j:when test="${jobResult.userNameEmpty}"><em>${%Data not available}</em></j:when>
 				    				<j:otherwise>${jobResult.userName}</j:otherwise>
 				    			</j:choose>
 				    		</td>
+                <td class="jenkins-table__cell--tight">
+                  <j:if test="${jobResult.buildAccessible}">
+                    <div class="jenkins-table__cell__button-wrapper">
+                      <a href="${rootURL}/${jobResult.jobUrl}${jobResult.buildNumber}/console" class="jenkins-table__button">
+                        <l:icon src="symbol-terminal"/>
+                      </a>
+                    </div>
+                  </j:if>
+                </td>
 				    	</tr>
 			  		</j:forEach>
+          </tbody>
 			  	</table>
+          <t:iconSize/>
 	  		</j:otherwise>
 	  	</j:choose>
-	  	<div style="display:none" id="jsTemplates">
+	  	<div class="jenkins-hidden" id="jsTemplates">
 		  	<span id="swapDatesErrorMessage">${%Start date is greater than End date}</span>
 		</div>
+      </f:section>
 	</l:main-panel>
 </l:layout>
 </j:jelly>

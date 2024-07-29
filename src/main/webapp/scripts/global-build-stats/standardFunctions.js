@@ -25,9 +25,8 @@ function initializeRegexField(targetField, regex){
 // So registerValidator implementation is recopied here
 function validateField(field){
     var validationErrorAreaClassName = field.getAttribute("validationErrorAreaClassName");
-    if (!validationErrorAreaClassName) validationErrorAreaClassName = "validation-error-area";
-    
-    var targetValidationError = findFollowingSPAN(field, validationErrorAreaClassName);
+
+    var targetValidationError = findFollowingSPAN(field);
     var targetUrl = function() {
         return eval(field.getAttribute("checkUrl"));
     };
@@ -46,12 +45,9 @@ function validateField(field){
     });
 }
 
-function findFollowingSPAN(input, className) {
-    var elem = input.nextSibling;
-    while (elem.tagName != "SPAN" || elem.className != className)
-        elem = elem.nextSibling;
-
-    return elem;
+function findFollowingSPAN(input) {
+    const container = input.closest(".gbs-form-row");
+    return container.querySelector(`span[data-id="${input.id}"`)
 }
 
 function isDivErrorPresentInForm(myForm){
@@ -76,7 +72,7 @@ var myHudsonRules = {
 
 function generateErrorMessage(message){
 	// TODO: fix this "6d8c7ad0" absolute link !
-	return "<div class=\"error\"><img src=\"/static/6d8c7ad0/images/none.gif\" height=\"16\" width=\"1\">"+message+"</div>";
+	return `<div class="error jenkins-!-margin-bottom-3">${message}</div>`;
 }
 
 Behaviour.register(Object.assign(hudsonRules, myHudsonRules));

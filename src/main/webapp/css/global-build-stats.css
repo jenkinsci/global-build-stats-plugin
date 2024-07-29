@@ -1,0 +1,59 @@
+.gbs-chart-buttons {
+  display: flex;
+  gap: 5px;
+  flex-direction: column;
+  width: fit-content;
+}
+
+.flatpickr-wrapper {
+  display: flex!important;
+  gap: 5px;
+  flex-direction: row-reverse;
+  justify-content: start;
+}
+
+.flatpickr-wrapper > input {
+  width: fit-content;
+}
+
+.gbs-form-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.gbs-form-row .jenkins-radio {
+  margin-bottom: 0!important;
+}
+
+.gbs-form-row label {
+  font-weight: revert;
+}
+
+.gbs-form-row .jenkins-input {
+  width: 200px;
+}
+
+.gbs-form-row .jenkins-input[type="number"] {
+  width: 80px;
+}
+
+.gbs-chart-config > div+div,
+.gbs-sub-config > div+div {
+  margin-top: 5px;
+}
+
+.gbs-sub-config {
+  margin-left: 10px;
+  margin-top: 0!important;
+}
+
+.gbs-filter-list-checkboxes > li::before {
+  content: "";
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.gbs-select {
+  width: 170px!important;
+}
