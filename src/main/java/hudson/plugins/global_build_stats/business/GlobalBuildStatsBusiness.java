@@ -1,9 +1,6 @@
 package hudson.plugins.global_build_stats.business;
 
-import hudson.model.TopLevelItem;
-import hudson.model.AbstractProject;
 import hudson.model.Hudson;
-import hudson.model.Item;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
@@ -34,8 +31,6 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
-
-import com.cloudbees.hudson.plugins.folder.Folder;
 
 public class GlobalBuildStatsBusiness {
 
@@ -96,29 +91,18 @@ public class GlobalBuildStatsBusiness {
         	@Override
             public void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin) {
 
-                List<JobBuildResult> jobBuildResultsRead = new ArrayList<JobBuildResult>();
-                for (TopLevelItem item : Hudson.getInstance().getItems()) {
-                	if (item instanceof Folder){
-                		Folder f = (Folder)item;
-                		for (TopLevelItem i : f.getItems()){
-                			handleItem(jobBuildResultsRead,i);
-                		}
-                	}
-                    if (item instanceof AbstractProject) {
-                    	handleItem(jobBuildResultsRead, item);
-                    }
-                }
+                List<JobBuildResult> jobBuildResultsRead = Hudson.get().getAllItems(Job.class).stream()
+                        // Cast to Job<?, ?> is necessary due to raw type returned from getAllItems
+                        .map(job -> (Job<?, ?>) job)
+                        .map(Job::getBuilds)
+                        .flatMap(Collection::stream)
+                        .map(JobBuildResultFactory.INSTANCE::createJobBuildResult)
+                        .collect(java.util.stream.Collectors.toList());
 
                 plugin.getJobBuildResultsSharder().queueResultsToAdd(
                         CollectionsUtil.<JobBuildResult>minus(jobBuildResultsRead, plugin.getJobBuildResults()));
             }
         });
-	}
-	
-	public void handleItem(List<JobBuildResult> results, TopLevelItem item){
-		if (item instanceof AbstractProject){
-			addBuildsFrom(results, (AbstractProject)item);
-		}
 	}
 	
 	public JFreeChart createChart(BuildStatConfiguration config){
@@ -365,19 +349,6 @@ public class GlobalBuildStatsBusiness {
 		}
 		
 	    return dimensions;
-	}
-	
-	private static void addBuild(List<JobBuildResult> jobBuildResultsRead, Run<?, ?> build){
-		jobBuildResultsRead.add(JobBuildResultFactory.INSTANCE.createJobBuildResult(build));
-	}
-	
-	private static void addBuildsFrom(List<JobBuildResult> jobBuildResultsRead, AbstractProject project){
-        List<Run<?, ?>> builds = project.getBuilds();
-        Iterator<Run<?, ?>> buildIterator = builds.iterator();
-
-        while (buildIterator.hasNext()) {
-        	addBuild(jobBuildResultsRead, buildIterator.next());
-        }
 	}
 	
 	protected static List<JobBuildResult> mergeJobBuildResults(List<JobBuildResult> existingJobResults, List<JobBuildResult> jobResultsToMerge){
