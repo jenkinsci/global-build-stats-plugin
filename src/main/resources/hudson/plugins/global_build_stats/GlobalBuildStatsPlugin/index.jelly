@@ -10,8 +10,8 @@
 
     <l:side-panel sticky="true">
       <l:tasks>
-        <l:task icon="symbol-bar-chart-outline plugin-ionicons-api" href="#"
-                onclick="new BuildStatConfigForm(null).displayBuildStatConfigForm(); return false;" title="${%Create new chart}"/>
+        <l:task icon="symbol-bar-chart-outline plugin-ionicons-api" href="#" data-callback="newBuildStatConfigForm"
+                title="${%Create new chart}"/>
         <l:task icon="icon-gear2 icon-md" href="#RetentionStrategy" title="${%Manage retention strategies}"/>
         <l:task icon="icon-gear2 icon-md" href="#Initialize" title="${%Data Initialization}"/>
       </l:tasks>
@@ -23,39 +23,20 @@
       <script src="${rootURL}/plugin/global-build-stats/scripts/global-build-stats/chartList.js"></script>
       <script src="${rootURL}/plugin/global-build-stats/scripts/global-build-stats/BuildStatConfigs.js"></script>
       <script src="${rootURL}/plugin/global-build-stats/scripts/global-build-stats/BuildStatConfigForm.js"></script>
-      <script type="text/javascript"><![CDATA[
-        BUILD_STAT_CONTAINER_ID_PREFIX = "container_buildStatConfig_";
-        var CURRENT_FORM = null;
-
-        // Called after button "initialize stats" is clicked
-        function initializeStats(){
-          ajaxCall('link', 'recordBuildInfos', function(transport) {
-            document.getElementById('initializeStatsMessage').style.display = "inline";
-          });
+      <script type="application/json" id="gbs-constants">
+        {
+          "CHART_LENGTH_UNITS": [
+            <j:forEach var="historicScale" items="${it.historicScales}" varStatus="status">
+              "${historicScale}" <j:if test="${!status.last}">,</j:if>
+            </j:forEach>
+          ],
+          "FIELD_FILTER_ALL": "${FIELD_FILTER_ALL}",
+          "FIELD_FILTER_REGEX": "${FIELD_FILTER_REGEX}",
+          "LAUNCHER_SYSTEM_REGEX": "${LAUNCHER_SYSTEM_REGEX}",
+          "NODE_MASTER_REGEX": "${NODE_MASTER_REGEX}"
         }
-
-
-        var BUILD_STAT_CONFIGS = new BuildStatConfigs();
-        window.addEventListener('load', function(){
-          ajaxCall('link', rootURL+'/plugin/global-build-stats/api/json?depth=2', function(ret) {
-            var buildStat = eval('('+ret.responseText+')');
-            for(i=0; i<buildStat.buildStatConfigs.length; i++){
-              var config = buildStat.buildStatConfigs[i];
-              BUILD_STAT_CONFIGS.add(config);
-            }
-          });
-        });
-        ]]></script>
-      <script type="text/javascript">
-        CHART_LENGTH_UNITS = new Array();
-        <j:forEach var="historicScale" items="${it.historicScales}" varStatus="status">
-          CHART_LENGTH_UNITS[${status.index}] = "${historicScale}";
-        </j:forEach>
-        FIELD_FILTER_ALL = "${FIELD_FILTER_ALL}";
-        FIELD_FILTER_REGEX = "${FIELD_FILTER_REGEX}";
-        LAUNCHER_SYSTEM_REGEX = "${LAUNCHER_SYSTEM_REGEX}";
-        NODE_MASTER_REGEX = "${NODE_MASTER_REGEX}";
       </script>
+      <script src="${rootURL}/plugin/global-build-stats/scripts/global-build-stats/globalBuildStats.js"></script>
     </l:header>
 
 
@@ -86,18 +67,18 @@
         <div id="buildStatConfigWithoutContainerTemplate">
           <a name="buildStat_#{id}"/>
           #{buildStatImage}
-          <div class="gbs-chart-buttons">
-            <button id="edit_#{id}" onclick="new BuildStatConfigForm('#{id}').displayBuildStatConfigForm();"
-                    class="jenkins-button jenkins-button--tertiary">
+          <div class="gbs-chart-buttons" data-id="#{id}">
+            <button id="edit_#{id}"
+                    class="jenkins-button jenkins-button--tertiary gbs-edit-chart">
               <l:icon src="symbol-settings-outline plugin-ionicons-api" class="icon-lg"/>
             </button>
-            <button onclick="BUILD_STAT_CONFIGS.moveBuildStat('#{id}', 'up');" id="moveUp_#{id}" class="jenkins-button jenkins-button--tertiary">
+            <button id="moveUp_#{id}" class="jenkins-button jenkins-button--tertiary gbs-chart-up">
               <l:icon src="symbol-arrow-up-outline plugin-ionicons-api" class="icon-lg"/>
             </button>
-            <button onclick="BUILD_STAT_CONFIGS.moveBuildStat('#{id}', 'down');" id="moveDown_#{id}" class="jenkins-button jenkins-button--tertiary">
+            <button id="moveDown_#{id}" class="jenkins-button jenkins-button--tertiary gbs-chart-down">
               <l:icon src="symbol-arrow-down-outline plugin-ionicons-api" class="icon-lg"/>
             </button>
-            <button onclick="deleteBuildStat('#{id}');" class="jenkins-button jenkins-button--tertiary">
+            <button class="jenkins-button jenkins-button--tertiary gbs-delete-chart">
               <l:icon src="symbol-trash-outline plugin-ionicons-api" class="icon-lg"/>
             </button>
           </div>
@@ -124,36 +105,32 @@
               #{regenerateIdBlock}
               <div class="gbs-form-row">
                 <span>${%Title}:</span>
-                <input type="text" id="#{buildStatId}_title" name="title"
-                       value="#{buildStatTitle}" class="jenkins-input"
-                       checkUrl="'${rootURL}/plugin/global-build-stats/checkTitle?value='+escape(field.value)"
-                       onblur="validateField(this);" onchange="validateField(this);"
+                <input type="text" id="#{buildStatId}_title" name="title" data-checks="blur,change"
+                       value="#{buildStatTitle}" class="jenkins-input gbs-check"
+                       checkUrl="${rootURL}/plugin/global-build-stats/checkTitle"
                 />
                 <span class="validation-error-area" data-id="#{buildStatId}_title" style="display:inline-block;"></span>
               </div>
               <div class="gbs-form-row">
                 <span>${%Chart Width * Height}:</span>
-                <input type="number" id="#{buildStatId}_buildStatWidth" name="buildStatWidth"
-                       size="3" value="#{buildStatWidth}" class="jenkins-input" min="100"
-                       checkUrl="'${rootURL}/plugin/global-build-stats/checkBuildStatWidth?value='+escape(field.value)"
-                       onblur="validateField(this);" onchange="validateField(this);"
+                <input type="number" id="#{buildStatId}_buildStatWidth" name="buildStatWidth" data-checks="blur,change"
+                       size="3" value="#{buildStatWidth}" class="jenkins-input gbs-check" min="100"
+                       checkUrl="${rootURL}/plugin/global-build-stats/checkBuildStatWidth"
                 />
                 <div>
                   <span class="width-validation-error-area" data-id="#{buildStatId}_buildStatWidth" style="display:inline-block;"></span>*
                 </div>
-                <input type="number" id="#{buildStatId}_buildStatHeight" name="buildStatHeight"
-                       size="3" value="#{buildStatHeight}" class="jenkins-input" min="100"
-                       checkUrl="'${rootURL}/plugin/global-build-stats/checkBuildStatHeight?value='+escape(field.value)"
-                       onblur="validateField(this);" onchange="validateField(this);"
+                <input type="number" id="#{buildStatId}_buildStatHeight" name="buildStatHeight" data-checks="blur,change"
+                       size="3" value="#{buildStatHeight}" class="jenkins-input gbs-check" min="100"
+                       checkUrl="${rootURL}/plugin/global-build-stats/checkBuildStatHeight"
                 />
                 <span class="height-validation-error-area" data-id="#{buildStatId}_buildStatHeight" style="display:inline-block;"></span>
               </div>
               <div class="gbs-form-row">
                 <span>${%Chart time scale}:</span>
                 <div class="jenkins-select gbs-select">
-                  <select id="#{buildStatId}_historicScale" class="jenkins-select__input"
-                          name="historicScale" checkUrl="'${rootURL}/plugin/global-build-stats/checkHistoricScale?value='+escape(field.value)"
-                          onchange="validateField(this); CURRENT_FORM.changeChartLengthUnit(this.value);">
+                  <select id="#{buildStatId}_historicScale" class="jenkins-select__input gbs-check-historicScale"
+                          name="historicScale" checkUrl="${rootURL}/plugin/global-build-stats/checkHistoricScale">
                     <j:forEach var="historicScale" items="${it.historicScales}" varStatus="status">
                       <option value="${historicScale}">${historicScale.label}</option>
                     </j:forEach>
@@ -161,10 +138,9 @@
                 </div>
                 <span class="validation-error-area" data-id="#{buildStatId}_historicScale" style="display:inline-block;"></span>
                 <span>${%Chart time length}:</span>
-                <input type="number" id="#{buildStatId}_historicLength" name="historicLength"
-                       size="3" value="#{historicLength}" class="jenkins-input"
-                       checkUrl="'${rootURL}/plugin/global-build-stats/checkHistoricLength?value='+escape(field.value)"
-                       onblur="validateField(this);" onchange="validateField(this);"
+                <input type="number" id="#{buildStatId}_historicLength" name="historicLength" data-checks="blur,change"
+                       size="3" value="#{historicLength}" class="jenkins-input gbs-check"
+                       checkUrl="${rootURL}/plugin/global-build-stats/checkHistoricLength"
                 />
                 <j:forEach var="historicScale" items="${it.historicScales}" varStatus="status">
                   <span id="#{buildStatId}_${historicScale}" style="display:none">${historicScale.unitLabel}</span>
@@ -177,69 +153,66 @@
                   <span>${%Job filtering}:</span>
                   <div class="jenkins-radio">
                     <input type="radio" id="#{buildStatId}_jobFilteringType_ALL" checked="checked" name="jobFilteringType"
-                           value="${FIELD_FILTER_ALL}" class="jenkins-radio__input"
-                           onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_jobNameRegex', '#{buildStatId}_jobFilter');"/>
+                           value="${FIELD_FILTER_ALL}" class="jenkins-radio__input gbs-fieldFilter" data-regex-field="#{buildStatId}_jobNameRegex"
+                           data-hidden-field="#{buildStatId}_jobFilter"/>
                     <label for="#{buildStatId}_jobFilteringType_ALL" class="jenkins-radio__label">${%ALL Jobs}</label>
                   </div>
                   <div class="jenkins-radio">
                     <input type="radio" id="#{buildStatId}_jobFilteringType_REGEX" name="jobFilteringType"
-                           value="${FIELD_FILTER_REGEX}" class="jenkins-radio__input"
-                           onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_jobNameRegex', '#{buildStatId}_jobFilter');"/>
+                           value="${FIELD_FILTER_REGEX}" class="jenkins-radio__input gbs-fieldFilter" data-regex-field="#{buildStatId}_jobNameRegex"
+                           data-hidden-field="#{buildStatId}_jobFilter"/>
                     <label for="#{buildStatId}_jobFilteringType_REGEX" class="jenkins-radio__label">${%Job name regex}:</label>
                   </div>
-                  <input type="text" id="#{buildStatId}_jobNameRegex" class="jenkins-input"
-                         disabled="true" name="jobNameRegex" size="10"
-                         onblur="document.getElementById('#{buildStatId}_jobFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';"/>
+                  <input type="text" id="#{buildStatId}_jobNameRegex" class="jenkins-input gbs-regex-blur"
+                         disabled="true" name="jobNameRegex" size="10" data-id="#{buildStatId}_jobFilter"/>
                   <input id="#{buildStatId}_jobFilter" type="hidden" name="jobFilter" value="#{jobFilter}"/>
                 </div>
                 <div class="gbs-form-row">
                   <span>${%Node filtering}:</span>
                   <div class="jenkins-radio">
                     <input type="radio" id="#{buildStatId}_nodeFilteringType_ALL" checked="checked" name="nodeFilteringType"
-                           value="${FIELD_FILTER_ALL}" class="jenkins-radio__input"
-                           onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_nodeNameRegex', '#{buildStatId}_nodeFilter');"/>
+                           value="${FIELD_FILTER_ALL}" class="jenkins-radio__input gbs-fieldFilter" data-regex-field="#{buildStatId}_nodeNameRegex"
+                           data-hidden-field="#{buildStatId}_nodeFilter"/>
                     <label for="#{buildStatId}_nodeFilteringType_ALL" class="jenkins-radio__label">${%ALL Nodes}</label>
                   </div>
                   <div class="jenkins-radio">
                     <input type="radio" id="#{buildStatId}_nodeFilteringType_REGEXMASTER" name="nodeFilteringType"
-                           value="${NODE_MASTER_REGEX}" class="jenkins-radio__input"
-                           onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_nodeNameRegex', '#{buildStatId}_nodeFilter');"/>
+                           value="${NODE_MASTER_REGEX}" class="jenkins-radio__input gbs-fieldFilter" data-regex-field="#{buildStatId}_nodeNameRegex"
+                           data-hidden-field="#{buildStatId}_nodeFilter"/>
                     <label for="#{buildStatId}_nodeFilteringType_REGEXMASTER" class="jenkins-radio__label">${%Master only}</label>
                   </div>
                   <div class="jenkins-radio">
                     <input type="radio" id="#{buildStatId}_nodeFilteringType_REGEX" name="nodeFilteringType"
-                           value="${FIELD_FILTER_REGEX}" class="jenkins-radio__input"
-                           onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_nodeNameRegex', '#{buildStatId}_nodeFilter');"/>
+                           value="${FIELD_FILTER_REGEX}" class="jenkins-radio__input gbs-fieldFilter" data-regex-field="#{buildStatId}_nodeNameRegex"
+                           data-hidden-field="#{buildStatId}_nodeFilter"/>
                     <label for="#{buildStatId}_nodeFilteringType_REGEX" class="jenkins-radio__label">${%Node name regex}:</label>
                   </div>
-                  <input type="text" id="#{buildStatId}_nodeNameRegex" class="jenkins-input"
-                         disabled="true" name="nodeNameRegex" size="10"
-                         onblur="document.getElementById('#{buildStatId}_nodeFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';"/>
+                  <input type="text" id="#{buildStatId}_nodeNameRegex" class="jenkins-input gbs-regex-blur"
+                         disabled="true" name="nodeNameRegex" size="10" data-id="#{buildStatId}_nodeFilter"/>
                   <input id="#{buildStatId}_nodeFilter" type="hidden" name="nodeFilter" value="#{nodeFilter}"/>
                 </div>
                 <div class="gbs-form-row">
                   <span>${%Launcher filtering}:</span>
                   <div class="jenkins-radio">
                     <input type="radio" id="#{buildStatId}_launcherFilteringType_ALL" checked="checked" name="launcherFilteringType"
-                           value="${FIELD_FILTER_ALL}" class="jenkins-radio__input"
-                           onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_launcherNameRegex', '#{buildStatId}_launcherFilter');"/>
+                           value="${FIELD_FILTER_ALL}" class="jenkins-radio__input gbs-fieldFilter" data-regex-field="#{buildStatId}_launcherNameRegex"
+                           data-hidden-field="#{buildStatId}_launcherFilter"/>
                     <label for="#{buildStatId}_launcherFilteringType_ALL" class="jenkins-radio__label">${%ALL Users}</label>
                   </div>
                   <div class="jenkins-radio">
                     <input type="radio" id="#{buildStatId}_launcherFilteringType_REGEXSYSTEM" name="launcherFilteringType"
-                           value="${LAUNCHER_SYSTEM_REGEX}" class="jenkins-radio__input"
-                           onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_launcherNameRegex', '#{buildStatId}_launcherFilter');"/>
+                           value="${LAUNCHER_SYSTEM_REGEX}" class="jenkins-radio__input gbs-fieldFilter" data-regex-field="#{buildStatId}_launcherNameRegex"
+                           data-hidden-field="#{buildStatId}_launcherFilter"/>
                     <label for="#{buildStatId}_launcherFilteringType_REGEXSYSTEM" class="jenkins-radio__label">${%System only}</label>
                   </div>
                   <div class="jenkins-radio">
                     <input type="radio" id="#{buildStatId}_launcherFilteringType_REGEX" name="launcherFilteringType"
-                           value="${FIELD_FILTER_REGEX}" class="jenkins-radio__input"
-                           onchange="fieldFilterTypeSelected(this.value, '#{buildStatId}_launcherNameRegex', '#{buildStatId}_launcherFilter');"/>
+                           value="${FIELD_FILTER_REGEX}" class="jenkins-radio__input gbs-fieldFilter" data-regex-field="#{buildStatId}_launcherNameRegex"
+                           data-hidden-field="#{buildStatId}_launcherFilter"/>
                     <label for="#{buildStatId}_launcherFilteringType_REGEX" class="jenkins-radio__label">${%Username regex}:</label>
                   </div>
-                  <input type="text" id="#{buildStatId}_launcherNameRegex" class="jenkins-input"
-                         disabled="true" name="launcherNameRegex" size="10"
-                         onblur="document.getElementById('#{buildStatId}_launcherFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';"/>
+                  <input type="text" id="#{buildStatId}_launcherNameRegex" class="jenkins-input gbs-regex-blur"
+                         disabled="true" name="launcherNameRegex" size="10" data-id="#{buildStatId}_launcherFilter"/>
                   <input id="#{buildStatId}_launcherFilter" type="hidden" name="launcherFilter" value="#{launcherFilter}"/>
                 </div>
                 <div class="gbs-form-row">
@@ -257,9 +230,8 @@
                   <f:checkbox value="true" id="#{buildStatId}_buildStatusesShown" name="buildStatusesShown" checked="true"
                               title="${%Build statuses with Y Axis type}:"/>
                   <div class="jenkins-select gbs-select">
-                    <select id="#{buildStatId}_yAxisChartType" class="jenkins-select__input"
-                            name="yAxisChartType" checkUrl="'${rootURL}/plugin/global-build-stats/checkYAxisChartType?value='+escape(field.value)"
-                            onchange="validateField(this);">
+                    <select id="#{buildStatId}_yAxisChartType" class="jenkins-select__input gbs-check" data-checks="change"
+                            name="yAxisChartType" checkUrl="${rootURL}/plugin/global-build-stats/checkYAxisChartType">
                       <j:forEach var="yAxisChartType" items="${it.yAxisChartTypes}" varStatus="status">
                         <option value="${yAxisChartType}">${yAxisChartType.label}</option>
                       </j:forEach>
@@ -284,7 +256,7 @@
       <div id="buildStatConfigsContainer">
         <j:if test="${empty(it.buildStatConfigsArrayed)}">
           <em>${%No chart configured for the moment ...}
-            <a href="#" onclick="new BuildStatConfigForm(null).displayBuildStatConfigForm();">${%Create a new chart configuration}</a>
+            <a href="#" class="gbs-newBuildStatConfigForm">${%Create a new chart configuration}</a>
           </em>
         </j:if>
       </div>
@@ -322,11 +294,11 @@
       <span id="initializeStatsMessage" style="color: rgb(52, 101, 0); display: none;">
         <strong>${%Data successfully initialized !}</strong>&#160;
         <j:if test="${!empty(it.buildStatConfigsArrayed)}">
-          <a href="#" onclick="window.location.href = ''; return false;">${%Refresh page}</a>
+          <a href="#" class="gbs-refresh-stats">${%Refresh page}</a>
         </j:if>
         <br/>
       </span>
-      <button type="button" class="jenkins-button" onclick="initializeStats();">${%Initialize stats}</button>
+      <button type="button" class="jenkins-button gbs-initializeStats">${%Initialize stats}</button>
       <div id="initializeStatsSpinner" class="spinner" style="display: none"/>
       </div>
     </l:main-panel>

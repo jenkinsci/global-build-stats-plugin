@@ -22,16 +22,17 @@
 	<l:header>
     <link rel="stylesheet" href="${rootURL}/plugin/global-build-stats/css/global-build-stats.css" type="text/css"/>
 		<script src="${rootURL}/plugin/global-build-stats/scripts/global-build-stats/standardFunctions.js"></script>
-		<script>var startDate = ${searchCriteria.start}; var endDate = ${searchCriteria.end};</script>
-		<script type="text/javascript">
-			FIELD_FILTER_ALL = "${FIELD_FILTER_ALL}";
-			FIELD_FILTER_REGEX = "${FIELD_FILTER_REGEX}";
-			LAUNCHER_SYSTEM_REGEX = "${LAUNCHER_SYSTEM_REGEX}";
-			NODE_MASTER_REGEX = "${NODE_MASTER_REGEX}";
-	        ESCAPED_JOB_FILTER = "${escapedJobFilter}";
-	      	ESCAPED_NODE_FILTER = "${escapedNodeFilter}";
-	      	ESCAPED_LAUNCHER_FILTER = "${escapedLauncherFilter}";
-		</script>
+    <script type="application/json" id="gbs-constants">
+      {
+      "FIELD_FILTER_ALL": "${FIELD_FILTER_ALL}",
+      "FIELD_FILTER_REGEX": "${FIELD_FILTER_REGEX}",
+      "LAUNCHER_SYSTEM_REGEX": "${LAUNCHER_SYSTEM_REGEX}",
+      "NODE_MASTER_REGEX": "${NODE_MASTER_REGEX}",
+      "ESCAPED_JOB_FILTER": "${escapedJobFilter}",
+      "ESCAPED_NODE_FILTER": "${escapedNodeFilter}",
+      "ESCAPED_LAUNCHER_FILTER": "${escapedLauncherFilter}"
+      }
+    </script>
 		<script src="${rootURL}/plugin/global-build-stats/scripts/global-build-stats/buildHistory.js"></script>
 	</l:header>
 	
@@ -69,62 +70,67 @@
             <div class="gbs-form-row">
               <span>${%Job filtering}:</span>
               <div class="jenkins-radio">
-                <input type="radio" id="searchBuild_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="${FIELD_FILTER_ALL}" class="jenkins-radio__input"
-                     onchange="fieldFilterTypeSelected(this.value, 'searchBuild_jobNameRegex', 'searchBuild_jobFilter');" />
+                <input type="radio" id="searchBuild_jobFilteringType_ALL" checked="checked" name="jobFilteringType" value="${FIELD_FILTER_ALL}"
+                       class="jenkins-radio__input gbs-fieldFilter" data-regex-field="searchBuild_jobNameRegex"
+                       data-hidden-field="searchBuild_jobFilter"/>
                 <label for="searchBuild_jobFilteringType_ALL" class="jenkins-radio__label">${%ALL Jobs}</label>
               </div>
               <div class="jenkins-radio">
-                <input type="radio" id="searchBuild_jobFilteringType_REGEX" name="jobFilteringType" value="${FIELD_FILTER_REGEX}" class="jenkins-radio__input"
-                       onchange="fieldFilterTypeSelected(this.value, 'searchBuild_jobNameRegex', 'searchBuild_jobFilter');" />
+                <input type="radio" id="searchBuild_jobFilteringType_REGEX" name="jobFilteringType" value="${FIELD_FILTER_REGEX}"
+                       class="jenkins-radio__input gbs-fieldFilter"  data-regex-field="searchBuild_jobNameRegex"
+                       data-hidden-field="searchBuild_jobFilter"/>
                 <label for="searchBuild_jobFilteringType_REGEX" class="jenkins-radio__label">${%Job name regex}:</label>
               </div>
-              <input type="text" id="searchBuild_jobNameRegex" class="jenkins-input"
-                     disabled="true" name="jobNameRegex" size="10"
-                     onblur="document.getElementById('searchBuild_jobFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';"/>
+              <input type="text" id="searchBuild_jobNameRegex" class="jenkins-input gbs-regex-blur"
+                     disabled="true" name="jobNameRegex" size="10" data-id="searchBuild_jobFilter"/>
               <input id="searchBuild_jobFilter" type="hidden" name="jobFilter" value="${escapedJobFilter}" />
             </div>
             <div class="gbs-form-row">
               <span>${%Node filtering}:</span>
               <div class="jenkins-radio">
-                <input type="radio" id="searchBuild_nodeFilteringType_ALL" checked="checked" name="nodeFilteringType" value="${FIELD_FILTER_ALL}" class="jenkins-radio__input"
-                       onchange="fieldFilterTypeSelected(this.value, 'searchBuild_nodeNameRegex', 'searchBuild_nodeFilter');" />
+                <input type="radio" id="searchBuild_nodeFilteringType_ALL" checked="checked" name="nodeFilteringType" value="${FIELD_FILTER_ALL}"
+                       class="jenkins-radio__input gbs-fieldFilter" data-regex-field="searchBuild_nodeNameRegex"
+                       data-hidden-field="searchBuild_nodeFilter"/>
                 <label for="searchBuild_nodeFilteringType_ALL" class="jenkins-radio__label">${%ALL Nodes}</label>
               </div>
               <div class="jenkins-radio">
-                <input type="radio" id="searchBuild_nodeFilteringType_REGEXMASTER" name="nodeFilteringType" value="${NODE_MASTER_REGEX}" class="jenkins-radio__input"
-                       onchange="fieldFilterTypeSelected(this.value, 'searchBuild_nodeNameRegex', 'searchBuild_nodeFilter');" />
+                <input type="radio" id="searchBuild_nodeFilteringType_REGEXMASTER" name="nodeFilteringType" value="${NODE_MASTER_REGEX}"
+                       class="jenkins-radio__input gbs-fieldFilter" data-regex-field="searchBuild_nodeNameRegex"
+                       data-hidden-field="searchBuild_nodeFilter"/>
                 <label for="searchBuild_nodeFilteringType_REGEXMASTER" class="jenkins-radio__label">${%Controller only}</label>
               </div>
               <div class="jenkins-radio">
-                <input type="radio" id="searchBuild_nodeFilteringType_REGEX" name="nodeFilteringType" value="${FIELD_FILTER_REGEX}" class="jenkins-radio__input"
-                       onchange="fieldFilterTypeSelected(this.value, 'searchBuild_nodeNameRegex', 'searchBuild_nodeFilter');" />
+                <input type="radio" id="searchBuild_nodeFilteringType_REGEX" name="nodeFilteringType" value="${FIELD_FILTER_REGEX}"
+                       class="jenkins-radio__input gbs-fieldFilter" data-regex-field="searchBuild_nodeNameRegex"
+                       data-hidden-field="searchBuild_nodeFilter"/>
                 <label for="searchBuild_nodeFilteringType_REGEX" class="jenkins-radio__label">${%Node name regex}:</label>
               </div>
-              <input type="text" id="searchBuild_nodeNameRegex" class="jenkins-input"
-                 disabled="true" name="nodeNameRegex" size="10"
-                 onblur="document.getElementById('searchBuild_nodeFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';"/>
+              <input type="text" id="searchBuild_nodeNameRegex" class="jenkins-input gbs-regex-blur"
+                 disabled="true" name="nodeNameRegex" size="10" data-id="searchBuild_nodeFilter"/>
               <input id="searchBuild_nodeFilter" type="hidden" name="nodeFilter" value="${escapedNodeFilter}" />
             </div>
             <div class="gbs-form-row">
               ${%Launcher filtering}:
               <div class="jenkins-radio">
-                <input type="radio" id="searchBuild_launcherFilteringType_ALL" checked="checked" name="launcherFilteringType" value="${FIELD_FILTER_ALL}" class="jenkins-radio__input"
-                       onchange="fieldFilterTypeSelected(this.value, 'searchBuild_launcherNameRegex', 'searchBuild_launcherFilter');" />
+                <input type="radio" id="searchBuild_launcherFilteringType_ALL" checked="checked" name="launcherFilteringType" value="${FIELD_FILTER_ALL}"
+                       class="jenkins-radio__input gbs-fieldFilter" data-regex-field="searchBuild_launcherNameRegex"
+                       data-hidden-field="searchBuild_launcherFilter"/>
                 <label for="searchBuild_launcherFilteringType_ALL" class="jenkins-radio__label">${%ALL Users}</label>
               </div>
               <div class="jenkins-radio">
-                <input type="radio" id="searchBuild_launcherFilteringType_REGEXSYSTEM" name="launcherFilteringType" value="${LAUNCHER_SYSTEM_REGEX}" class="jenkins-radio__input"
-                       onchange="fieldFilterTypeSelected(this.value, 'searchBuild_launcherNameRegex', 'searchBuild_launcherFilter');" />
+                <input type="radio" id="searchBuild_launcherFilteringType_REGEXSYSTEM" name="launcherFilteringType" value="${LAUNCHER_SYSTEM_REGEX}"
+                       class="jenkins-radio__input gbs-fieldFilter" data-regex-field="searchBuild_launcherNameRegex"
+                       data-hidden-field="searchBuild_launcherFilter"/>
                 <label for="searchBuild_launcherFilteringType_REGEXSYSTEM" class="jenkins-radio__label">${%System only}</label>
               </div>
               <div class="jenkins-radio">
-                <input type="radio" id="searchBuild_launcherFilteringType_REGEX" name="launcherFilteringType" value="${FIELD_FILTER_REGEX}" class="jenkins-radio__input"
-                       onchange="fieldFilterTypeSelected(this.value, 'searchBuild_launcherNameRegex', 'searchBuild_launcherFilter');" />
+                <input type="radio" id="searchBuild_launcherFilteringType_REGEX" name="launcherFilteringType" value="${FIELD_FILTER_REGEX}"
+                       class="jenkins-radio__input gbs-fieldFilter" data-regex-field="searchBuild_launcherNameRegex"
+                       data-hidden-field="searchBuild_launcherFilter"/>
                 <label for="searchBuild_launcherFilteringType_REGEX" class="jenkins-radio__label">${%Username regex}:</label>
               </div>
-              <input type="text" id="searchBuild_launcherNameRegex" class="jenkins-input"
-                   disabled="true" name="launcherNameRegex" size="10"
-                   onblur="document.getElementById('searchBuild_launcherFilter').value=FIELD_FILTER_REGEX+'('+this.value+')';"/>
+              <input type="text" id="searchBuild_launcherNameRegex" class="jenkins-input gbs-regex-blur"
+                   disabled="true" name="launcherNameRegex" size="10" data-id="searchBuild_launcherFilter"/>
               <input id="searchBuild_launcherFilter" type="hidden" name="launcherFilter" value="${escapedLauncherFilter}" />
             </div>
             <div class="gbs-form-row">
@@ -137,43 +143,6 @@
             </div>
           </div>
         </f:entry>
-		  <script type="text/javascript"><![CDATA[
-		  if(document.getElementById('searchBuild_jobFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
-		  	  document.getElementById('searchBuild_jobFilteringType_REGEX').checked = 'checked';
-		  	  initializeRegexField('searchBuild_jobNameRegex', ESCAPED_JOB_FILTER);
-		  	  document.getElementById('searchBuild_jobFilteringType_REGEX').onchange();
-		  	  document.getElementById('searchBuild_jobNameRegex').disabled = false;
-		  } else if(document.getElementById('searchBuild_jobFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
-		  	  document.getElementById('searchBuild_jobFilteringType_ALL').checked = 'checked';
-		  	  document.getElementById('searchBuild_jobFilteringType_ALL').onchange();
-		  }
-		  if(document.getElementById('searchBuild_nodeFilter').value.indexOf(NODE_MASTER_REGEX) != -1){
-		  	  document.getElementById('searchBuild_nodeFilteringType_REGEXMASTER').checked = 'checked';
- 		 	  document.getElementById('searchBuild_nodeFilteringType_REGEXMASTER').onchange();
-		  	  document.getElementById('searchBuild_nodeNameRegex').disabled = true;
-		  } else if(document.getElementById('searchBuild_nodeFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
-		  	  document.getElementById('searchBuild_nodeFilteringType_REGEX').checked = 'checked';
-		  	  initializeRegexField('searchBuild_nodeNameRegex', ESCAPED_NODE_FILTER);
- 		 	  document.getElementById('searchBuild_nodeFilteringType_REGEX').onchange();
-		  	  document.getElementById('searchBuild_nodeNameRegex').disabled = false;
-		  } else if(document.getElementById('searchBuild_nodeFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
-		  	  document.getElementById('searchBuild_nodeFilteringType_ALL').checked = 'checked';
-		  	  document.getElementById('searchBuild_nodeFilteringType_ALL').onchange();
-		  }
-		  if(document.getElementById('searchBuild_launcherFilter').value.indexOf(LAUNCHER_SYSTEM_REGEX) != -1){
-		  	  document.getElementById('searchBuild_launcherFilteringType_REGEXSYSTEM').checked = 'checked';
- 		 	  document.getElementById('searchBuild_launcherFilteringType_REGEXSYSTEM').onchange();
-		  	  document.getElementById('searchBuild_launcherNameRegex').disabled = true;
-		  } else if(document.getElementById('searchBuild_launcherFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
-		  	  document.getElementById('searchBuild_launcherFilteringType_REGEX').checked = 'checked';
-		  	  initializeRegexField('searchBuild_launcherNameRegex', ESCAPED_LAUNCHER_FILTER);
- 		 	  document.getElementById('searchBuild_launcherFilteringType_REGEX').onchange();
-		  	  document.getElementById('searchBuild_launcherNameRegex').disabled = false;
-		  } else if(document.getElementById('searchBuild_launcherFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
-		  	  document.getElementById('searchBuild_launcherFilteringType_ALL').checked = 'checked';
-		  	  document.getElementById('searchBuild_launcherFilteringType_ALL').onchange();
-		  }
-		  ]]></script>
         <f:submit value="${%Search}" name="Submit"/>
 	    </f:form>
       </f:section>
