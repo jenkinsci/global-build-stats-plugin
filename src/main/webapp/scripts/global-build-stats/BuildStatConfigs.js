@@ -96,6 +96,7 @@ class BuildStatConfigs {
 				document.getElementById('moveDown_'+buildStatConfigId).style.display = 'none';
 			}
 		}
+    Behaviour.applySubtree(container);
 	}
 	swapBuildStatConfigs(containerId1, containerId2){
 		var buildStatConf1 = this.getBuildStatConfigFromContainerId(containerId1);
@@ -160,7 +161,7 @@ class BuildStatConfigs {
 		var newBuildStatConf = document.createElement("div");
 		newBuildStatConf.setAttribute("style", "clear:left");
 		newBuildStatConf.setAttribute("id", newBuildStatContainerId);
-		
+
 		document.getElementById('buildStatConfigsContainer').appendChild(newBuildStatConf);
 		this.fillDivWithChart(newBuildStatContainerId, buildStatConfig, function(){
 			BUILD_STAT_CONFIGS.updateButtonsFor(buildStatConfig.id);
@@ -168,8 +169,8 @@ class BuildStatConfigs {
 			if(previousBuildStatContainer != null){
 				BUILD_STAT_CONFIGS.updateButtonsFor(BUILD_STAT_CONFIGS.retrieveBuildStatIdFromContainerId(previousBuildStatContainer.id));
 			}
-		});
-	}
+    });
+  }
 	moveBuildStat(buildStatId, moveType){
 		var moveUrl = "";
 		if(moveType.toLowerCase() == "up"){

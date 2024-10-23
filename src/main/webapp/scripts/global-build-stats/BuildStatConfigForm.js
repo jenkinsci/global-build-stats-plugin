@@ -23,7 +23,8 @@ class BuildStatConfigForm {
 		for (var i=0; i<selectElement.options.length; i++) {
 			selectElement.options[i].selected = selectElement.options[i].value == optionValue;
 		}
-		selectElement.onchange();
+    const event = new Event("change");
+    selectElement.dispatchEvent(event);
 	}
 	
 	changeChartLengthUnit(newScale){
@@ -48,8 +49,10 @@ class BuildStatConfigForm {
       if(this.buildStatConf!=null && this.buildStatConf.yAxisChartType!= '') {
       	this.selectOption(document.getElementById(this.buildStatConfId+'_yAxisChartType'), this.buildStatConf.yAxisChartType); 
       }
-      
-	  // Job filter default value
+
+      let event = new Event("change");
+
+    // Job filter default value
 	  if(document.getElementById(this.buildStatConfId+'_jobFilter').value == ''){
 	  	document.getElementById(this.buildStatConfId+'_jobFilter').value = FIELD_FILTER_ALL;
 	  }
@@ -60,7 +63,7 @@ class BuildStatConfigForm {
 	  	  document.getElementById(this.buildStatConfId+'_jobNameRegex').disabled = false;
 	  } else if(document.getElementById(this.buildStatConfId+'_jobFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
 	  	  document.getElementById(this.buildStatConfId+'_jobFilteringType_ALL').checked = 'checked';
-	  	  document.getElementById(this.buildStatConfId+'_jobFilteringType_ALL').onchange();
+	  	  document.getElementById(this.buildStatConfId+'_jobFilteringType_ALL').dispatchEvent(event);
 	  }
 	  
 	  // Node filter default value
@@ -69,16 +72,16 @@ class BuildStatConfigForm {
 	  }
 	  if(document.getElementById(this.buildStatConfId+'_nodeFilter').value.indexOf(NODE_MASTER_REGEX) != -1){
 	  	  document.getElementById(this.buildStatConfId+'_nodeFilteringType_REGEXMASTER').checked = 'checked';
-	 	  document.getElementById(this.buildStatConfId+'_nodeFilteringType_REGEXMASTER').onchange();
+	 	  document.getElementById(this.buildStatConfId+'_nodeFilteringType_REGEXMASTER').dispatchEvent(event);
 	  	  document.getElementById(this.buildStatConfId+'_nodeNameRegex').disabled = true;
 	  } else if(document.getElementById(this.buildStatConfId+'_nodeFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
 	  	  document.getElementById(this.buildStatConfId+'_nodeFilteringType_REGEX').checked = 'checked';
 	  	  initializeRegexField(this.buildStatConfId+'_nodeNameRegex', this.buildStatConf.buildFilters.nodeFilter);
-	 	  document.getElementById(this.buildStatConfId+'_nodeFilteringType_REGEX').onchange();
+	 	  document.getElementById(this.buildStatConfId+'_nodeFilteringType_REGEX').dispatchEvent(event);
 	  	  document.getElementById(this.buildStatConfId+'_nodeNameRegex').disabled = false;
 	  } else if(document.getElementById(this.buildStatConfId+'_nodeFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
 	  	  document.getElementById(this.buildStatConfId+'_nodeFilteringType_ALL').checked = 'checked';
-	  	  document.getElementById(this.buildStatConfId+'_nodeFilteringType_ALL').onchange();
+	  	  document.getElementById(this.buildStatConfId+'_nodeFilteringType_ALL').dispatchEvent(event);
 	  }
 	  
 	  // Launcher filter default value
@@ -87,16 +90,16 @@ class BuildStatConfigForm {
 	  }
 	  if(document.getElementById(this.buildStatConfId+'_launcherFilter').value.indexOf(LAUNCHER_SYSTEM_REGEX) != -1){
 	  	  document.getElementById(this.buildStatConfId+'_launcherFilteringType_REGEXSYSTEM').checked = 'checked';
-	 	  document.getElementById(this.buildStatConfId+'_launcherFilteringType_REGEXSYSTEM').onchange();
+	 	  document.getElementById(this.buildStatConfId+'_launcherFilteringType_REGEXSYSTEM').dispatchEvent(event);
 	  	  document.getElementById(this.buildStatConfId+'_launcherNameRegex').disabled = true;
 	  } else if(document.getElementById(this.buildStatConfId+'_launcherFilter').value.indexOf(FIELD_FILTER_REGEX) != -1){
 	  	  document.getElementById(this.buildStatConfId+'_launcherFilteringType_REGEX').checked = 'checked';
 	  	  initializeRegexField(this.buildStatConfId+'_launcherNameRegex', this.buildStatConf.buildFilters.launcherFilter);
-	 	  document.getElementById(this.buildStatConfId+'_launcherFilteringType_REGEX').onchange();
+	 	  document.getElementById(this.buildStatConfId+'_launcherFilteringType_REGEX').dispatchEvent(event);
 	  	  document.getElementById(this.buildStatConfId+'_launcherNameRegex').disabled = false;
 	  } else if(document.getElementById(this.buildStatConfId+'_launcherFilter').value.indexOf(FIELD_FILTER_ALL) != -1){
 	  	  document.getElementById(this.buildStatConfId+'_launcherFilteringType_ALL').checked = 'checked';
-	  	  document.getElementById(this.buildStatConfId+'_launcherFilteringType_ALL').onchange();
+	  	  document.getElementById(this.buildStatConfId+'_launcherFilteringType_ALL').dispatchEvent(event);
 	  }
 	  
 	  // Changing default values...
@@ -111,12 +114,12 @@ class BuildStatConfigForm {
 		  if(this.buildStatConf.averageBuildTimeShown == true) { document.getElementById(this.buildStatConfId+'_averageBuildTimeShown').checked = true; }
 	  }
 	  		  
-	  // Initializing validations 
-	  document.getElementById(this.buildStatConfId+'_title').onchange();
-	  document.getElementById(this.buildStatConfId+'_buildStatWidth').onchange();
-	  document.getElementById(this.buildStatConfId+'_buildStatHeight').onchange();
-	  document.getElementById(this.buildStatConfId+'_historicScale').onchange();
-	  document.getElementById(this.buildStatConfId+'_historicLength').onchange();
+	  // Initializing validations
+    document.getElementById(this.buildStatConfId+'_title').dispatchEvent(event);
+    document.getElementById(this.buildStatConfId+'_buildStatWidth').dispatchEvent(event);
+    document.getElementById(this.buildStatConfId+'_buildStatHeight').dispatchEvent(event);
+    document.getElementById(this.buildStatConfId+'_historicScale').dispatchEvent(event);
+    document.getElementById(this.buildStatConfId+'_historicLength').dispatchEvent(event);
 	}
 
 	// Display a creation/modification form for build stat config
@@ -197,6 +200,7 @@ class BuildStatConfigForm {
     const oldDisplay = content.style.display;
     content.style.display = "none";
     document.body.append(content);
+    Behaviour.applySubtree(content);
     CURRENT_FORM.initForm();
     content.remove();
     content.style.display = oldDisplay;
@@ -243,3 +247,14 @@ class BuildStatConfigForm {
 		return formBlock;
 	}
 };
+
+window.newBuildStatConfigForm = function() {
+  new BuildStatConfigForm(null).displayBuildStatConfigForm();
+}
+
+
+Behaviour.specify(".gbs-newBuildStatConfigForm", "gbs-newBuildStatConfigForm", 0, function(element) {
+  element.addEventListener("click", (e) => {
+    newBuildStatConfigForm();
+  })
+});

@@ -27,10 +27,7 @@ function validateField(field){
     var validationErrorAreaClassName = field.getAttribute("validationErrorAreaClassName");
 
     var targetValidationError = findFollowingSPAN(field);
-    var targetUrl = function() {
-        return eval(field.getAttribute("checkUrl"));
-    };
-    var url = targetUrl();
+    var url = field.getAttribute("checkUrl") + "?value=" + encodeURIComponent(field.value);
 
     var method = field.getAttribute("checkMethod");
     if (!method) method = "get";
@@ -77,3 +74,17 @@ function generateErrorMessage(message){
 
 Behaviour.register(Object.assign(hudsonRules, myHudsonRules));
 Behaviour.apply();
+
+Behaviour.specify(".gbs-fieldFilter", "gbs-fieldFilter", 0, function(element) {
+  element.onchange = function() {
+    fieldFilterTypeSelected(element.value, element.dataset.regexField, element.dataset.hiddenField);
+  }
+});
+
+Behaviour.specify(".gbs-regex-blur", "gbs-regex-blur", 0, function(element) {
+  element.onblur = function() {
+    const id = element.dataset.id
+    document.getElementById(id).value = FIELD_FILTER_REGEX + '(' + element.value + ')';
+  }
+});
+
