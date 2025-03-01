@@ -6,11 +6,11 @@ import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.HistoricScale;
 import hudson.plugins.global_build_stats.model.YAxisChartType;
 
-import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerRequest2;
 
 public class FromRequestObjectFactory {
 
-	public static BuildHistorySearchCriteria createBuildHistorySearchCriteria(StaplerRequest req){
+	public static BuildHistorySearchCriteria createBuildHistorySearchCriteria(StaplerRequest2 req){
 		BuildSearchCriteria criteria = createBuildSearchCriteria(req);
 		return new BuildHistorySearchCriteria(
 				Long.parseLong(req.getParameter("start")),
@@ -18,7 +18,7 @@ public class FromRequestObjectFactory {
 				criteria);
 	}
 	
-	public static BuildStatConfiguration createBuildStatConfiguration(String id, StaplerRequest req){
+	public static BuildStatConfiguration createBuildStatConfiguration(String id, StaplerRequest2 req){
 		BuildSearchCriteria criteria = createBuildSearchCriteria(req);
     	return new BuildStatConfiguration(
     			id,
@@ -34,7 +34,7 @@ public class FromRequestObjectFactory {
     			criteria);
 	}
 	
-	public static BuildSearchCriteria createBuildSearchCriteria(StaplerRequest req){
+	public static BuildSearchCriteria createBuildSearchCriteria(StaplerRequest2 req){
 		BuildSearchCriteria criteria = new BuildSearchCriteria(req.getParameter("jobFilter"), 
 				req.getParameter("nodeFilter"), 
 				req.getParameter("launcherFilter"),

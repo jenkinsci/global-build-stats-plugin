@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>4.88</version>
+        <version>5.7</version>
         <relativePath/>
     </parent>
 
@@ -13,19 +13,6 @@
     <name>Jenkins global-build-stats plugin</name>
     <packaging>hpi</packaging>
     <url>https://github.com/jenkinsci/global-build-stats-plugin</url>
-
-    <developers>
-        <developer>
-            <id>dhinske</id>
-            <name>David Hinske</name>
-            <email>david.hinske@gmx.net</email>
-        </developer>
-        <developer>
-            <id>fcamblor</id>
-            <name>Frederic Camblor</name>
-            <email>fcamblor+wikihudson@gmail.com</email>
-        </developer>
-    </developers>
 
     <dependencies>
         <dependency>
@@ -42,7 +29,7 @@
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
                 <artifactId>bom-${jenkins.baseline}.x</artifactId>
-                <version>3944.v1a_e4f8b_452db_</version>
+                <version>4228.v0a_71308d905b_</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -66,8 +53,8 @@
     <properties>
         <changelist>999999-SNAPSHOT</changelist>
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-        <jenkins.baseline>2.452</jenkins.baseline>
-        <jenkins.version>${jenkins.baseline}.4</jenkins.version>
+        <jenkins.baseline>2.479</jenkins.baseline>
+        <jenkins.version>${jenkins.baseline}.3</jenkins.version>
     </properties>
 
     <scm>
