@@ -24,15 +24,15 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import net.sf.json.JSONObject;
 
 import org.jfree.chart.JFreeChart;
 import org.kohsuke.stapler.HttpResponse;
 import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.StaplerRequest2;
+import org.kohsuke.stapler.StaplerResponse2;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
 import org.kohsuke.stapler.export.Flavor;
@@ -85,7 +85,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
 	private transient final GlobalBuildStatsValidator validator = new GlobalBuildStatsValidator();
 	
 	/**
-	 * application/json ContentType for StaplerResponse
+	 * application/json ContentType for StaplerResponse2
 	 */
 	private final static String CONTENT_TYPE = "application/json";
 	
@@ -120,21 +120,21 @@ public class GlobalBuildStatsPlugin extends Plugin {
     		super(bean);
 		}
     	@Override
-    	public void doJson(StaplerRequest req, StaplerResponse rsp)
+    	public void doJson(StaplerRequest2 req, StaplerResponse2 rsp)
     			throws IOException, ServletException {
     		if(!exposeChartData(req, rsp, Flavor.JSON)){
     			super.doJson(req, rsp);
     		}
     	}
     	@Override
-    	public void doPython(StaplerRequest req, StaplerResponse rsp)
+    	public void doPython(StaplerRequest2 req, StaplerResponse2 rsp)
     			throws IOException, ServletException {
     		if(!exposeChartData(req, rsp, Flavor.PYTHON)){
         		super.doPython(req, rsp);
     		}
     	}
     	
-    	private static boolean exposeChartData(StaplerRequest req, StaplerResponse rsp, Flavor flavor) throws ServletException, IOException{
+    	private static boolean exposeChartData(StaplerRequest2 req, StaplerResponse2 rsp, Flavor flavor) throws ServletException, IOException{
     		boolean chartDataHasBeenExposed = false;
     		String buildStatConfigId = req.getParameter("buildStatConfigId");
     		if(buildStatConfigId != null){
@@ -277,13 +277,13 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	
         return new HttpResponse() {
         	@Override
-			public void generateResponse(StaplerRequest req, StaplerResponse rsp,
+			public void generateResponse(StaplerRequest2 req, StaplerResponse2 rsp,
 					Object node) throws IOException, ServletException {
 			}
 		};
     }
     
-    public void doShowChart(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    public void doShowChart(StaplerRequest2 req, StaplerResponse2 res) throws ServletException, IOException {
     	// Don't check any role : this url is public and should provide a BuildStatConfiguration public id
     	BuildStatConfiguration config = business.searchBuildStatConfigById(req.getParameter("buildStatId"));
     	if(config == null){
@@ -291,20 +291,28 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	}
     	JFreeChart chart = business.createChart(config);
     	
-        ChartUtil.generateGraph(req, res, chart, config.getBuildStatWidth(), config.getBuildStatHeight());
+        ChartUtil.generateGraph(org.kohsuke.stapler.StaplerRequest.fromStaplerRequest2(req),
+                                org.kohsuke.stapler.StaplerResponse.fromStaplerResponse2(res),
+                                chart,
+                                config.getBuildStatWidth(),
+                                config.getBuildStatHeight());
     }
     
-    public void doCreateChart(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    public void doCreateChart(StaplerRequest2 req, StaplerResponse2 res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
     	// Passing null id since this is a not persisted BuildStatConfiguration
     	BuildStatConfiguration config = FromRequestObjectFactory.createBuildStatConfiguration(null, req);
     	JFreeChart chart = business.createChart(config);
     	
-        ChartUtil.generateGraph(req, res, chart, config.getBuildStatWidth(), config.getBuildStatHeight());
+        ChartUtil.generateGraph(org.kohsuke.stapler.StaplerRequest.fromStaplerRequest2(req),
+                                org.kohsuke.stapler.StaplerResponse.fromStaplerResponse2(res),
+                                chart,
+                                config.getBuildStatWidth(),
+                                config.getBuildStatHeight());
     }
     
-    public void doCreateChartMap(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    public void doCreateChartMap(StaplerRequest2 req, StaplerResponse2 res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
 
     	String buildStatId = req.getParameter("buildStatId");
@@ -317,10 +325,14 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	}
     	JFreeChart chart = business.createChart(config);
     	
-        ChartUtil.generateClickableMap(req, res, chart, config.getBuildStatWidth(), config.getBuildStatHeight());
+        ChartUtil.generateClickableMap(org.kohsuke.stapler.StaplerRequest.fromStaplerRequest2(req),
+                                       org.kohsuke.stapler.StaplerResponse.fromStaplerResponse2(res),
+                                       chart,
+                                       config.getBuildStatWidth(),
+                                       config.getBuildStatHeight());
     }
     
-    public void doBuildHistory(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    public void doBuildHistory(StaplerRequest2 req, StaplerResponse2 res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
     	BuildHistorySearchCriteria searchCriteria = FromRequestObjectFactory.createBuildHistorySearchCriteria(req);
@@ -333,7 +345,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     }
     
     @RequirePOST
-    public void doUpdateBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    public void doUpdateBuildStatConfiguration(StaplerRequest2 req, StaplerResponse2 res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
     	boolean regenerateId = Boolean.parseBoolean(req.getParameter("regenerateId"));
@@ -347,7 +359,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     }
     
     @RequirePOST
-    public void doAddBuildStatConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    public void doAddBuildStatConfiguration(StaplerRequest2 req, StaplerResponse2 res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
     	BuildStatConfiguration config = FromRequestObjectFactory.createBuildStatConfiguration(ModelIdGenerator.INSTANCE.generateIdForClass(BuildStatConfiguration.class), req);
@@ -359,7 +371,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     }
     
     @RequirePOST
-    public void doDeleteConfiguration(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    public void doDeleteConfiguration(StaplerRequest2 req, StaplerResponse2 res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
     	business.deleteBuildStatConfiguration(req.getParameter("buildStatId"));
@@ -368,7 +380,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     }
     
     @RequirePOST
-    public void doMoveUpConf(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    public void doMoveUpConf(StaplerRequest2 req, StaplerResponse2 res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
     	business.moveUpConf(req.getParameter("buildStatId"));
@@ -377,7 +389,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     }
     
     @RequirePOST
-    public void doMoveDownConf(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    public void doMoveDownConf(StaplerRequest2 req, StaplerResponse2 res) throws ServletException, IOException {
     	Hudson.getInstance().checkPermission(getRequiredPermission());
     	
     	business.moveDownConf(req.getParameter("buildStatId"));
@@ -386,7 +398,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     }
 
     @RequirePOST
-    public void doUpdateRetentionStrategies(StaplerRequest req, StaplerResponse res) throws ServletException, IOException {
+    public void doUpdateRetentionStrategies(StaplerRequest2 req, StaplerResponse2 res) throws ServletException, IOException {
         Hudson.getInstance().checkPermission(getRequiredPermission());
 
         List<RetentionStrategy> selectedStrategies = new ArrayList<RetentionStrategy>();
@@ -403,7 +415,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
         respondAjaxOk(res);
     }
 
-    protected static void respondAjaxOk(StaplerResponse res) throws IOException {
+    protected static void respondAjaxOk(StaplerResponse2 res) throws IOException {
         res.getWriter().write("{ status : 'ok' }");
     }
     
