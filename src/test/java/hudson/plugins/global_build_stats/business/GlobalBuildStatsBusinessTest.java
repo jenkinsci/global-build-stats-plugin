@@ -3,63 +3,68 @@ package hudson.plugins.global_build_stats.business;
 import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
-import org.jvnet.hudson.test.HudsonTestCase;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * @author Kohsuke Kawaguchi
  */
-public class GlobalBuildStatsBusinessTest extends HudsonTestCase {
-    private GlobalBuildStatsPlugin plugin;
-    private GlobalBuildStatsBusiness business;
+@WithJenkins
+class GlobalBuildStatsBusinessTest {
+	private GlobalBuildStatsPlugin plugin;
+	private GlobalBuildStatsBusiness business;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        plugin = GlobalBuildStatsPlugin.getInstance();
-        business = GlobalBuildStatsPlugin.getPluginBusiness();
-    }
+	private JenkinsRule r;
 
-    /**
-     * Make sure builds are recorded and written out correctly.
-     */
-    public void testCallback() throws Exception {
-        List<FreeStyleProject> projects = new ArrayList<FreeStyleProject>();
-        for (int i=0; i<5; i++)
-            projects.add(createFreeStyleProject());
+	@BeforeEach
+	void setUp(JenkinsRule r) {
+		this.r = r;
+		plugin = GlobalBuildStatsPlugin.getInstance();
+		business = GlobalBuildStatsPlugin.getPluginBusiness();
+	}
 
-        hudson.setNumExecutors(5);
+	/**
+	 * Make sure builds are recorded and written out correctly.
+	 */
+	@Test
+	void testCallback() throws Exception {
+		List<FreeStyleProject> projects = new ArrayList<>();
+		for (int i = 0; i < 5; i++)
+			projects.add(r.createFreeStyleProject());
 
-        for (int i=0; i<5; i++) {
-            List<Future<FreeStyleBuild>> builds = new ArrayList<Future<FreeStyleBuild>>();
-            for (FreeStyleProject p : projects) {
-                builds.add(p.scheduleBuild2(0));
-            }
-            // this simulates a lengthy plugin.save() and cause the grouping writes.
-            business.pluginSaver.writer.submit(new Runnable() {
-                public void run() {
-                    try {
-                        Thread.sleep(3000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
+		r.jenkins.setNumExecutors(5);
 
-            for (Future<FreeStyleBuild> f : builds) {
-                FreeStyleBuild b = assertBuildStatusSuccess(f);
-            }
-        }
+		for (int i = 0; i < 5; i++) {
+			List<Future<FreeStyleBuild>> builds = new ArrayList<>();
+			for (FreeStyleProject p : projects) {
+				builds.add(p.scheduleBuild2(0));
+			}
+			// this simulates a lengthy plugin.save() and cause the grouping writes.
+			business.pluginSaver.writer.submit(() -> {
+				try {
+					Thread.sleep(3000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			});
 
-        // make sure we flush all the pending writes
-        business.pluginSaver.writer.submit(new Runnable() {
-            public void run() {
-            }
-        }).get();
+			for (Future<FreeStyleBuild> f : builds) {
+				r.assertBuildStatusSuccess(f);
+			}
+		}
 
-        assertEquals(25,plugin.getJobBuildResults().size());
-    }
+		// make sure we flush all the pending writes
+		business.pluginSaver.writer.submit(() -> {
+		}).get();
+
+		assertEquals(25, plugin.getJobBuildResults().size());
+	}
 }
