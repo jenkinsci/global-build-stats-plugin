@@ -1,62 +1,47 @@
 package hudson.plugins.global_build_stats;
 
-import org.apache.commons.io.FileUtils;
-import org.jvnet.hudson.test.HudsonTestCase;
-import org.jvnet.hudson.test.recipes.Recipe;
-import org.springframework.core.io.ClassPathResource;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
+import org.jvnet.hudson.test.recipes.LocalData;
 
-import java.io.File;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author fcamblor
  */
-public class VersioningTest extends HudsonTestCase {
+@WithJenkins
+class VersioningTest {
 
-    private static final Pattern VERSION_EXTRACTION_PATTERN = Pattern.compile("^testMigrationFrom(.+)$");
+	private GlobalBuildStatsPlugin plugin;
 
-    private GlobalBuildStatsPlugin plugin;
+	@BeforeEach
+	void setUp(JenkinsRule r) {
+		plugin = GlobalBuildStatsPlugin.getInstance();
+	}
 
-    @Override
-    public void setUp() throws Exception {
-        final String testName = this.getName();
-        recipes.add(new Recipe.Runner() {
-            @Override
-            public void decorateHome(HudsonTestCase testCase, File home) throws Exception {
-                Matcher m = VERSION_EXTRACTION_PATTERN.matcher(testName);
-                if(!m.matches()){
-                    throw new IllegalStateException("Every test method should be named testMigrationFromXXX !");
-                } else {
-                    String versionUnderTest = m.group(1);
-                    ClassPathResource testDirectoryRoot = new ClassPathResource("versioning/"+versionUnderTest.toLowerCase());
-                    if(!testDirectoryRoot.exists()){
-                        throw new IllegalStateException("Directory versioning/"+versionUnderTest+" not found in classpath !");
-                    }
-                    FileUtils.copyDirectory(testDirectoryRoot.getFile(), home);
-                }
-            }
-        });
-        super.setUp();
+	@Test
+	@LocalData
+	void testMigrationFromV7() {
+		assertEquals(4, plugin.getBuildStatConfigs().size());
+		assertEquals(23, plugin.getJobBuildResults().size());
+		assertEquals(0, plugin.getRetentionStrategies().size());
+	}
 
-        plugin = GlobalBuildStatsPlugin.getInstance();
-    }
+	@Test
+	@LocalData
+	void testMigrationFromV8() {
+		assertEquals(4, plugin.getBuildStatConfigs().size());
+		assertEquals(30, plugin.getJobBuildResults().size());
+		assertEquals(0, plugin.getRetentionStrategies().size());
+	}
 
-    public void testMigrationFromV7() throws Exception {
-        assertEquals(4, plugin.getBuildStatConfigs().size());
-        assertEquals(23, plugin.getJobBuildResults().size());
-        assertEquals(0, plugin.getRetentionStrategies().size());
-    }
-
-    public void testMigrationFromV8() throws Exception {
-        assertEquals(4, plugin.getBuildStatConfigs().size());
-        assertEquals(30, plugin.getJobBuildResults().size());
-        assertEquals(0, plugin.getRetentionStrategies().size());
-    }
-
-    public void testMigrationFromV9() throws Exception {
-        assertEquals(1, plugin.getBuildStatConfigs().size());
-        assertEquals(16, plugin.getJobBuildResults().size());
-        assertEquals(3, plugin.getRetentionStrategies().size());
-    }
+	@Test
+	@LocalData
+	void testMigrationFromV9() {
+		assertEquals(1, plugin.getBuildStatConfigs().size());
+		assertEquals(16, plugin.getJobBuildResults().size());
+		assertEquals(3, plugin.getRetentionStrategies().size());
+	}
 }

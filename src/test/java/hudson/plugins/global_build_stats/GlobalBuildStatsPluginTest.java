@@ -1,16 +1,15 @@
 package hudson.plugins.global_build_stats;
 
-import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-
-public class GlobalBuildStatsPluginTest {
+class GlobalBuildStatsPluginTest {
 
 	@Test
-	public void testEscapeAntiSlashes(){
-		assert ".*test\\\\sbuild.*".equals(GlobalBuildStatsPlugin.escapeAntiSlashes(".*test\\sbuild.*"));
-		assert null == GlobalBuildStatsPlugin.escapeAntiSlashes(null);
+	void testEscapeAntiSlashes() {
+		assertEquals(".*test\\\\sbuild.*", GlobalBuildStatsPlugin.escapeAntiSlashes(".*test\\sbuild.*"));
+		assertNull(GlobalBuildStatsPlugin.escapeAntiSlashes(null));
 	}
-	
 }
