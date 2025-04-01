@@ -20,7 +20,6 @@ import java.util.logging.Logger;
 public class JobBuildResultSharder {
 
     private static final Logger LOGGER = Logger.getLogger(JobBuildResultSharder.class.getName());
-    private static final SimpleDateFormat JOB_RESULT_FILENAME_SDF = new SimpleDateFormat("'jobResults-'yyyy-MM'.xml'");
 
     // Path, from jenkins_home, to global-build-stats folder
     private static final String GBS_ROOT_PATH = "global-build-stats";
@@ -178,12 +177,12 @@ public class JobBuildResultSharder {
     /**
      * Transforming given JobBuildResult list into a map of type [filename of monthly job result file => list of job results]
      */
-    @SuppressFBWarnings("STCAL_INVOKE_ON_STATIC_DATE_FORMAT_INSTANCE")
     private static Map<String, List<JobBuildResult>> toJobResultFilenameMap(List<JobBuildResult> results){
         // Sharding job build results depending on their year+month
         Map<String, List<JobBuildResult>> byMonthJobResults = new HashMap<String, List<JobBuildResult>>();
+        SimpleDateFormat yearMonth = new SimpleDateFormat("yyyy-MM");
         for(JobBuildResult r: results){
-            String targetFilename = JOB_RESULT_FILENAME_SDF.format( r.getBuildDate().getTime() );
+            String targetFilename = "jobResults-" + yearMonth.format(r.getBuildDate().getTime()) + ".xml";
             if(!byMonthJobResults.containsKey(targetFilename)){
                 byMonthJobResults.put(targetFilename, new ArrayList<JobBuildResult>());
             }
