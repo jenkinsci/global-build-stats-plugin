@@ -145,12 +145,10 @@ public class BuildStatConfiguration implements Serializable {
 	}
 
 	@Exported
-	@SuppressFBWarnings("EI_EXPOSE_REP")
 	public YAxisChartDimension[] getDimensionsShown() {
 		return dimensionsShown;
    	}
 
-	@SuppressFBWarnings("EI_EXPOSE_REP2")
 	   public void setDimensionsShown(YAxisChartDimension[] dimensionsShown) {
 		this.dimensionsShown = dimensionsShown;
 	}

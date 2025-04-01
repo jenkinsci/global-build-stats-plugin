@@ -127,7 +127,6 @@ public class JobBuildResult implements Serializable {
 		this.userName = userName;
 	}
 
-    @SuppressFBWarnings("SE_COMPARATOR_SHOULD_BE_SERIALIZABLE")
 	public static class ChronologicalComparator implements Comparator<JobBuildResult>{
         public int compare(JobBuildResult jbr1, JobBuildResult jbr2) {
             return jbr1.buildDate.compareTo(jbr2.buildDate);
