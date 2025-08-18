@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>5.19</version>
+        <version>5.22</version>
         <relativePath/>
     </parent>
 
@@ -55,6 +55,7 @@
         <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
         <jenkins.baseline>2.479</jenkins.baseline>
         <jenkins.version>${jenkins.baseline}.3</jenkins.version>
+        <ban-junit4-imports.skip>false</ban-junit4-imports.skip>
     </properties>
 
     <scm>
@@ -64,3 +65,4 @@
         <tag>${scmTag}</tag>
     </scm>
 </project>
+
