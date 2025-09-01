@@ -5,14 +5,14 @@
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
         <version>5.24</version>
-        <relativePath/>
+        <relativePath />
     </parent>
 
     <artifactId>global-build-stats</artifactId>
     <version>${changelist}</version>
     <name>Jenkins global-build-stats plugin</name>
     <packaging>hpi</packaging>
-    <url>https://github.com/jenkinsci/global-build-stats-plugin</url>
+    <url>https://github.com/${gitHubRepo}</url>
 
     <dependencies>
         <dependency>
@@ -61,9 +61,9 @@
     </properties>
 
     <scm>
-        <connection>scm:git:https://github.com/jenkinsci/global-build-stats-plugin.git</connection>
-        <developerConnection>scm:git:git@github.com:jenkinsci/global-build-stats-plugin.git</developerConnection>
-        <url>https://github.com/jenkinsci/global-build-stats-plugin</url>
+        <connection>scm:git:https://github.com/${gitHubRepo}</connection>
+        <developerConnection>scm:git:https://github.com/${gitHubRepo}</developerConnection>
+        <url>https://github.com/${gitHubRepo}</url>
         <tag>${scmTag}</tag>
     </scm>
 </project>
