@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 
 import jakarta.servlet.ServletException;
 
+import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 
 import org.jfree.chart.JFreeChart;
@@ -123,6 +124,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	public void doJson(StaplerRequest2 req, StaplerResponse2 rsp)
     			throws IOException, ServletException {
     		if(!exposeChartData(req, rsp, Flavor.JSON)){
+				Jenkins.get().checkPermission(getRequiredPermission());
     			super.doJson(req, rsp);
     		}
     	}
@@ -130,9 +132,24 @@ public class GlobalBuildStatsPlugin extends Plugin {
     	public void doPython(StaplerRequest2 req, StaplerResponse2 rsp)
     			throws IOException, ServletException {
     		if(!exposeChartData(req, rsp, Flavor.PYTHON)){
+				Jenkins.get().checkPermission(getRequiredPermission());
         		super.doPython(req, rsp);
     		}
     	}
+		@Override
+		public void doXml(
+				StaplerRequest2 req,
+				StaplerResponse2 rsp,
+				@QueryParameter String xpath,
+				@QueryParameter String wrapper,
+				@QueryParameter String tree,
+				@QueryParameter int depth
+		) throws IOException, ServletException {
+			if (!exposeChartData(req, rsp, Flavor.XML)) {
+				Jenkins.get().checkPermission(getRequiredPermission());
+				super.doXml(req, rsp, xpath, wrapper, tree, depth);
+			}
+		}
     	
     	private static boolean exposeChartData(StaplerRequest2 req, StaplerResponse2 rsp, Flavor flavor) throws ServletException, IOException{
     		boolean chartDataHasBeenExposed = false;
@@ -456,7 +473,7 @@ public class GlobalBuildStatsPlugin extends Plugin {
 		return buildStatConfigs;
 	}
 	
-	public Permission getRequiredPermission(){
+	public static Permission getRequiredPermission(){
 		return Hudson.ADMINISTER;
 	}
 	
