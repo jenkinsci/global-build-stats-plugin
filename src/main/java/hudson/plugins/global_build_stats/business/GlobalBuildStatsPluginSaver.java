@@ -8,14 +8,10 @@ import hudson.plugins.global_build_stats.rententionstrategies.DoNotKeepBuildResu
 import hudson.plugins.global_build_stats.rententionstrategies.KeepExistingJobResultsOnly;
 import hudson.plugins.global_build_stats.rententionstrategies.RetentionStrategy;
 import hudson.plugins.global_build_stats.xstream.GlobalBuildStatsXStreamConverter;
-import hudson.security.Permission;
 import hudson.util.DaemonThreadFactory;
 import java.io.File;
-import org.kohsuke.stapler.export.Exported;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,15 +35,14 @@ public class GlobalBuildStatsPluginSaver {
      */
     /*package*/ final ExecutorService writer = Executors.newFixedThreadPool(1, new DaemonThreadFactory());
 
-    public static abstract class BeforeSavePluginCallback {
+    public abstract static class BeforeSavePluginCallback {
 
         public abstract void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin);
 
-        public void afterPluginSaved(){
-        }
+        public void afterPluginSaved() {}
     }
 
-    public GlobalBuildStatsPluginSaver(GlobalBuildStatsPlugin plugin){
+    public GlobalBuildStatsPluginSaver(GlobalBuildStatsPlugin plugin) {
         this.plugin = plugin;
 
         // Initializing xtream bindings
@@ -57,45 +52,47 @@ public class GlobalBuildStatsPluginSaver {
     private void initializeXStream() {
         Hudson.XSTREAM.registerConverter(new GlobalBuildStatsXStreamConverter());
 
-		// XStream compacting aliases...
-		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.JOB_BUILD_RESULT_CLASS_ALIAS, JobBuildResult.class);
-		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.BUILD_STAT_CONFIG_CLASS_ALIAS, BuildStatConfiguration.class);
-		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.BUILD_SEARCH_CRITERIA_CLASS_ALIAS, BuildSearchCriteria.class);
-		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.HISTORIC_SCALE_CLASS_ALIAS, HistoricScale.class);
-		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.YAXIS_CHART_TYPE_CLASS_ALIAS, YAxisChartType.class);
-		Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.YAXIS_CHART_DIMENSION_CLASS_ALIAS, YAxisChartDimension.class);
+        // XStream compacting aliases...
+        Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.JOB_BUILD_RESULT_CLASS_ALIAS, JobBuildResult.class);
+        Hudson.XSTREAM.alias(
+                GlobalBuildStatsXStreamConverter.BUILD_STAT_CONFIG_CLASS_ALIAS, BuildStatConfiguration.class);
+        Hudson.XSTREAM.alias(
+                GlobalBuildStatsXStreamConverter.BUILD_SEARCH_CRITERIA_CLASS_ALIAS, BuildSearchCriteria.class);
+        Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.HISTORIC_SCALE_CLASS_ALIAS, HistoricScale.class);
+        Hudson.XSTREAM.alias(GlobalBuildStatsXStreamConverter.YAXIS_CHART_TYPE_CLASS_ALIAS, YAxisChartType.class);
+        Hudson.XSTREAM.alias(
+                GlobalBuildStatsXStreamConverter.YAXIS_CHART_DIMENSION_CLASS_ALIAS, YAxisChartDimension.class);
         Hudson.XSTREAM.alias("discardResultsOlderThanDays", DiscardResultsOlderThanDays.class);
         Hudson.XSTREAM.alias("doNotKeepBuildResultWhenDiscarded", DoNotKeepBuildResultWhenDiscarded.class);
         Hudson.XSTREAM.alias("keepExistingJobResultsOnly", KeepExistingJobResultsOnly.class);
 
-		Hudson.XSTREAM.aliasField("t", BuildStatConfiguration.class, "buildStatTitle");
-		Hudson.XSTREAM.aliasField("w", BuildStatConfiguration.class, "buildStatWidth");
-		Hudson.XSTREAM.aliasField("h", BuildStatConfiguration.class, "buildStatHeight");
-		Hudson.XSTREAM.aliasField("l", BuildStatConfiguration.class, "historicLength");
-		Hudson.XSTREAM.aliasField("s", BuildStatConfiguration.class, "historicScale");
-		Hudson.XSTREAM.aliasField("yact", BuildStatConfiguration.class, "yAxisChartType");
-		Hudson.XSTREAM.aliasField("ds", BuildStatConfiguration.class, "dimensionsShown");
-		Hudson.XSTREAM.aliasField("f", BuildStatConfiguration.class, "buildFilters");
-		// Deprecated ! Just here for old formats
-		Hudson.XSTREAM.aliasField("jf", BuildStatConfiguration.class, "jobFilter");
-		Hudson.XSTREAM.aliasField("sbr", BuildStatConfiguration.class, "shownBuildResults");
+        Hudson.XSTREAM.aliasField("t", BuildStatConfiguration.class, "buildStatTitle");
+        Hudson.XSTREAM.aliasField("w", BuildStatConfiguration.class, "buildStatWidth");
+        Hudson.XSTREAM.aliasField("h", BuildStatConfiguration.class, "buildStatHeight");
+        Hudson.XSTREAM.aliasField("l", BuildStatConfiguration.class, "historicLength");
+        Hudson.XSTREAM.aliasField("s", BuildStatConfiguration.class, "historicScale");
+        Hudson.XSTREAM.aliasField("yact", BuildStatConfiguration.class, "yAxisChartType");
+        Hudson.XSTREAM.aliasField("ds", BuildStatConfiguration.class, "dimensionsShown");
+        Hudson.XSTREAM.aliasField("f", BuildStatConfiguration.class, "buildFilters");
+        // Deprecated ! Just here for old formats
+        Hudson.XSTREAM.aliasField("jf", BuildStatConfiguration.class, "jobFilter");
+        Hudson.XSTREAM.aliasField("sbr", BuildStatConfiguration.class, "shownBuildResults");
 
-		Hudson.XSTREAM.aliasField("jf", BuildSearchCriteria.class, "jobFilter");
-		Hudson.XSTREAM.aliasField("nf", BuildSearchCriteria.class, "nodeFilter");
-		Hudson.XSTREAM.aliasField("lf", BuildSearchCriteria.class, "launcherFilter");
-		Hudson.XSTREAM.aliasField("sbr", BuildSearchCriteria.class, "shownBuildResults");
+        Hudson.XSTREAM.aliasField("jf", BuildSearchCriteria.class, "jobFilter");
+        Hudson.XSTREAM.aliasField("nf", BuildSearchCriteria.class, "nodeFilter");
+        Hudson.XSTREAM.aliasField("lf", BuildSearchCriteria.class, "launcherFilter");
+        Hudson.XSTREAM.aliasField("sbr", BuildSearchCriteria.class, "shownBuildResults");
 
-		Hudson.XSTREAM.aliasField("r", JobBuildResult.class, "result");
-		Hudson.XSTREAM.aliasField("n", JobBuildResult.class, "jobName");
-		Hudson.XSTREAM.aliasField("nb", JobBuildResult.class, "buildNumber");
-		Hudson.XSTREAM.aliasField("d", JobBuildResult.class, "buildDate");
-		Hudson.XSTREAM.aliasField("du", JobBuildResult.class, "duration");
-		Hudson.XSTREAM.aliasField("nn", JobBuildResult.class, "nodeName");
-		Hudson.XSTREAM.aliasField("un", JobBuildResult.class, "userName");
+        Hudson.XSTREAM.aliasField("r", JobBuildResult.class, "result");
+        Hudson.XSTREAM.aliasField("n", JobBuildResult.class, "jobName");
+        Hudson.XSTREAM.aliasField("nb", JobBuildResult.class, "buildNumber");
+        Hudson.XSTREAM.aliasField("d", JobBuildResult.class, "buildDate");
+        Hudson.XSTREAM.aliasField("du", JobBuildResult.class, "duration");
+        Hudson.XSTREAM.aliasField("nn", JobBuildResult.class, "nodeName");
+        Hudson.XSTREAM.aliasField("un", JobBuildResult.class, "userName");
     }
 
     @edu.umd.cs.findbugs.annotations.SuppressFBWarnings
-
     public void reloadPlugin() {
         try {
             this.plugin.load();
@@ -118,19 +115,21 @@ public class GlobalBuildStatsPluginSaver {
      * that execute this callback, we use {@linkplain #writer a separate thread} to asynchronously persist
      * them to the disk.
      */
-    public void updatePlugin(BeforeSavePluginCallback callback){
-        final List<BuildStatConfiguration> configsBeforeStateChange = new ArrayList<BuildStatConfiguration>(plugin.getBuildStatConfigs());
-        final List<RetentionStrategy> retentionStrategiesBeforeStateChange = new ArrayList<RetentionStrategy>(plugin.getRetentionStrategies());
+    public void updatePlugin(BeforeSavePluginCallback callback) {
+        final List<BuildStatConfiguration> configsBeforeStateChange =
+                new ArrayList<BuildStatConfiguration>(plugin.getBuildStatConfigs());
+        final List<RetentionStrategy> retentionStrategiesBeforeStateChange =
+                new ArrayList<RetentionStrategy>(plugin.getRetentionStrategies());
         callback.changePluginStateBeforeSavingIt(plugin);
         LOGGER.log(Level.FINER, "Global build stats state update queued !");
 
-        writer.submit(new Runnable(){
-            public void run(){
+        writer.submit(new Runnable() {
+            public void run() {
 
                 // this happens if other runnables have written bits in a bulk
                 if (configsBeforeStateChange.equals(plugin.getBuildStatConfigs())
                         && retentionStrategiesBeforeStateChange.equals(plugin.getRetentionStrategies())
-                        && !plugin.getJobBuildResultsSharder().pendingChanges()){
+                        && !plugin.getJobBuildResultsSharder().pendingChanges()) {
                     LOGGER.log(Level.FINER, "No change detected in update queue !");
                     return;
                 }

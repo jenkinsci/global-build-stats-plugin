@@ -10,7 +10,7 @@ public class V7ToV8Migrator extends PreV9AbstractMigrator<V7GlobalBuildStatsPOJO
 
     @Override
     protected V8GlobalBuildStatsPOJO createMigratedPojo() {
-        return new V8GlobalBuildStatsPOJO();  //To change body of implemented methods use File | Settings | File Templates.
+        return new V8GlobalBuildStatsPOJO(); // To change body of implemented methods use File | Settings | File
+        // Templates.
     }
 }
-

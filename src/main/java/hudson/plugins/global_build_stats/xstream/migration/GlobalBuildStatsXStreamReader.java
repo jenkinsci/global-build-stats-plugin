@@ -8,5 +8,5 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * @author fcamblor
  */
 public interface GlobalBuildStatsXStreamReader<T extends GlobalBuildStatsPOJO> {
-	T readGlobalBuildStatsPOJO(HierarchicalStreamReader reader, UnmarshallingContext context);
+    T readGlobalBuildStatsPOJO(HierarchicalStreamReader reader, UnmarshallingContext context);
 }
