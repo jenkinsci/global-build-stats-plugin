@@ -2,13 +2,10 @@ package hudson.plugins.global_build_stats.rententionstrategies;
 
 import hudson.model.Run;
 import hudson.plugins.global_build_stats.GlobalBuildStatsPlugin;
-import hudson.plugins.global_build_stats.JobBuildResultFactory;
 import hudson.plugins.global_build_stats.business.GlobalBuildStatsPluginSaver;
 import hudson.plugins.global_build_stats.model.JobBuildResult;
-import hudson.plugins.global_build_stats.model.JobBuildSearchResult;
 import hudson.plugins.global_build_stats.rententionstrategies.strategybehaviours.BuildCompletedListener;
 import hudson.plugins.global_build_stats.rententionstrategies.strategybehaviours.ParameterizedStrategy;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -18,7 +15,7 @@ import java.util.Map;
  * @author fcamblor
  */
 public class DiscardResultsOlderThanDays extends RetentionStrategy<DiscardResultsOlderThanDays>
-                implements ParameterizedStrategy<DiscardResultsOlderThanDays>, BuildCompletedListener {
+        implements ParameterizedStrategy<DiscardResultsOlderThanDays>, BuildCompletedListener {
 
     private static final long PURGE_FREQUENCY = 1000L * 3600L * 24L; // Let's purge job build results once a day
 
@@ -49,18 +46,18 @@ public class DiscardResultsOlderThanDays extends RetentionStrategy<DiscardResult
 
     public void buildCompleted(Run<?, ?> buils, GlobalBuildStatsPluginSaver pluginSaver) {
         final long now = System.currentTimeMillis();
-        if(lastPurgeDate == null || now > lastPurgeDate.getTime() + PURGE_FREQUENCY){
+        if (lastPurgeDate == null || now > lastPurgeDate.getTime() + PURGE_FREQUENCY) {
             purgeOldBuildResults(pluginSaver, now);
         }
     }
 
-    protected void purgeOldBuildResults(GlobalBuildStatsPluginSaver pluginSaver, final long now){
-        pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback(){
+    protected void purgeOldBuildResults(GlobalBuildStatsPluginSaver pluginSaver, final long now) {
+        pluginSaver.updatePlugin(new GlobalBuildStatsPluginSaver.BeforeSavePluginCallback() {
             @Override
             public void changePluginStateBeforeSavingIt(GlobalBuildStatsPlugin plugin) {
                 List<JobBuildResult> jobBuildResultsToRemove = new ArrayList<JobBuildResult>();
-                for(JobBuildResult jbr : plugin.getJobBuildResults()){
-                    if(jbr.getBuildDate().getTimeInMillis() + (days * 24L * 3600L * 1000L) < now){
+                for (JobBuildResult jbr : plugin.getJobBuildResults()) {
+                    if (jbr.getBuildDate().getTimeInMillis() + (days * 24L * 3600L * 1000L) < now) {
                         jobBuildResultsToRemove.add(jbr);
                     }
                 }

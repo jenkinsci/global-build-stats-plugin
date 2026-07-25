@@ -10,19 +10,18 @@ import hudson.plugins.global_build_stats.xstream.migration.PreV8AbstractMigrator
  */
 public class InitialMigrator extends PreV8AbstractMigrator<V0GlobalBuildStatsPOJO, V0GlobalBuildStatsPOJO> {
 
-	@Override
-	protected V0GlobalBuildStatsPOJO createMigratedPojo() {
-		return new V0GlobalBuildStatsPOJO();
-	}
-	
-	@Override
-	protected boolean registerBuildStatConfigId() {
-		return false;
-	}
-	
-	@Override
-	public V0GlobalBuildStatsPOJO migrate(V0GlobalBuildStatsPOJO pojo) {
-		throw new IllegalAccessError("migrate() method should never be called on InitialMigrator !");
-	}
-	
+    @Override
+    protected V0GlobalBuildStatsPOJO createMigratedPojo() {
+        return new V0GlobalBuildStatsPOJO();
+    }
+
+    @Override
+    protected boolean registerBuildStatConfigId() {
+        return false;
+    }
+
+    @Override
+    public V0GlobalBuildStatsPOJO migrate(V0GlobalBuildStatsPOJO pojo) {
+        throw new IllegalAccessError("migrate() method should never be called on InitialMigrator !");
+    }
 }

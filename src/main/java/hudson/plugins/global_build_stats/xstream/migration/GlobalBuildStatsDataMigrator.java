@@ -8,6 +8,7 @@ import com.thoughtworks.xstream.io.HierarchicalStreamReader;
  * @author fcamblor
  */
 public interface GlobalBuildStatsDataMigrator<TFROM extends GlobalBuildStatsPOJO, TTO extends GlobalBuildStatsPOJO> {
-	public TTO migrate(TFROM pojo);
-	public TTO readGlobalBuildStatsPOJO(HierarchicalStreamReader reader, UnmarshallingContext context);	
+    public TTO migrate(TFROM pojo);
+
+    public TTO readGlobalBuildStatsPOJO(HierarchicalStreamReader reader, UnmarshallingContext context);
 }

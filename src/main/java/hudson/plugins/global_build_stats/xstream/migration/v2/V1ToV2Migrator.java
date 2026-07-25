@@ -4,7 +4,6 @@ import hudson.plugins.global_build_stats.model.BuildStatConfiguration;
 import hudson.plugins.global_build_stats.model.YAxisChartType;
 import hudson.plugins.global_build_stats.xstream.migration.PreV8AbstractMigrator;
 import hudson.plugins.global_build_stats.xstream.migration.v1.V1GlobalBuildStatsPOJO;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,22 +14,21 @@ import java.util.List;
  */
 public class V1ToV2Migrator extends PreV8AbstractMigrator<V1GlobalBuildStatsPOJO, V2GlobalBuildStatsPOJO> {
 
-	@Override
-	protected V2GlobalBuildStatsPOJO createMigratedPojo() {
-		return new V2GlobalBuildStatsPOJO();
-	}
-	
-	@Override
-	protected List<BuildStatConfiguration> migrateBuildStatConfigs(
-			List<BuildStatConfiguration> buildStatConfigs) {
-		
-		ArrayList<BuildStatConfiguration> migratedBuildStatConfigs = new ArrayList<BuildStatConfiguration>();
-		for(BuildStatConfiguration cfg : buildStatConfigs){
-			// Providing buildStatConfiguration.yAxisChartType attribute
-			cfg.setyAxisChartType(YAxisChartType.COUNT);
-			
-			migratedBuildStatConfigs.add(cfg);
-		}
-		return migratedBuildStatConfigs;
-	}
+    @Override
+    protected V2GlobalBuildStatsPOJO createMigratedPojo() {
+        return new V2GlobalBuildStatsPOJO();
+    }
+
+    @Override
+    protected List<BuildStatConfiguration> migrateBuildStatConfigs(List<BuildStatConfiguration> buildStatConfigs) {
+
+        ArrayList<BuildStatConfiguration> migratedBuildStatConfigs = new ArrayList<BuildStatConfiguration>();
+        for (BuildStatConfiguration cfg : buildStatConfigs) {
+            // Providing buildStatConfiguration.yAxisChartType attribute
+            cfg.setyAxisChartType(YAxisChartType.COUNT);
+
+            migratedBuildStatConfigs.add(cfg);
+        }
+        return migratedBuildStatConfigs;
+    }
 }
