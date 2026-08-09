@@ -43,26 +43,19 @@
 	</l:side-panel>
 
 	<l:main-panel>
-    <st:adjunct includes="io.jenkins.plugins.flatpickr"/>
     <l:app-bar title="${%Global Build Search}"/>
 	  
 	  	<f:section title="${%Search criteria}">
 	    <f:form name="searchBuildStat" action="buildHistory" method="get" class="globalBuildStatsForm jenkins-!-padding-bottom-3" id="searchBuildStat">
         <f:entry title="${%Start date}">
-          <div id="startTimeDisplay">
-            <f:textbox id="timeStart" name="start" value="${searchCriteria.start}" data-input=""/>
-            <button class="jenkins-button" type="button" data-toggle="" tooltip="Open date picker">
-              <l:icon src="symbol-calendar-outline plugin-ionicons-api"/>
-            </button>
-          </div>
+          <input id="timeStartPicker" class="jenkins-input" type="datetime-local" aria-label="${%Start date}"
+                 data-epoch-input="timeStart" required="required"/>
+          <input id="timeStart" name="start" type="hidden" value="${searchCriteria.start}"/>
         </f:entry>
         <f:entry title="${%End date}">
-          <div id="endTimeDisplay">
-            <f:textbox id="timeEnd" name="end" value="${searchCriteria.end}" data-input=""/>
-            <button class="jenkins-button" type="button" data-toggle="" tooltip="Open date picker">
-              <l:icon src="symbol-calendar-outline plugin-ionicons-api"/>
-            </button>
-          </div>
+          <input id="timeEndPicker" class="jenkins-input" type="datetime-local" aria-label="${%End date}"
+                 data-epoch-input="timeEnd" required="required"/>
+          <input id="timeEnd" name="end" type="hidden" value="${searchCriteria.end}"/>
         </f:entry>
 	      <div id="datesError" class="width-validation-error-area"></div>
         <f:entry title="${%Filters}">

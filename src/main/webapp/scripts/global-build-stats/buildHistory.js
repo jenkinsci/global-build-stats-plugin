@@ -1,19 +1,24 @@
 function verifyDates(){
   document.getElementById("datesError").innerHTML = ((document.getElementById("timeStart").value > document.getElementById("timeEnd").value)?generateErrorMessage(document.getElementById('swapDatesErrorMessage').innerHTML):"");
 }
-  
-Behaviour.specify("#startTimeDisplay, #endTimeDisplay", "gsb-date-inputs", 0, function(fp) {
-  flatpickr(fp, {
-    altInput: true,
-    altFormat: "Y-m-d H:i",
-    allowInput: true,
-    enableTime: true,
-    wrap: true,
-    clickOpens: false,
-    dateFormat: "u",
-    static: true,
-    time_24hr: true,
-    onChange: verifyDates,
+
+function formatLocalDateTime(epoch) {
+  const date = new Date(Number(epoch));
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  return localDate.toISOString().slice(0, 16);
+}
+
+function updateEpoch(dateInput) {
+  const epochInput = document.getElementById(dateInput.dataset.epochInput);
+  epochInput.value = dateInput.value === "" ? "" : new Date(dateInput.value).getTime();
+  verifyDates();
+}
+
+Behaviour.specify("#timeStartPicker, #timeEndPicker", "gsb-date-inputs", 0, function(dateInput) {
+  const epochInput = document.getElementById(dateInput.dataset.epochInput);
+  dateInput.value = formatLocalDateTime(epochInput.value);
+  dateInput.addEventListener("input", function() {
+    updateEpoch(dateInput);
   });
 });
 
